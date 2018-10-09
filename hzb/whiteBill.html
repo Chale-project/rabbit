@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>白条账单</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content white-consume">
+			<div class="white-consume-header mui-row">
+				<div id="DtPicker" class="choice-time">历史账单</div>
+				<!--<div class="delete-record">清空记录</div>-->
+			</div>
+			<div class="white-consume-content">
+				<div id="pullRefresh" class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="whiteConsumeList" class="white-consume-list mui-table-view">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var whiteBill = {
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					page: 1,
+					limits: 12
+				},
+				init: function() {
+					whiteBill.pullRefreshList();
+					$('.white-consume').on('tap', '.white-bill-list', function() {
+						var _this = $(this),
+							_id = _this.data('id');
+						common.urlOpen('whiteBillDetail.html?bill_id=' + _id);
+					});
+
+				},
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								whiteBill.whiteBillList(this)
+							}
+						}
+					});
+				},
+
+				//添加化妆师
+				whiteBillList: function(_this) {
+					common.ajaxRequest({
+						u: 'mk_order/credit_bill.html?',
+						d: whiteBill.data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = whiteBill.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								whiteBill.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = whiteBill.renderWhiteBillList(list[i]);
+								$("#whiteConsumeList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+
+					})
+				},
+
+				renderWhiteBillList: function(obj) {
+					var html = [];
+					html.push('<a class="mui-navigate-right">');
+					html.push('	<div class="mui-row">');
+					html.push('		<div class="mui-col-xs-8">');
+					html.push('			<h3 class="mui-ellipsis">' + obj.bill_no + ' 月账单</h3>');
+					html.push('			<p class="mui-ellipsis">账单期：' + obj.bill_stime + ' 至 ' + obj.bill_etime + '</p>');
+					html.push('		</div>');
+					html.push('		<div class="mui-col-xs-4">');
+					html.push('			<p class="white-repayment-money">' + obj.amount + '元</p>');
+					html.push('			<p class="white-repayment-status ' + (obj.status != 1 ? 'yes' : 'no') + '">' + obj.statusRemark + '</p>');
+					html.push('		</div>');
+					html.push('	</div>');
+					html.push('</a>');
+
+					var li = document.createElement('li');
+					li.className = 'white-bill-list mui-table-view-cell';
+					li.dataset.id = obj.id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+			}
+			$(function() {
+				whiteBill.init();
+			})
+		</script>
+	</body>
+
+</html>

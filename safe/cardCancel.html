@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>撤销</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="storage-beer-content">
+
+				<div class="storage-beer-content-bottom">
+					<div class="beer-cards-other-info">
+						<ul id="cancelInfo" class="mui-list-unstyled">
+							<!--<li>充值单号：rechargeNum</li>
+							<li>充值帐号：mobile</li>
+							<li>充值金额：rechargeMoney</li>
+							<li>充值瓶数：rechargeWineNum</li>
+							<li>消费时间：consumeTime</li>
+							<li>消费帐号：mobile</li>
+							<li>消费门店：storeName</li>
+							<li>消费瓶数：consumeNum</li>-->
+						</ul>
+					</div>
+				</div>
+				<!--<span class="park-layer-left"></span>
+				<span class="park-layer-right"></span>-->
+			</div>
+		</div>
+		<div class="button-default" style="padding: 15px 25px;">
+			<button type="button" id="storageBeerConfirm" class="mui-btn mui-btn-default mui-btn-block btn-storage-beer-confirm">确认</button>
+			<button type="button" id="storageBeerCancel" class="mui-btn mui-btn-default mui-btn-block btn-storage-beer-cancel">取消</button>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var cardCancel = {
+				id: common.getQueryString('id'),
+				type: common.getQueryString('type'),
+				text: common.getQueryString('type') == 1 ? '充值' : '消费',
+				init: function() {
+					cardCancel.getCancelInfo();
+					//确认
+					$('.btn-storage-beer-confirm').on('tap', function() {
+						mui.confirm('撤销本次' + cardCancel.text + '？', '提示', ['取消', '确认'], function(e) {
+							if(e.index == 1) {
+								$('.btn-storage-beer-confirm').prop('disabled', true)
+								cardCancel.confirmOperate();
+							}
+						})
+					});
+
+					//取消
+					$('.btn-storage-beer-cancel').on('tap', function() {
+						cardCancel.cancelOperate();
+					});
+				},
+
+				//获取充值or消费信息
+				getCancelInfo: function() {
+					var data = {
+						id: cardCancel.id
+					};
+					common.ajaxRequest({
+						u: cardCancel.type == 1 ? 'Qrcode_Scan/cancleRechargeScan.html?' : 'Qrcode_Scan/cancleConsumScan.html?',
+						d: data
+					}, function(res) {
+						if(res.error_status == 0) {
+							cardCancel.showCancelInfo(res);
+						} else {
+							$('.btn-storage-beer-confirm').prop('disabled', true)
+							$('#cancelInfo').html(WCY.errorMessageShow('抱歉，' + res.error_message))
+						}
+					});
+				},
+
+				//显示充值信息
+				showCancelInfo: function(obj) {
+					var html = [],
+						cancelInfo = cardCancel.type == 1 ? obj.rechargeinfo : obj.consumInfo;
+					if(cardCancel.type == 1) {
+						html.push('<li>' + cardCancel.text + '单号：' + cancelInfo.order_sn + '</li>');
+						html.push('<li>' + cardCancel.text + '帐号：' + cancelInfo.mobile + '</li>');
+						html.push('<li>' + cardCancel.text + '金额：' + cancelInfo.money + '</li>')
+						html.push('<li>' + cardCancel.text + '数量：' + cancelInfo.amount + '</li>');
+					} else {
+						html.push('<li>' + cardCancel.text + '时间：' + cancelInfo.consum_time + '</li>');
+						html.push('<li>' + cardCancel.text + '账号：' + cancelInfo.mobile + '</li>');
+						html.push('<li>' + cardCancel.text + '门店：' + cancelInfo.storesname + '</li>');
+						html.push('<li>' + cardCancel.text + '数量：' + cancelInfo.amount + '</li>');
+					}
+					$('#cancelInfo').html(html.join(''));
+				},
+
+				//确认操作
+				confirmOperate: function() {
+					var data = {
+						id: cardCancel.id
+					};
+					common.ajaxRequest({
+						u: cardCancel.type == 1 ? 'Qrcode_Scan/cancleRechargeScanDo.html?' : 'Qrcode_Scan/cancleConsumScanDo.html?',
+						d: data
+					}, function(res) {
+						$('.btn-storage-beer-confirm').prop('disabled', false)
+						common.urlReplace('operateSuccess.html?')
+					});
+				},
+
+				//取消操作
+				cancelOperate: function() {
+					wx.closeWindow();
+				}
+			};
+
+			$(function() {
+				cardCancel.init();
+			});
+		</script>
+	</body>
+
+</html>

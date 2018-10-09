@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>1号兔商城</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+
+	</head>
+
+	<body>
+		<div class="mui-clearfix home-header">
+			<div class="home-header-sorts">
+				<div class="mui-icon mui-icon-bars sorts-icon"></div>
+				<div class="sorts-subtext">分类</div>
+			</div>
+			<div class="home-header-search"><span class="mui-icon mui-icon-search"></span>搜索商品</div>
+			<div class="home-header-message">
+				<div class="mui-icon-extra mui-icon-extra-sweep message-icon"></div>
+				<div class="message-subtext">扫一扫</div>
+			</div>
+		</div>
+
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" href="index.html">
+				<span class="mui-icon icon-home"></span>
+				<span class="mui-tab-label">首页</span>
+			</a>
+			<a class="mui-tab-item" href="product.html">
+				<span class="mui-icon icon-product"></span>
+				<span class="mui-tab-label">精品商城</span>
+			</a>
+			<a class="mui-tab-item" href="cart.html">
+				<span class="mui-icon icon-cart"><span class="mui-badge wares-num">0</span></span>
+				<span class="mui-tab-label">购物车</span>
+			</a>
+			<a class="mui-tab-item" href="user.html">
+				<span class="mui-icon icon-user"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+
+		<div class="mui-content mui-scroll-wrapper" style="padding-top: 60px;">
+			<div class="mui-scroll">
+				<!-- 轮播 -->
+				<div class="home-slider">
+					<div id="slider" class="mui-slider">
+
+					</div>
+				</div>
+
+				<!-- 导航 -->
+				<div class="nav-cat">
+					<ul id="NavCat" class="mui-table-view mui-grid-view mui-grid-9">
+
+					</ul>
+				</div>
+
+				<!-- 优惠券领取 -->
+				<div class="panel home-category home-list-coupon">
+					<div class="panel-body">
+						<ul id="homeCoupon" class="mui-list-unstyled home-coupon mui-clearfix">
+
+						</ul>
+					</div>
+				</div>
+
+				<!-- 每日推荐 -->
+				<div class="panel home-category">
+					<div class="panel-header">
+						<a class="mui-pull-right more-goods" data-type="1" data-title="每日推荐">更多<span class="mui-icon mui-icon-arrowright"></span></a>每日推荐
+					</div>
+					<div class="panel-body" style="padding: 0;">
+						<div class="activity-product-top">
+
+						</div>
+						<div class="mui-row activity-product-tottom">
+							<div class="activity-product-tottom-left mui-col-xs-6">
+
+							</div>
+							<div class="activity-product-tottom-right mui-col-xs-6">
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<!-- 今日特价 -->
+				<div class="panel home-category">
+					<div class="panel-header">
+						<a class="mui-pull-right more-goods" data-type="2" data-title="今日特价">更多<span class="mui-icon mui-icon-arrowright"></span></a>今日特价
+					</div>
+					<div class="panel-body" style="padding: 10px 0;">
+						<div class="selection-goods-list-content">
+							<ul id="homeProductRecom" class="mui-list-unstyled">
+
+							</ul>
+						</div>
+					</div>
+				</div>
+
+				<!-- 主题精选-->
+				<div class="panel home-category">
+					<div class="panel-header">
+						主题精选
+					</div>
+					<div class="panel-body" style="padding: 0;">
+						<div id="selectionGoods" class="selection-goods">
+							<div class="selection-goods-list selection-goods-list-a">
+								<div class="selection-goods-list-thumb more-goods" data-type="3" data-title="主题精选">
+									<img class="selection-goods-list-a-nav-thumb" src="../assets/images/logo.png" />
+								</div>
+								<div class="selection-goods-list-content">
+									<ul id="selectionGoodsListAnavThumb" class="mui-list-unstyled">
+
+									</ul>
+								</div>
+							</div>
+							<div class="selection-goods-list selection-goods-list-b">
+								<div class="selection-goods-list-thumb more-goods" data-type="4" data-title="主题精选">
+									<img class="selection-goods-list-b-nav-thumb" src="../assets/images/logo.png" />
+								</div>
+								<div class="selection-goods-list-content">
+									<ul id="selectionGoodsListBnavThumb" class="mui-list-unstyled">
+
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			Home = {
+				layerIndex: 0,
+				couponsArr: [],
+				init: function() {
+					Home.getHomePageData();
+					Home.getCouponsList();
+					Home.getSelectedGoodsList();
+					WCY.updateCart();
+					mui('.mui-scroll-wrapper').scroll();
+					//查看商品詳情
+					$('body').on('tap', '.activity-product,.special-price-list', function() {
+						var proid = $(this).data('proid');
+						WCY.goProductDetail(proid);
+					})
+
+					//顶部导航
+					$('.home-header').on('tap', '.home-header-sorts', function() {
+						common.urlOpen('product.html?')
+					}).on('tap', '.home-header-search', function() {
+						common.urlOpen('search.html?')
+					}).on('tap', '.home-header-message', function() {
+						wx.scanQRCode({
+							needResult: 0, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+							success: function(res) {
+
+							}
+						});
+					});
+
+					//banner跳转
+					$('#slider').on('tap', 'a', function() {
+						var _url = $(this).data('url');
+						common.urlOpen(_url)
+					});
+
+					//导航跳转
+					$('#NavCat').on('tap', 'a', function() {
+						var _url = $(this).data('url');
+						common.urlOpen(_url)
+					});
+
+					//更多
+					$('body').on('tap', '.more-goods', function() {
+						var _type = $(this).data('type'),
+							_title = $(this).data('title');
+						if(_type < 3) {
+							common.urlOpen('moreGoods.html?type=' + _type + '&title=' + _title);
+						}
+
+					});
+					
+					//点击领取优惠券
+					$('body').on('tap', '.btn-coupon-use,.btn-coupon-get', function() {
+						var id = $(this).data('id'),
+							num = $(this).data('amount');
+						if(num > 0)
+							Home.getCoupons(id);
+						else
+							common.layerMsg('来晚了亲！此优惠券已被抢光了^_^');
+					});
+
+					//一键领取优惠券
+					$('body').on('tap', '.dailog-coupon-oneKey-receive', function() {
+						Home.onekeyGetCoupons();
+					});
+
+				},
+
+				banner: function() {
+					var gallery = mui('#slider');
+					gallery.slider({
+						interval: 5000
+					});
+				},
+
+				//获取首页banner&nav&每日推荐&今日特价
+				getHomePageData: function() {
+					common.ajaxRequest({
+						u: 'cms_content/wechat_index.html?'
+					}, function(res) {
+						var obj = res.wechat_homepage;
+						if(obj && Object.keys(obj).length > 0) {
+							var _homeBanner = obj.homeBanner,
+								_homeNav = obj.homeNav,
+								_homeTodayRecom = obj.homeTodayRecom,
+								_homeSpecialPrice = obj.homeSpecialPrice;
+
+							//banner
+							if(_homeBanner && Object.keys(_homeBanner).length > 0) Home.showBanner(_homeBanner);
+
+							//nav
+							if(_homeNav && Object.keys(_homeNav).length > 0) Home.showNav(_homeNav);
+
+							//每日推荐
+							if(_homeTodayRecom && Object.keys(_homeTodayRecom).length > 0) Home.showTodayRecom(_homeTodayRecom);
+
+							//今日特价
+							if(_homeSpecialPrice && Object.keys(_homeSpecialPrice).length > 0) Home.showSpecialPrice(_homeSpecialPrice);
+						}
+					})
+				},
+
+				//主題精选
+				getSelectedGoodsList: function() {
+					common.ajaxRequest({
+						u: 'cms_content/selected_goods.html?'
+					}, function(res) {
+						var _list = res.component_list;
+						if(_list.length > 0) {
+							Home.showSelectedGoodsList(_list);
+						}
+					})
+				},
+
+				//banner展示
+				showBanner: function(obj) {
+					var html = [],
+						imgArr = obj.index_banner;
+					if(imgArr.length > 0) {
+						html.push('<div class="mui-slider-group">');
+						for(var i = 0; i < imgArr.length; i++) {
+							html.push('	<div class="mui-slider-item' + (i == 0 ? ' mui-active' : '') + '">');
+							html.push('		<a href="javascript:;" data-url="' + imgArr[i].forward_location + '"><img src="' + filesService + imgArr[i].image + '" /></a>');
+							html.push('	</div>');
+						}
+						html.push('</div>');
+						//html.push('<div class="mui-slider-indicator">');
+						//for(var i = 0; i < imgArr.length; i++) {
+						//	html.push('	<div class="mui-indicator' + (i == 0 ? ' mui-active' : '') + '"></div>');
+						//}
+						//html.push('</div>');
+						$('#slider').html(html.join(''));
+					}
+					Home.banner();
+				},
+
+				//栏目导航
+				showNav: function(obj) {
+					var html = [],
+						listArr = obj.index_navigation;
+					if(listArr.length > 0) {
+						for(var i = 0; i < listArr.length; i++) {
+							html.push('<li class="mui-table-view-cell mui-media mui-col-xs-2-5">');
+							html.push('	<a href="javascript:;" data-type="' + listArr[i].type + '" data-url="' + listArr[i].forward_location + '">');
+							html.push('		<span class="mui-icon">');
+							html.push('			<img src="' + filesService + (listArr[i].image ? listArr[i].image : '../assets/images/logo.png') + '"/>');
+							html.push('		</span>');
+							html.push('		<div class="mui-media-body">' + listArr[i].alt + '</div>');
+							html.push('	</a>');
+							html.push('</li>');
+						}
+						$('#NavCat').html(html.join(''));
+					}
+				},
+
+				//每日推荐
+				showTodayRecom: function(obj) {
+					var html = [],
+						listArr = obj.today_recommend;
+					if(listArr.length > 0) {
+						for(var i = 0; i < listArr.length; i++) {
+							if(i == 0) {
+								html = [];
+								html.push('<a class="activity-product" href="javascript:;" data-proid="' + listArr[i].relation_id + '">');
+								html.push('		<img src="' + filesService + (listArr[i].image ? listArr[i].image : '../assets/images/logo.png') + '"/>');
+								html.push('	</a>');
+								$('.activity-product-top').html(html.join(''));
+							} else if(i == 1) {
+								html = [];
+								html.push('<a class="activity-product" href="javascript:;" data-proid="' + listArr[i].relation_id + '">');
+								html.push('		<img src="' + filesService + (listArr[i].image ? listArr[i].image : '../assets/images/logo.png') + '"/>');
+								html.push('	</a>');
+								$('.activity-product-tottom-left').html(html.join(''));
+							} else if(i == 2) {
+								html = [];
+								html.push('<a class="activity-product" href="javascript:;" data-proid="' + listArr[i].relation_id + '">');
+								html.push('		<img src="' + filesService + (listArr[i].image ? listArr[i].image : '../assets/images/logo.png') + '"/>');
+								html.push('	</a>');
+								$('.activity-product-tottom-right').html(html.join(''));
+							}
+						}
+					}
+				},
+
+				//今日特价
+				showSpecialPrice: function(obj) {
+					var html = [],
+						listArr = obj.special_price;
+					if(listArr.length > 0) {
+						for(var i = 0; i < listArr.length; i++) {
+							html.push('<li class="special-price-list" data-proid="' + listArr[i].relation_id + '">');
+							html.push('	<div class="special-price-goods-thumb">');
+							html.push('		<img src="' + (listArr[i].image ? filesService + listArr[i].image : '../assets/images/logo.png') + '">');
+							html.push('	</div>');
+							html.push('	<div class="special-price-goods-price">');
+							html.push('		<span class="selling-price">￥' + listArr[i].price + '</span> <span class="original-price">￥' + listArr[i].wasprice + '</span>');
+							html.push('	</div>');
+							html.push('</li>');
+						}
+						$('#homeProductRecom').html(html.join(''));
+					}
+				},
+
+				//精选商品
+				showSelectedGoodsList: function(plist) {
+					var html = [];
+					for(i in plist) {
+						html.push('<div class="selection-goods-list">');
+						html.push('	<div class="selection-goods-list-thumb more-goods" data-type="' + (+i + 3) + '" data-title="主题精选">');
+						html.push('		<img src="' + (plist[i].banner ? filesService + plist[i].banner : '../assets/images/logo.png') + '" />');
+						html.push('	</div>');
+						html.push('	<div class="selection-goods-list-content">');
+						html.push('		<ul class="mui-list-unstyled">');
+						var clist = plist[i].list;
+						for(j in clist) {
+							html.push('			<li class="special-price-list" data-proid="' + clist[j].goods_id + '">');
+							html.push('				<div class="special-price-goods-thumb">');
+							html.push('					<img src="' + (clist[j].image ? filesService + clist[j].image : '../assets/images/logo.png') + '">');
+							html.push('				</div>');
+							html.push('				<div class="special-price-goods-price">');
+							html.push('					<span class="selling-price">￥' + clist[j].price + '</span> <span class="original-price">￥' + clist[j].wasprice + '</span>');
+							html.push('				</div>');
+							html.push('			</li>');
+						}
+						html.push('		</ul>');
+						html.push('	</div>');
+						html.push('</div>');
+					}
+					$('#selectionGoods').html(html.join(''));
+				},
+
+				//弹出获取优惠券
+				dailogCoupon: function(content) {
+					var _layer = layer.open({
+						style: 'border:none; background: linear-gradient(to bottom, rgba(130, 0, 253, 1), rgba(202, 0, 252, 1)); color:#fff;',
+						content: content
+					})
+					Home.layerIndex = _layer
+				},
+
+				//获取优惠券
+				getCouponsList: function() {
+					var data = {
+						page: 1,
+						limits: 3
+					};
+					common.ajaxRequest({
+						u: 'coupon/getCouponList.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var obj = res.list;
+							Home.showCouponList(obj);
+							if(!common.getCookie('showDailogCouponList')) Home.showDailogCouponList(obj);
+						} else {
+							$('.home-list-coupon').css('display', 'none');
+						}
+					});
+				},
+
+				//显示页面上的优惠券
+				showCouponList: function(obj) {
+					var _html = [];
+					for(i in obj) {
+						_html.push('<li class="mui-clearfix home-coupon-list">');
+						_html.push('	<div class="home-coupon-face-val mui-ellipsis">');
+						_html.push(obj[i].amount + '<span>' + (obj[i].couponType == 1 ? '折' : '￥') + '</span>');
+						_html.push('	</div>');
+						_html.push('	<div class="home-coupon-btn">');
+						_html.push('		<p>优惠券</p>');
+						_html.push('		<button type="button" class="mui-btn mui-btn-block btn-coupon-get" data-id="' + obj[i].cmoldId + '" data-title="' + obj[i].title + '" data-amount="' + obj[i].remain + '">立即领取</button>');
+						_html.push('	</div>');
+						_html.push('</li>');
+
+						//设置一键领取所有优惠券ID
+						Home.couponsArr.push(obj[i].cmoldId)
+					}
+
+					$('#homeCoupon').html(_html.join(''));
+				},
+
+				//显示弹出的优惠券
+				showDailogCouponList: function(obj) {
+					common.setCookie('showDailogCouponList', !0, 7)
+					var html = [];
+					html.push('<div id="dailogCouponCotent" class="dailog-coupon-cotent">');
+					html.push('	<div class="dailog-coupon-title">恭喜您获得优惠券</div>');
+					html.push('	<ul id="dailogCouponList" class="mui-list-unstyled dailog-Coupon-List">');
+					for(i in obj) {
+						html.push('	<li class="dailog-coupon-list mui-clearfix">');
+						html.push('		<div class="dailog-coupon-list-left">');
+						html.push('			<div class="coupon-face-val">' + (obj[i].couponType == 2 ? '￥' : '') + '<span>' + obj[i].amount + (obj[i].couponType == 1 ? '折' : '') + '</span></div>');
+						html.push('			<div class="coupon-face-rule mui-ellipsis">满' + obj[i].amountLimit + '元可用</div>');
+						html.push('		</div>');
+						html.push('		<div class="dailog-coupon-list-right">');
+						html.push('			<div class="circle-dot-top"></div>');
+						html.push('			<div class="circle-dot-bottom"></div>');
+						html.push('			<div class="coupon-face-info mui-clearfix">');
+						html.push('				<div class="coupon-face-title mui-ellipsis">' + obj[i].title + '</div>');
+						html.push('				<div class="coupon-face-end-time mui-ellipsis">' + obj[i].description + '</div>');
+						html.push('			</div>');
+						html.push('			<div class="coupon-face-operation">');
+						html.push('				<button type="button" class="mui-btn but-default mui-btn-block btn-coupon-use" data-id="' + obj[i].cmoldId + '" data-title="' + obj[i].title + '" data-amount="' + obj[i].remain + '">立即领取</button>');
+						html.push('			</div>');
+						html.push('		</div>');
+						html.push('	</li>');
+
+					}
+					html.push('	</ul>');
+					html.push('	<div class="dailog-coupon-oneKey-receive">一键领取</div>');
+					html.push('</div>');
+					Home.dailogCoupon(html.join(''));
+				},
+
+				//领取优惠券
+				getCoupons: function(id) {
+					var data = {
+						cmoldid: id
+					};
+					common.ajaxRequest({
+						u: 'coupon/getCoupon.html?',
+						d: data
+					}, function(res) {
+						var obj = res.couponInfo;
+						if(obj && Object.keys(obj).length > 0) {
+							mui.toast('恭喜您，领取成功^_^')
+						}
+					});
+				},
+
+				//一键领取优惠券
+				onekeyGetCoupons: function(id) {
+					var data = {
+						cmoldidList: Home.couponsArr.join(',')
+					};
+					common.ajaxRequest({
+						u: 'coupon/getBonusList.html?',
+						d: data
+					}, function(res) {
+						var mun = res.couponNum
+						layer.close(Home.layerIndex);
+						common.layerMsg('恭喜您，成功领取' + mun + '张优惠券！')
+					});
+				},
+
+				//展示倒计时
+				showCountDown: function(starttime, endtime) {
+					var t = endtime - starttime;
+					var timer = setInterval(function() {
+						var d = Math.floor(t / 60 / 60 / 24);
+						var h = Math.floor(t / 60 / 60);
+						var i = Math.floor(t / 60 % 60);
+						var s = Math.floor(t % 60);
+						$('#countH').text(h)
+						$('#countM').text(common.checktime(i))
+						$('#countS').text(common.checktime(s))
+						t--;
+						if(t <= 0) {
+							clearInterval(timer);
+							return false;
+						}
+					}, 1e3)
+				},
+			};
+			$(function() {
+				Home.init();
+			});
+		</script>
+	</body>
+
+</html>

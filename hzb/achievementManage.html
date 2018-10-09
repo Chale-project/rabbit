@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>业绩管理</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="footer-audit-manage-nav">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-audit-manage">审核管理</button>
+		</div>
+		<div class="mui-content achievement-manage">
+			<div class="achievement-select-option mui-row">
+				<div id="DtPickerStart" class="select-start-time">
+					<span class="select-start-time-text"></span>
+					<span class="mui-icon mui-icon-arrowdown"></span>
+				</div>
+				<div id="DtPickerEnd" class="select-end-time">
+					<span class="select-end-time-text"></span>
+					<span class="mui-icon mui-icon-arrowdown"></span>
+				</div>
+				<div class="select-store">
+					<div class="mui-input-row">
+						<select class="select-stores" name="select_person">
+							<option value="">全部门店</option>
+						</select>
+					</div>
+				</div>
+				<button class="mui-btn mui-btn-default select-button">查询</button>
+			</div>
+			<div class="achievement-epitome mui-row">
+				<div class="mui-col-xs-4 achievement-total">
+					<div class="achievement-total-val">￥<span>0.00</span></div>
+					<div class="achievement-total-title">业绩总额</div>
+				</div>
+				<div class="mui-col-xs-4 achievement-hzb">
+					<!--<div class="achievement-hzb-val">￥<span>0.00</span></div>
+					<div class="achievement-hzb-title">化妆吧业绩</div>-->
+				</div>
+				<div class="mui-col-xs-4 achievement-goods">
+					<div class="achievement-goods-val">￥<span>0.00</span></div>
+					<div class="achievement-goods-title">商品业绩</div>
+				</div>
+			</div>
+			<div class="achievement-content">
+				<div id="pullRefresh" class="mui-content mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="achievementList" class="mui-list-unstyled">
+							<!--<li class="achievement-list mui-row">
+								<div class="achievement-list-left">
+									<div class="achievement-list-store-name mui-ellipsis"></div>
+									<div class="achievement-list-store-time">时间：<span>2018</span></div>
+								</div>
+								<div class="achievement-list-center">
+									<div class="achievement-list-store-goods-money mui-ellipsis">￥</div>
+									<div class="achievement-list-store-text mui-ellipsis"></div>
+								</div>
+								<div class="achievement-list-right">
+									<div class="achievement-list-store-hzb-money mui-ellipsis">￥</div>
+									<div class="achievement-list-store-text mui-ellipsis"></div>
+								</div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var achievementManage = {
+				type: 1, //1:默认当天查询;2:时间段筛选查询
+				y: null,
+				m: null,
+				d: null,
+				data: {
+					stores_id: null,
+					starttime: null,
+					endtime: null,
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					achievementManage.setCurDate();
+					achievementManage.getSoreList();
+					achievementManage.getAchievementList();
+
+					//设置起始时间		
+					$("#DtPickerStart").on("tap", function() {
+						achievementManage.dtPickerStart();
+					})
+
+					//设置截至时间
+					$("#DtPickerEnd").on("tap", function() {
+						achievementManage.dtPickerEnd();
+					})
+
+					//选择门店
+					$(".select-stores").on("change", function() {
+						var id = $(this).val();
+						achievementManage.data.stores_id = id;
+
+					})
+
+					//查詢
+					$(".select-button").on("tap", function() {
+						achievementManage.data.page = 1;
+						$("#achievementList").html("");
+						achievementManage.getAchievementList();
+					})
+					
+					//审核管理
+					$(".btn-audit-manage").on("tap", function() {
+						common.urlOpen('auditManage.html?')
+					})
+
+				},
+
+				showTotalMoney: function(res) {
+					var totalMoney = res.tatol;
+					$(".achievement-total-val span").text(totalMoney.consumption_total);
+					$(".achievement-goods-val span").text(totalMoney.product_total);
+				},
+
+				setCurDate: function() {
+					var _date = new Date();
+					achievementManage.y = _date.getFullYear();
+					achievementManage.m = common.checktime(_date.getMonth() + 1);
+					achievementManage.d = _date.getDate();
+
+					achievementManage.showCurDate();
+				},
+				showCurDate: function() {
+					var dateY = achievementManage.y,
+						dateM = achievementManage.m,
+						dateD = achievementManage.d;
+
+					achievementManage.data.starttime = dateY + '-' + dateM + '-' + dateD;
+					achievementManage.data.endtime = dateY + '-' + dateM + '-' + dateD;
+					achievementManage.showSelectedDate();
+				},
+
+				getAchievementList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								achievementManage.showSelectShopDayList(this)
+							}
+						}
+					});
+				},
+
+				//設置起始時間
+				dtPickerStart: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+					var picker = new mui.DtPicker({
+						type: "date", //设置日历初始视图模式 
+						beginYear: '2015', //设置开始日期 
+						endYear: _year,
+					});
+					picker.show(function(res) {
+						console.log(res)
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						achievementManage.y = _y;
+						achievementManage.m = _m;
+						achievementManage.d = _d;
+
+						achievementManage.data.starttime = _y + '-' + _m + '-' + _d;
+
+						achievementManage.showSelectedDate();
+						picker.dispose();
+					});
+				},
+
+				//設置截至時間
+				dtPickerEnd: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+
+					var picker = new mui.DtPicker({
+						type: "date",
+						beginDate: new Date(achievementManage.y, achievementManage.m - 1, achievementManage.d), //设置开始日期 
+						endYear: _year, //设置结束日期 
+					});
+					picker.show(function(res) {
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						achievementManage.data.endtime = _y + '-' + _m + '-' + _d;
+
+						achievementManage.showSelectedDate();
+						picker.dispose();
+					});
+				},
+
+				showSelectedDate: function() {
+					var startTime = achievementManage.data.starttime,
+						endTime = achievementManage.data.endtime;
+					$(".select-start-time-text").text(startTime);
+					$(".select-end-time-text").text(endTime);
+				},
+
+				//获取门店列表
+				getSoreList: function() {
+					common.ajaxRequest({
+						u: 'Mk_Consumption/consumption_stores.html?'
+					}, function(res) {
+						achievementManage.showSoreList(res);
+					});
+				},
+
+				//门店展示
+				showSoreList: function(obj) {
+					var _html = [],
+						_list = obj.list;
+					_html.push('<option value="">全部门店</option>')
+					for(i in _list) {
+						_html.push('<option value="' + _list[i].stores_id + '">' + _list[i].storesname + '</option>');
+					}
+					$('.select-stores').html(_html.join(''))
+				},
+
+				//時間段篩選查詢
+				showSelectShopDayList: function(_this) {
+					var data = achievementManage.data;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'Mk_Consumption/index.html?',
+						d: data
+					}, function(res) {
+						achievementManage.showTotalMoney(res);
+						if(res.list.length > 0) {
+							var p = achievementManage.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								achievementManage.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = achievementManage.renderSelectShopDayList(list[i]);
+								$("#achievementList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderSelectShopDayList: function(d) {
+					var html = [];
+					html.push('<div class="achievement-list-left">');
+					html.push('	<div class="achievement-list-store-name mui-ellipsis">' + d.makeupname + '</div>');
+					html.push('</div>');
+					html.push('<div class="achievement-list-center">');
+					html.push('	<div class="achievement-list-store-goods-money mui-ellipsis">￥' + d.product + '</div>');
+					html.push('	<div class="achievement-list-store-text mui-ellipsis">商品销售额</div>');
+					html.push('</div>');
+					html.push('<div class="achievement-list-right">');
+					html.push('	<div class="achievement-list-store-hzb-money mui-ellipsis">￥' + d.total + '</div>');
+					html.push('	<div class="achievement-list-store-text mui-ellipsis">化妆吧销售额</div>');
+					html.push('</div>');
+
+					var li = document.createElement('li');
+					li.className = 'achievement-list mui-row';
+					li.innerHTML = html.join('');
+					return li;
+				}
+			}
+			$(function() {
+				achievementManage.init();
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>授权中…</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content anthor">
+			<span class="mui-spinner"></span>
+			<p>授权登录…</p>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			author = {
+				code: common.getQueryString('code'),
+				init: function() {
+					if(!author.code) {
+						var ua = window.navigator.userAgent.toLowerCase()
+						author.getAuth()
+						return false;
+					} else {
+						author.getUserUnionid()
+					}
+
+				},
+
+				getAuth: function() {
+					common.ajaxRequest({
+						u: 'regs/authUrl.html?',
+						l: '授权中…'
+					}, function(res) {
+						var authUrl = res.jumpUrl;
+						location.href = authUrl
+					})
+				},
+				getUserUnionid: function() {
+					common.ajaxRequest({
+						u: 'regs/getUserUnionid.html?',
+						d: {
+							code: author.code
+						}
+					}, function(res) {
+						var _userInfo = res.userInfo;
+						common.setStorage('userInfo', JSON.stringify(_userInfo));
+						if(res.login_status == 0) {
+							WCY.setUserRole(function(res) {
+								var _url = common.getStorage('beforeLoginUrl')
+								if(!_url || _url.indexOf('/author.html') != -1) _url = '../shop/index.html?'
+								common.urlOpen(_url + '?')
+							})
+						} else {
+							common.urlOpen('../shop/login.html?')
+						}
+					})
+				}
+			};
+
+			$(function() {
+				author.init();
+			});
+		</script>
+	</body>
+
+</html>

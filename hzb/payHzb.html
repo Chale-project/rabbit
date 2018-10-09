@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>向化妆师付款</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="pay-index">
+					<div class="pay-header">
+						<div class="user-info-face">
+							<div class="user-info-avatar"><img src="../assets/images/avatar.png" /></div>
+							<div class="user-info-others">
+								<div class="user-info-name">昵称：<span>化妆吧用户</span></div>
+								<div class="user-info-mobile">手机：<span></span></div>
+								<div class="user-info-storename mui-ellipsis">所在店铺：<span></span></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="pay-form">
+						<form id="myform" class="mui-input-group">
+							<div class="mui-input-row">
+								<label>￥</label>
+								<input type="text" name="money" id="Money" maxlength="6" placeholder="输入消费金额" pattern="[0-9]*">
+							</div>
+						</form>
+
+						<div class="mui-row show-yue-pay-money">
+							<div id="yue-url" class="mui-col-xs-6 yue-url"><span class="mui-icon icon-yue"></span>当前余额：<span id="curBalance">0.00</span>元</div>
+							<div class="mui-col-xs-6 pay-money mui-ellipsis">实际支付：<span id="payMoney" class="font-color font-weight">0元</span></div>
+						</div>
+
+						<div class="pay-way">
+							<div class="pay-way-balance">
+								<h4>余额支付金额：￥<span class="balance-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="balancePay"><img class="pay-wallet" src="../assets/images/icon_white.png"/>余额支付</label>
+									<input name="payway" id="balancePay" type="radio" value="1">
+								</div>
+							</div>
+							<div class="pay-way-wechat">
+								<h4>微信支付金额：￥<span class="wechat-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="Wechat"><img class="pay-wechat" src="../assets/images/icon_wechat.png"/>微信支付</label>
+									<input name="payway" id="Wechat" type="radio" value="2">
+								</div>
+							</div>
+							<div class="pay-way-alipay">
+								<h4>支付宝支付金额：￥<span class="alipay-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="Alipay"><img class="pay-wallet" src="../assets/images/icon_ailpay.png"/>支付宝支付</label>
+									<input name="payway" id="Alipay" type="radio" value="3">
+								</div>
+							</div>
+
+						</div>
+						<button type="button" id="payApply" class="mui-btn mui-btn-default mui-btn-block btn-pay">确认支付</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script src="../assets/js/ap.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var Pay = {
+				dresser_id: common.getQueryString('dresser_id'),
+				dresserName: '',
+				curBalance: 0,
+				makeupName: '',
+				storesName: '',
+				data: {
+					money: 0,
+					dresser_id: null,
+					paytype: null
+				},
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+
+					Pay.getDresserInfo();
+					$("#payApply").on("tap", function() {
+						var flag = Pay.checkMoney();
+						flag && Pay.payApply();
+					})
+
+					$("#myform").on('focus', "#Money", function() {
+						$("#payApply").prop('disabled', false);
+					}).on("input", "#Money",
+						function() {
+							var val = $.trim($(this).val()) || 0;
+							Pay.data.money = val;
+							$("#payMoney").text(val + "元");
+							Pay.setPayMoney();
+						})
+
+					//余额支付或者微信支付或支付宝支付
+					$('.pay-index').on('change', '.mui-radio', function() {
+						$('.pay-way .mui-radio').each(function() {
+							if($(this).find('input[type="radio"]').prop('checked')) {
+								$(this).addClass('active')
+							} else {
+								$(this).removeClass('active');
+							}
+						});
+						Pay.setPayWay();
+					});
+				},
+
+				//获取化妆师信息
+				getDresserInfo: function() {
+					var data = {
+						dresser_id: Pay.dresser_id
+					};
+					common.ajaxRequest({
+						u: 'Makeup_Stores/userPayinfo.html?',
+						d: data
+					}, function(res) {
+						Pay.showDresserInfo(res);
+					})
+				},
+
+				//显示化妆师信息
+				showDresserInfo: function(res) {
+					var obj = res.shopUserInfo,
+						_headimgurl = obj.headimgurl,
+						_dressername = obj.dressername,
+						_mobile = obj.mobile,
+						_storesname = obj.storesname,
+						_makeupname = obj.makeupname,
+						_curBalance = res.account;
+					Pay.data.dresser_id = obj.id;
+					Pay.curBalance = _curBalance;
+					Pay.dresserName = _dressername;
+					Pay.storesName = _storesname;
+					Pay.makeupName = _makeupname;
+					$("#curBalance").text(_curBalance);
+					$(".user-info-avatar img").attr('src', _headimgurl);
+					$(".user-info-name span").text(_dressername);
+					$(".user-info-mobile span").text(common.mobileToStar(_mobile));
+					$(".user-info-storename span").text(_storesname + '-' + _makeupname);
+				},
+
+				//校验支付金额
+				checkMoney: function() {
+					var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
+						money = Pay.data.money,
+						type = Pay.data.paytype,
+						limitminmoney = 1,
+						limitmaxmoney = Pay.curBalance;
+					if(!reg.test(money)) {
+						common.layerMsg('请输入有效的支付金额！');
+						return false;
+					} else if(money < limitminmoney) {
+						common.layerMsg('请输入最低支付金额1元！');
+						return false;
+					} else if(!type) {
+						common.layerMsg('请选择支付方式！');
+						return false;
+					} else if(type == 1 && (limitmaxmoney - money < 0)) {
+						common.layerMsg('当前余额不足，请选择其他支付方式！');
+						return false;
+					} else {
+						$("#payApply").prop('disabled', true);
+						return true;
+					}
+				},
+
+				//设置支付方式
+				setPayWay: function() {
+					Pay.data.paytype = null;
+					var othersPayWayChecked = $('input[type="radio"]:checked');
+					Pay.data.paytype = othersPayWayChecked.val();
+					Pay.setPayMoney();
+				},
+
+				//设置支付金额
+				setPayMoney: function() {
+					var paytype = Pay.data.paytype;
+					if(paytype == 1) {
+						$('.balance-pay-val').text(Pay.data.money);
+						$('.wechat-pay-val').text('0.00');
+						$('.alipay-pay-val').text('0.00');
+					} else if(paytype == 2) {
+						$('.balance-pay-val').text('0.00');
+						$('.wechat-pay-val').text(Pay.data.money);
+						$('.alipay-pay-val').text('0.00');
+					} else if(paytype == 3) {
+						$('.balance-pay-val').text('0.00');
+						$('.wechat-pay-val').text('0.00');
+						$('.alipay-pay-val').text(Pay.data.money);
+					}
+				},
+
+				//生成支付订单
+				payApply: function() {
+					var con = '<p style="text-align:left;">收款人：<span style="color:red;font-size:24px;">' + Pay.dresserName + '</span></p>';
+					con += '<p style="text-align:left;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">所属店铺：<span style="color:red;font-size:20px;">' + Pay.storesName + '-' + Pay.makeupName + '</span></p>';
+					con += '<br/>';
+					con += '<p style="color:#ff8519;">如信息错误，请重新扫码后继续支付！</p>';
+					common.layerConfirm({
+						t: '提示',
+						b: ['确认', '取消'],
+						c: con,
+						y: function() {
+							Pay.toPay();
+							layer.closeAll()
+						},
+						n: function() {
+							WCY.reload()
+						}
+					})
+
+				},
+
+				//预支付
+				toPay: function() {
+					var data = Pay.data;
+					common.ajaxRequest({
+						u: 'about_makeup/makeupPayInfo.html?',
+						d: data
+					}, function(res) {
+						var _wePayinfo = res.wechatpayInfo;
+						if(_wePayinfo) {
+							var _openid = _wePayinfo.openid,
+								_order_sn = _wePayinfo.order_sn,
+								_money = _wePayinfo.money;
+							Pay.wechatPay(_openid, _order_sn, _money)
+						} else if(res.alipayInfo) {
+							Pay.aliPay(res.alipayInfo)
+						} else {
+							Pay.jumpPaySuccessUrl();
+						}
+					})
+				},
+
+				//微信支付
+				wechatPay: function(openid, order_sn, money) {
+					var data = {
+						body: '通过微信支付:' + money + '元！',
+						openId: openid,
+						outTradeNo: order_sn,
+						totalFee: money,
+						type: 1
+					};
+					common.ajaxRequest({
+						u: 'orderpay/WechatPayNew.html?',
+						d: data
+					}, function(res) {
+						Pay.wxPay(res.payinfo)
+					});
+				},
+
+				//拉起微信支付
+				wxPay: function(obj) {
+					var res = JSON.parse(obj.preResult);
+					wx.chooseWXPay({
+						appId: res.appId,
+						timestamp: res.timeStamp,
+						nonceStr: res.nonceStr,
+						package: res.package,
+						signType: res.signType,
+						paySign: res.paySign,
+						success: function(res) {
+							if(res.errMsg == "chooseWXPay:ok") {
+								$("#payApply").prop('disabled', false);
+								Pay.jumpPaySuccessUrl();
+							} else {
+								common.layerMsg(res.errMsg);
+							}
+						},
+						fail: function(res) {
+							WCY.reload()
+							common.layerMsg('支付失败，请重新支付^_^');
+							//alert(JSON.stringify(res));
+						},
+						cancel: function(res) {
+							//支付取消
+							WCY.reload()
+							common.layerMsg('支付被取消，请重新支付^_^');
+						}
+					});
+				},
+
+				//阿里支付
+				aliPay: function(href) {
+					_AP.pay(href);
+					return false;
+				},
+
+				//支付成功后跳转
+				jumpPaySuccessUrl: function() {
+					common.layerMsg('支付成功！')
+					$("#payApply").prop('disabled', false);
+
+					setTimeout(function() {
+						common.urlReplace('../shop/user.html?')
+					}, 500)
+				},
+
+				//支付
+				payApplyCallBack: function(_ordernum) {
+					var data = {
+						ordernum: _ordernum
+					};
+					common.ajaxRequest({
+						u: 'About_Makeup/backMakeupConsum.html?',
+						d: data
+					}, function(res) {
+						$("#payApply").prop('disabled', false);
+						common.urlReplace('paySuccess.html?dressername=' + Pay.dresserName + '&money=' + Pay.data.money)
+					})
+				}
+			};
+			$(function() {
+				Pay.init();
+			});
+		</script>
+
+	</body>
+
+</html>

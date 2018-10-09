@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>分享分佣</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="share-index">
+				<div class="share-user-face">
+					<div class="share-user-avatar">
+						<img src="../assets/images/logo.png">
+					</div>
+					<div class="share-user-name">谱奇用户</div>
+
+					<!--<div class="share-user-expiry-date">会员到期时间：</div>
+					<div class="share-user-expiry-date"></div>-->
+
+					<div class="share-user-total-val mui-clearfix">
+						<div class="drew-money">
+							<div class="drew-money-val">0.00</div>
+							<div class="drew-money-name">已提现佣金(元)</div>
+						</div>
+						<div class="drawing-money">
+							<div class="drawing-money-val">0.00</div>
+							<div class="drawing-money-name">可提现佣金(元)</div>
+						</div>
+						<div class="share-number-times">
+							<div class="share-number-times-val">0次</div>
+							<div class="share-number-times-name">累计访问</div>
+						</div>
+					</div>
+					<div class="draw-money-button">
+						<button class="mui-btn mui-btn-block btn-draw-money disable" hover-class="btn-draw-money-active" bindtap="goToTixianApply">立即提现</button>
+					</div>
+				</div>
+				<div class="share-nav mui-clearfix">
+					<div id="goToRanking" class="share-nav-ranking disable">
+						<img class="user-nav-icon" src="../assets/images/panhan.png">
+						<div class="user-nav-name">分佣排行</div>
+					</div>
+					<div id="goToShareOrder" class="share-nav-order disable">
+						<img class="user-nav-icon" src="../assets/images/share_order_icon.png">
+						<div class="user-nav-name">分享订单</div>
+					</div>
+					<div id="goToTixianRecord" class="share-nav-record disable">
+						<img class="user-nav-icon" src="../assets/images/jtixian.png">
+						<div class="user-nav-name">提现明细</div>
+					</div>
+					<div id="goToQrCode" class="share-nav-qrcode disable">
+						<img class="user-nav-icon" src="../assets/images/erweima.png">
+						<div class="user-nav-name">推广二维码</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+
+		<script type="text/javascript">
+			var Share = {
+				init: function() {
+					Share.getUserCardInfo();
+
+					$('.disable').on('tap', function() {
+						common.layerMsg('该功能在未启用^_^')
+					});
+				},
+
+				//获取用户信息
+				getUserCardInfo: function() {
+					common.ajaxRequest({
+						u: 'card/getUserCardInfo.html?'
+					}, function(res) {
+						var _userInfo = res.userInfo,
+							_cardInfo = res.cardInfo;
+						Share.showUserInfo(_userInfo);
+						Share.showShareInfo(_cardInfo);
+					});
+				},
+
+				showUserInfo: function(obj) {
+					$('.share-user-name').text(obj.username)
+					$('.share-user-avatar img').attr('src', obj.headimgurl)
+				},
+
+				showShareInfo: function(obj) {
+					$('.drew-money-val').text(obj.withdraw_count)
+					$('.drawing-money-val').text(obj.withdraw_card)
+					$('.share-number-times-val').text(obj.Maid_count + '次')
+				},
+
+			};
+
+			$(function() {
+				Share.init();
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>领券中心</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+		<div class="mui-content coupon-index">
+			<div id="pullRefresh" class="mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<ul id="couponList" class="mui-list-unstyled coupon-list">
+
+					</ul>
+					<div class="panel coupon-product-recom home-product-recom">
+						<div class="panel-header">
+							<h2><span>为您推荐</span></h2>
+						</div>
+						<div class="panel-body">
+							<ul id="couponProductRecom" class="mui-table-view mui-grid-view">
+
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/jweixin-1.2.0.js" type="text/javascript"></script>
+		<script src="../assets/js/base.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/style.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var Coupons = {
+				data: {
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					Coupons.showCouponsInfo();
+
+					//领取优惠券
+					$('.coupon-index').on('tap', '.coupon-item-operate', function() {
+						var id = $(this).data('id'),
+							num = $(this).data('surplus')
+						_this = $(this);
+						if(num > 0)
+							Coupons.getCoupons(_this, id, num);
+						else
+							common.layerMsg('来晚了亲！此优惠券已被抢光了^_^');
+					});
+
+					//推荐商品详情
+					$('#couponProductRecom').on('tap', 'li', function() {
+						var proid = $(this).data('proid');
+						WCY.goProductDetail(proid);
+					});
+
+				},
+
+				showCouponsInfo: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								Coupons.getCouponsList(this)
+							}
+						}
+					});
+				},
+				getCouponsList: function(_self) {
+					var data = Coupons.data;
+					common.ajaxRequest({
+						u: 'coupon/getCouponList.html?',
+						d: data
+					}, function(res) {
+						var obj = res.list;
+						if(obj.length > 0) {
+							var p = Coupons.data.page;
+							if(p > res.allpage) {
+								_self.refresh(true);
+								_self.endPullupToRefresh(true);
+							} else {
+								p++;
+								_self.refresh();
+								_self.endPullupToRefresh();
+								Coupons.data.page = p
+							}
+							for(i in obj) {
+								var $item = Coupons.renderCouponsList(obj[i]);
+								$('#couponList').append($item);
+							}
+						} else {
+							if(Coupons.data.page > 1) _self.refresh(true), _self.endPullupToRefresh(true)
+							else Coupons.emptyCouponslist()
+						}
+					});
+				},
+
+				renderCouponsList: function(d) {
+					var html = [];
+					html.push('	<div class="coupon-item-face-info mui-clearfix">');
+					html.push('		<div class="coupon-tips">' + (d.onlineLimit == 1 ? '商城' + (d.couponType == 1 ? '折' : '抵') + '扣券' : '商家' + (d.couponType == 1 ? '折' : '抵') + '扣券') + '</div>');
+					html.push('		<div class="coupon-item-face-left">');
+					html.push('			<div class="coupon-item-face-val">');
+					html.push((d.couponType == 2 ? '￥' : '') + '<span>' + d.amount + (d.couponType == 1 ? '折' : '') + '</span>');
+					html.push('			</div>');
+					html.push('			<div class="coupon-item-face-rule mui-ellipsis">满' + d.amountLimit + '元可用</div>');
+					html.push('		</div>');
+					html.push('		<div class="coupon-item-face-right">');
+					html.push('			<h2 class="coupon-title mui-ellipsis">' + d.title + '</h2>');
+					html.push('			<p class="coupon-sub-title">' + d.description + '</p>');
+					html.push('		</div>');
+					html.push('	</div>');
+					html.push('	<div class="coupon-item-operate" data-surplus="' + d.remain + '" data-id="' + d.cmoldId + '">');
+					html.push('		<div class="circle-dot-top"></div>');
+					html.push('		<div class="circle-dot-bottom"></div>');
+					html.push('		<div class="coupon-surplus mui-ellipsis">剩余<span>' + d.remain + '</span>张</div>');
+					html.push('		<button class="but-default btn-receive">立即领取</button>');
+					html.push('	</div>');
+
+					var li = document.createElement('li');
+					d.onlineLimit == 1 ? li.className = 'coupon-item coupon-type-mall' : li.className = 'coupon-item coupon-type-seller';
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//领取优惠券
+				getCoupons: function(_this, id, num) {
+					var data = {
+						cmoldid: id
+					};
+					common.ajaxRequest({
+						u: 'coupon/getCoupon.html?',
+						d: data
+					}, function(res) {
+						var obj = res.couponInfo;
+						if(obj && Object.keys(obj).length > 0) {
+							num--
+							_this.data('surplus', num)
+							_this.find('.coupon-surplus span').text(num)
+							common.layerMsg('恭喜您，领取成功^_^')
+						}
+					});
+				},
+
+				//沒有优惠券
+				emptyCouponslist: function() {
+					var elem = $('.coupon-product-recom')
+					self = $('#couponProductRecom')
+					$('.mui-pull-bottom-pocket').remove('.mui-pull-bottom-pocket')
+					$('#couponList').before(WCY.emptyCouponslist())
+					WCY.getProductRecom(elem, self)
+				},
+			};
+
+			$(function() {
+				Coupons.init();
+			});
+		</script>
+	</body>
+
+</html>

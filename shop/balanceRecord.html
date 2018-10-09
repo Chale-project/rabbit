@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>收支明细</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content balance">
+			<div class="balance-header">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<a href="javascript:;" class="mui-navigate-right">
+							<h5 class="withdrew"><span id="curBalance">0.00</span></h5>
+							<h4 class="withdrewing">我的余额</h4>
+							<span id="chargeBalance" class="mui-badge balance-now">立即充值</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="balance-title">
+				历史记录
+			</div>
+			<div class="balance-content">
+				<div id="pullRefresh" class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="balanceList" class="balance-list mui-table-view">
+							<!--<li class="mui-table-view-cell mui-media" data-clerkid="1">
+								<a href="javascript:;">
+									<div class="mui-row">
+										<div class="mui-col-xs-9">
+											<h3 class="mui-ellipsis">微信充值</h3>
+											<p class="mui-ellipsis">2017-09-04 23:05:54</p>
+										</div>
+										<div class="mui-col-xs-3"><span class="mui-pull-right consumption-plus">+88</span></div>
+									</div>
+								</a>
+							</li>-->
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Balance = {
+				data: {
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					Balance.showBalanceList();
+					$('#chargeBalance').on('tap', function() {
+						common.urlOpen('charge.html?')
+					});
+				},
+
+
+				showTotalBalance: function(obj) {
+					$('#curBalance').text(obj.totalMoney)
+				},
+
+				showBalanceList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								Balance.getBalanceList(this)
+							}
+						}
+					});
+				},
+				getBalanceList: function(_this) {
+					var data = Balance.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/userAccountLog.html?',
+						d: data
+					}, function(res) {
+						Balance.showTotalBalance(res)
+						if(res.consumlist.length > 0) {
+							var p = Balance.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								Balance.data.page = p;
+							}
+							var list = res.consumlist;
+							for(i in list) {
+								var _item = Balance.renderBalanceList(list[i]);
+								$("#balanceList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderBalanceList: function(list) {
+					var html = [];
+					html.push('<a href="javascript:;">');
+					html.push('	<div class="mui-row">');
+					html.push('		<div class="mui-col-xs-9">');
+					html.push('			<h3 class="mui-ellipsis">' + list.remark + '</h3>');
+					html.push('			<p class="mui-ellipsis">' + list.finishdate + '</p>');
+					html.push('		</div>');
+					if(list.type == 1) {
+						html.push('		<div class="mui-col-xs-3"><span class="mui-pull-right consumption-plus">+' + list.account + '</span></div>');
+					} else if(list.type == 2) {
+						html.push('		<div class="mui-col-xs-3"><span class="mui-pull-right consumption-minus">-' + list.account + '</span></div>');
+					}
+					html.push('	</div>');
+					html.push('</a>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media';
+					li.dataset.clerkid = list.id;
+					li.innerHTML = html.join('');
+					return li;
+				}
+
+			};
+
+			$(function() {
+				Balance.init();
+			});
+		</script>
+	</body>
+
+</html>

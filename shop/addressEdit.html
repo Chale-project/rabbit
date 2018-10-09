@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>编辑地址</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/poppicker/mui.poppicker.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="address-edit">
+					<form id="myform" method="post" class="mui-input-group">
+						<div id="addressInfo" class="card">
+							<div class="mui-input-row">
+								<label>收货人姓名：</label>
+								<input type="text" name="ua_name" id="ua_name" class="mui-input-clear" value="">
+							</div>
+							<div class="mui-input-row">
+								<label>联系方式：</label>
+								<input type="text" name="ua_phone" id="ua_phone" maxlength="11" class="mui-input-clear" value="" pattern="[0-9]*">
+							</div>
+							<div class="mui-input-row">
+								<label>省市区县：</label>
+								<div class="ua-pca" id="selectCityPicker">请输入省市区县</div>
+								<input type="hidden" name="ua_pca" id="showCityPicker" class="mui-input-clear" value="">
+							</div>
+							<div class="mui-input-row">
+								<label>详细地址：</label>
+								<input type="text" name="ua_detailed" id="ua_detailed" class="mui-input-clear" value="">
+							</div>
+							<!--<div class="mui-input-row">
+								<label>邮政编码：</label>
+								<input type="text" name="ua_zipcode" id="ua_zipcode" class="mui-input-clear" value="">
+							</div>-->
+							<input type="hidden" name="id" id="addressId" value="" />
+						</div>
+						<div class="card">
+							<div class="mui-input-row mui-checkbox">
+								<label>设为默认收货地址</label>
+								<input name="ua_default" type="checkbox" value="1">
+							</div>
+						</div>
+						<div class="button-default">
+							<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-address-save">保存</button>
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.js"></script>
+		<script src="../assets/js/poppicker/mui.poppicker.js"></script>
+		<script src="../assets/js/picker/picker.data.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			//			(function($, doc) {
+			//
+			//				$.ready(function() {
+			//
+			//					var cityPicker = new $.PopPicker({
+			//						layer: 3
+			//					});
+			//					cityPicker.setData(cityData);
+			//					var showCityPickerButton = doc.getElementById('showCityPicker');
+
+			//								cityPicker.pickers[0].setSelectedValue('420000');
+			//								cityPicker.pickers[1].setSelectedValue('420100');
+			//								cityPicker.pickers[2].setSelectedValue('420204');
+			//								var arrShowArea = cityPicker.getSelectedItems(),
+			//									arrcurarea = [];
+			//								$.each(arrShowArea, function(k, v) {
+			//									arrcurarea.push(v.text);
+			//								});
+			//								showCityPickerButton.value = arrcurarea.join('，');
+
+			//					showCityPickerButton.addEventListener('tap', function(event) {
+			//						cityPicker.show(function(items) {
+			//							showCityPickerButton.value = (items[0] || {}).text + " " + (items[1] || {}).text + " " + (items[2] || {}).text;
+			//							//返回 false 可以阻止选择框的关闭
+			//							//return false;
+			//						});
+			//					}, false);
+			//
+			//				});
+			//			})(mui, document);
+		</script>
+
+		<script type="text/javascript">
+			var AddressEdit = {
+				proid: common.getQueryString('proid'),
+				pronum: common.getQueryString('pronum'),
+				cartid: common.getQueryString('cartid'),
+				addressId: common.getQueryString('address_id'),
+				init: function() {
+					(function($, doc) {
+						$.ready(function() {
+							var cityPicker = new $.PopPicker({
+								layer: 3
+							});
+							cityPicker.setData(cityData);
+							var _cityPickerButton = doc.getElementById('selectCityPicker'),
+								_cityPickerVal = doc.getElementById('showCityPicker');
+							_cityPickerButton.addEventListener('tap', function(event) {
+								cityPicker.show(function(items) {
+									_cityPickerButton.innerText = (items[0] || {}).text + " " + (items[1] || {}).text + " " + (items[2] || {}).text;
+									_cityPickerVal.value = (items[0] || {}).text + " " + (items[1] || {}).text + " " + (items[2] || {}).text;
+									//$('#p_id')[0].value = (items[0] || {}).text;
+									//$('#c_id')[0].value = (items[1] || {}).text;
+									//$('#d_id')[0].value = (items[2] || {}).text;
+									//返回 false 可以阻止选择框的关闭
+									//return false;
+								});
+							}, false);
+
+						});
+					})(mui, document);
+
+					AddressEdit.getAddressInfo();
+
+					//输完手机号后收起软键盘
+					$('#ua_phone').on('keyup', function() {
+						var _leng = $(this).val().length;
+						if(_leng == 11) {
+							$(this).blur();
+						}
+					});
+
+					$('.address-edit').on('tap', '.btn-address-save', function() {
+						var flag = AddressEdit.validator();
+						flag && AddressEdit.editAddress();
+					})
+				},
+
+				validator: function() {
+					var flag = !0,
+						rules = {
+							ua_name: {
+								title: '联系人',
+								msg: '请输入联系人！'
+							},
+							ua_phone: {
+								title: '手机号码',
+								reg: /^(1)[0-9]{10}$/,
+								msg: '请输入有效的手机号！'
+							},
+							showCityPicker: {
+								title: '省市区域',
+								msg: '请输入省市区域！'
+							},
+							ua_detailed: {
+								title: '详细地址',
+								msg: '请输入详细地址！'
+							}
+						};
+					$.each(rules, function(k, v) {
+						var val = $('#' + k).val().trim();
+						if(val == '') {
+							common.layerMsg('请输入' + v.title + '!');
+							flag = !1;
+							return false;
+						} else if(v.reg && !v.reg.test(val)) {
+							common.layerMsg(v.msg);
+							flag = !1;
+							return false;
+						} else {
+							flag = !0;
+							return true;
+						}
+					});
+					return flag;
+				},
+
+				getAddressInfo: function() {
+					var data = {
+						id: AddressEdit.addressId
+					};
+
+					common.ajaxRequest({
+						u: 'user_address/address_detail.html?',
+						d: data
+					}, function(res) {
+						AddressEdit.showAddressInfo(res.detail);
+					});
+				},
+				showAddressInfo: function(obj) {
+					$('#ua_name').val(obj.ua_name);
+					$('#ua_phone').val(obj.ua_phone);
+					$('#selectCityPicker').text(obj.ua_pca);
+					$('#showCityPicker').val(obj.ua_pca);
+					$('#ua_detailed').val(obj.ua_detailed);
+					$('#addressId').val(obj.id);
+					if(obj.ua_default == 1) {
+						$('input[name="ua_default"]').prop('checked', true);
+					} else {
+						$('input[name="ua_default"]').prop('checked', false);
+					}
+				},
+
+				//修改地址
+				editAddress: function() {
+					var data = $("#myform").serializeObject();
+					if(!$('input[name="ua_default"]').prop('checked')) {
+						data.ua_default = 2
+					};
+					common.ajaxRequest({
+						u: 'user_address/update_address.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg("编辑成功！");
+						var _address = {
+							'address_id': res.address.id,
+							'ua_name': res.address.ua_name,
+							'ua_phone': res.address.ua_phone,
+							'ua_pca': res.address.ua_pca,
+							'ua_detailed': res.address.ua_detailed,
+							'default': res.address.ua_default
+						};
+						if(AddressEdit.proid && AddressEdit.pronum) {
+							common.setStorage('address', JSON.stringify(_address))
+							common.urlReplace('orderCreat.html?proid=' + AddressEdit.proid + '&pronum=' + AddressEdit.pronum)
+						} else if(AddressEdit.cartid) {
+							common.setStorage('address', JSON.stringify(_address))
+							common.urlReplace('orderCreat.html?cartid=' + AddressEdit.cartid)
+						} else {
+							common.urlReplace('address.html?')
+						}
+					});
+				}
+
+			};
+
+			$(function() {
+				AddressEdit.init();
+			})
+		</script>
+	</body>
+
+</html>

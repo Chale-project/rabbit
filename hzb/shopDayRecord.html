@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>店铺日报表</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<div class="shop-day-record">
+				<div class="shop-day-record-header">
+					<div class="mui-row">
+						<!--<div class="mui-col-xs-6 shop-day-record-header-left">
+							<p>今日营收（元）</p>
+							<p class="mui-ellipsis"><span class="total-shop-day-money">0.00</span></p>
+						</div>
+						<div class="mui-col-xs-6 shop-day-record-header-right">
+							<div id="DtPicker" class="date-y-m">
+								<div class="date-y"></div>
+								<div class="date-m"><span class="date-cur-m-d"></span><span class="mui-icon icon-date"></span></div>
+							</div>
+						</div>-->
+
+						<div class="mui-col-xs-6 shop-day-record-header-left">
+							<div id="DtPickerStart" class="DtPicker-Start">
+								起始时间: <span class="DtPicker-start-time">请选择起始时间</span>
+							</div>
+							<div id="DtPickerEnd" class="DtPicker-End">
+								截至时间: <span class="DtPicker-end-time">请选择截至时间</span>
+							</div>
+						</div>
+						<div class="mui-col-xs-6 shop-day-record-header-right">
+							<div id="DtPicker" class="date-y-m">
+								<div class="date-day-time"><span class="mui-icon icon-date"></span><span class="date-y-m-d">今日</span></div>
+							</div>
+							<div class="total-shop-day-val mui-ellipsis">
+								当前营收: <span class="total-shop-day-money"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="shop-day-record-contents">
+					<div id="pullRefresh" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul id="shopDayRdcordList" class="mui-table-view shop-day-rdcord-list">
+								<!--<li class="mui-table-view-cell mui-media" data-clerkid="1">
+									<a href="javascript:;">
+										<img class="mui-media-object mui-pull-left clerk-avatar" src="http://placehold.it/40x30">
+										<div class="mui-media-body">
+											<div class="mui-row">
+												<div class="mui-col-xs-9">
+													<p class="shop-day-name mui-ellipsis">' + d.dressername + '</p>
+													<p class="shop-day-time mui-ellipsis">今日收款</p>
+												</div>
+												<div class="mui-col-xs-3"><span class="shop-day-money">' + d.price + '元</span></div>
+											</div>
+										</div>
+									</a>
+								</li>-->
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var shopDayRecord = {
+				type: 1, //1:默认当天查询;2:时间段筛选查询
+				y: null,
+				m: null,
+				d: null,
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					year: null,
+					month: null,
+					day: null,
+					page: 1,
+					limit: 20
+				},
+				datas: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					starttime: null,
+					endtime: null,
+					page: 1,
+					limit: 20
+				},
+				init: function() {
+					shopDayRecord.setCurDate();
+					shopDayRecord.getShopDayList();
+
+					//设置当天时间
+					$("#DtPicker").on("tap", function() {
+						shopDayRecord.dtPicker();
+					})
+
+					//设置起始时间		
+					$("#DtPickerStart").on("tap", function() {
+						shopDayRecord.dtPickerStart();
+					})
+
+					//设置截至时间
+					$("#DtPickerEnd").on("tap", function() {
+						shopDayRecord.dtPickerEnd();
+					})
+				},
+
+				showShopDayTotalMoney: function(res) {
+					var totalMoney = parseFloat(res.totalMoney).toFixed(2);
+					$(".total-shop-day-money").text(totalMoney);
+				},
+
+				setCurDate: function() {
+					var _date = new Date();
+					shopDayRecord.data.year = _date.getFullYear();
+					shopDayRecord.data.month = common.checktime(_date.getMonth() + 1);
+					shopDayRecord.data.day = _date.getDate();
+
+					shopDayRecord.showCurDate();
+				},
+				showCurDate: function() {
+					var dateY = shopDayRecord.data.year,
+						dateM = shopDayRecord.data.month,
+						dateD = shopDayRecord.data.day;
+					$(".date-y-m-d").text(dateY + "年" + dateM + "月" + dateD + "日");
+
+					shopDayRecord.datas.starttime = dateY + '-' + dateM + '-' + dateD;
+					shopDayRecord.datas.endtime = dateY + '-' + dateM + '-' + dateD;
+					shopDayRecord.showSelectedDate();
+				},
+				dtPicker: function() {
+					var picker = new mui.DtPicker({
+						type: "date",
+						beginYear: "2015", //设置开始日期 
+						endYear: shopDayRecord.data.year, //设置结束日期 
+					});
+					picker.show(function(res) {
+						shopDayRecord.data.year = res.y.value;
+						shopDayRecord.data.month = res.m.value;
+						shopDayRecord.data.day = res.d.value;
+						shopDayRecord.showCurDate();
+						shopDayRecord.type = 1;
+						shopDayRecord.data.page = 1;
+						$("#shopDayRdcordList").html("");
+						shopDayRecord.getShopDayList();
+						picker.dispose();
+					});
+				},
+				getShopDayList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								if(shopDayRecord.type == 1) {
+									shopDayRecord.showShopDayList(this)
+								} else if(shopDayRecord.type == 2) {
+									shopDayRecord.showSelectShopDayList(this)
+								}
+							}
+						}
+					});
+				},
+
+				//當天時間查詢
+				showShopDayList: function(_this) {
+					var data = shopDayRecord.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupDaySettle.html?',
+						d: data
+					}, function(res) {
+						shopDayRecord.showShopDayTotalMoney(res);
+						if(res.consumlist.length > 0) {
+							var p = shopDayRecord.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								shopDayRecord.data.page = p;
+							}
+							var list = res.consumlist;
+							for(i in list) {
+								var _item = shopDayRecord.renderShopDayList(list[i]);
+								$("#shopDayRdcordList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderShopDayList: function(d) {
+					var html = [];
+					html.push('	<a href="javascript:;">');
+					html.push('		<img class="mui-media-object mui-pull-left clerk-avatar" src="' + (d.headimgurl ? d.headimgurl : '../assets/images/avatar.png') + '">');
+					html.push('		<div class="mui-media-body">');
+					html.push('			<div class="mui-row">');
+					html.push('				<div class="mui-col-xs-9">');
+					html.push('					<p class="shop-day-way mui-ellipsis">' + d.username + '</p>');
+					html.push('					<p class="shop-day-time mui-ellipsis">今日收款</p>');
+					html.push('				</div>');
+					html.push('				<div class="mui-col-xs-3"><span class="shop-day-money">' + d.amount + '元</span></div>');
+					html.push('			</div>');
+					html.push('		</div>');
+					html.push('	</a>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media';
+					li.dataset.shopDayid = d.id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//設置起始時間
+				dtPickerStart: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+					var picker = new mui.DtPicker({
+						type: "date", //设置日历初始视图模式 
+						beginYear: '2015', //设置开始日期 
+						endYear: _year,
+					});
+					picker.show(function(res) {
+						console.log(res)
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						shopDayRecord.y = _y;
+						shopDayRecord.m = _m;
+						shopDayRecord.d = _d;
+
+						shopDayRecord.datas.starttime = _y + '-' + _m + '-' + _d;
+
+						shopDayRecord.showSelectedDate();
+						picker.dispose();
+					});
+				},
+
+				//設置截至時間
+				dtPickerEnd: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+
+					var picker = new mui.DtPicker({
+						type: "date",
+						beginDate: new Date(shopDayRecord.y, shopDayRecord.m - 1, shopDayRecord.d), //设置开始日期 
+						endYear: _year, //设置结束日期 
+					});
+					picker.show(function(res) {
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						shopDayRecord.datas.endtime = _y + '-' + _m + '-' + _d;
+
+						shopDayRecord.showSelectedDate();
+						shopDayRecord.type = 2;
+						shopDayRecord.datas.page = 1;
+						$("#shopDayRdcordList").html("");
+						shopDayRecord.getShopDayList();
+						picker.dispose();
+					});
+				},
+
+				showSelectedDate: function() {
+					var startTime = shopDayRecord.datas.starttime,
+						endTime = shopDayRecord.datas.endtime;
+					$(".DtPicker-start-time").text(startTime);
+					$(".DtPicker-end-time").text(endTime);
+				},
+
+				//時間段篩選查詢
+				showSelectShopDayList: function(_this) {
+					var data = shopDayRecord.datas;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'makeup_stores/makeupDaySettleByTime.html?',
+						d: data
+					}, function(res) {
+						shopDayRecord.showShopDayTotalMoney(res);
+						if(res.consumlist.length > 0) {
+							var p = shopDayRecord.datas.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								shopDayRecord.datas.page = p;
+							}
+							var list = res.consumlist;
+							for(i in list) {
+								var _item = shopDayRecord.renderSelectShopDayList(list[i]);
+								$("#shopDayRdcordList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderSelectShopDayList: function(d) {
+					var html = [];
+					html.push('	<a href="javascript:;">');
+					html.push('		<img class="mui-media-object mui-pull-left clerk-avatar" src="' + (d.headimgurl ? d.headimgurl : '../assets/images/avatar.png') + '">');
+					html.push('		<div class="mui-media-body">');
+					html.push('			<div class="mui-row">');
+					html.push('				<div class="mui-col-xs-9">');
+					html.push('					<p class="shop-day-way mui-ellipsis">' + d.username + '</p>');
+					html.push('					<p class="shop-day-time mui-ellipsis">' + d.finishdate + '</p>');
+					html.push('				</div>');
+					html.push('				<div class="mui-col-xs-3"><span class="shop-day-money">' + d.amount + '元</span></div>');
+					html.push('			</div>');
+					html.push('		</div>');
+					html.push('	</a>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media';
+					li.dataset.shopDayid = d.id;
+					li.innerHTML = html.join('');
+					return li;
+				}
+			}
+			$(function() {
+				shopDayRecord.init();
+			})
+		</script>
+	</body>
+
+</html>

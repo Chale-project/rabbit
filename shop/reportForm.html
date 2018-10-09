@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>存酒报表</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1.5,user-scalable=yes" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="report-form">
+				<div class="mui-slider mui-fullscreen cards-page" id="slider">
+					<div class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+						<a class="mui-control-item mui-active" href="#item1mobile">日报</a>
+						<a class="mui-control-item" href="#item2mobile">月报</a>
+						<a class="mui-control-item" href="#item3mobile">统计</a>
+						<a class="mui-control-item" href="#item4mobile">图形报表</a>
+					</div>
+					<div class="cards-page-nav-line" style="padding: 0;">
+						<div class="mui-slider-progress-bar mui-col-xs-3"></div>
+					</div>
+					<div class="mui-slider-group cards-page-content mui-active">
+						<div id="item1mobile" class="mui-slider-item mui-control-content">
+							<div class="cards-page-wrapper mui-scroll-wrapper" data-catname="日报">
+								<div class="mui-scroll">
+									<div class="select-time">
+										<div class="previous-day" id="previousDay" data-type="1">
+											前一天
+										</div>
+										<div class="report-form-day" id="DayPicker" data-type="1">
+											<span class="mui-icon-extra mui-icon-extra-calendar calander-icon"></span>
+											<span class="day-time"></span>
+										</div>
+									</div>
+
+									<table id="reportFormTableYes" class="report-form-table" cellspacing="0" cellpadding="0">
+										<tr>
+											<th width="22%">门店</th>
+											<th width="19%">充值单数(单)</th>
+											<th width="20%">充值金额(元)</th>
+											<th width="19%">本店消费(次)</th>
+											<th width="20%">跨店消费(它存本取)</th>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="item2mobile" class="mui-slider-item mui-control-content">
+							<div class="cards-page-wrapper mui-scroll-wrapper" data-catname="月报">
+								<div class="mui-scroll">
+									<div class="select-time">
+										<div class="previous-month" id="previousMonth" data-type="2">
+											上个月
+										</div>
+										<div class="report-form-month" id="MonthPicker" data-type="2">
+											<span class="mui-icon-extra mui-icon-extra-calendar calander-icon"></span>
+											<span class="month-time"></span>
+										</div>
+									</div>
+
+									<table id="reportFormTableNo" class="report-form-table" cellspacing="0" cellpadding="0">
+										<tr>
+											<th width="22%">门店</th>
+											<th width="19%">充值单数(单)</th>
+											<th width="20%">充值金额(元)</th>
+											<th width="19%">本店消费(次)</th>
+											<th width="20%">跨店消费(它存本取)</th>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="item3mobile" class="mui-slider-item mui-control-content">
+							<div class="cards-page-wrapper mui-scroll-wrapper" data-catname="统计">
+								<div class="mui-scroll">
+									<table id="reportFormTable" class="report-form-table" cellspacing="0" cellpadding="0">
+										<tr>
+											<th width="22%">门店</th>
+											<th width="19%">充值单数(单)</th>
+											<th width="20%">充值金额(元)</th>
+											<th width="19%">本店消费(次)</th>
+											<th width="20%">跨店消费(它存本取)</th>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="item4mobile" class="mui-slider-item mui-control-content">
+							<div class="cards-page-wrapper mui-scroll-wrapper" data-catname="图形报表" style="padding: 0;text-align: right;">
+								<div class="mui-scroll">
+									<button type="button" class="mui-btn mui-btn-default mui-btn-outlined select-year-echarts" data-type="yearECharts">
+										<span class="select-year-echarts-val"></span>
+										<span class="mui-icon-extra mui-icon-extra-calendar"></span>
+									</button>
+									<div id="yearECharts" class="year-echarts"></div>
+									<button type="button" class="mui-btn mui-btn-default mui-btn-outlined select-month-echarts" data-type="monthECharts">
+										<span class="select-month-echarts-val"></span>
+										<span class="mui-icon-extra mui-icon-extra-calendar"></span>
+									</button>
+									<div id="monthECharts" class="month-echarts"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/echarts/echarts.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var reportForm = {
+				dayTime: common.getQueryString('dateTime'),
+				monthTime: common.getQueryString('dateTime'),
+				type: null,
+				curYear: null,
+				curMonth: null,
+				curDate: null,
+				myYearChart: echarts.init(document.getElementById('yearECharts')),
+				myMonthChart: echarts.init(document.getElementById('monthECharts')),
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+
+					reportForm.showCurDate(reportForm.dayTime);
+					reportForm.setSelectCurDate();
+					reportForm.getReportForm(1);
+					reportForm.getReportForm(2);
+					reportForm.getReportForm();
+
+					$("#DayPicker").on("tap", function() {
+						reportForm.type = $(this).data("type");
+						reportForm.dtPicker();
+					})
+
+					$("#MonthPicker").on("tap", function() {
+						reportForm.type = $(this).data("type");
+						reportForm.mtPicker();
+					})
+
+					//上一天
+					$("#previousDay").on("tap", function() {
+						reportForm.dayTime = reportForm.previousDay();
+						reportForm.getReportForm(1);
+					})
+
+					//上一月
+					$("#previousMonth").on("tap", function() {
+						reportForm.monthTime = reportForm.previousMouth();
+						reportForm.getReportForm(2);
+					})
+
+					//首次报表折线图展示
+					reportForm.getEChartsData('yearECharts');
+					reportForm.getEChartsData('monthECharts');
+
+					//折线图选择年
+					$(".select-year-echarts").on("tap", function() {
+						var type = $(this).data("type");
+						reportForm.EChartsPopPicker(type);
+					})
+
+					//折线图选择月
+					$(".select-month-echarts").on("tap", function() {
+						var type = $(this).data("type");
+						reportForm.EChartsDtPicker(type);
+					})
+
+				},
+
+				//前一天
+				previousDay: function() {
+					var now = new Date();
+					now.setDate(now.getDate() - 1);
+					var time = now.getFullYear() + '' + common.checktime(now.getMonth() + 1) + '' + common.checktime(now.getDate());
+					console.log(time)
+					return time;
+				},
+
+				//上个月
+				previousMouth: function() {
+					var now = new Date();
+					var time = now.getFullYear() + '' + common.checktime(now.getMonth()) + '' + common.checktime(now.getDate());
+					console.log(time)
+					return time;
+				},
+
+				splitTime: function() {
+					var dayTime = reportForm.dayTime.toString();
+					var day = dayTime.substring(0, 4) + "-" + dayTime.substring(4, 6) + "-" + dayTime.substring(6, 8);
+					return day;
+				},
+
+				splitMonth: function() {
+					var monthTime = reportForm.monthTime.toString();
+					var month = monthTime.substring(0, 4) + "-" + monthTime.substring(4, 6);
+					return month;
+				},
+
+				dtPicker: function() {
+					var picker = new mui.DtPicker({
+						type: "date",
+						beginYear: "2016", //设置开始日期
+						endYear: "2030", //设置结束日期
+					});
+					picker.show(function(res) {
+						reportForm.year = res.y.value;
+						reportForm.month = res.m.value;
+						reportForm.day = res.d.value;
+						reportForm.dayTime = res.y.value + res.m.value + res.d.value;
+						reportForm.showCurDate();
+						reportForm.getReportForm(reportForm.type);
+						picker.dispose();
+					});
+				},
+
+				mtPicker: function() {
+					var picker = new mui.DtPicker({
+						type: "month",
+						beginYear: "2016", //设置开始日期
+						endYear: "2030", //设置结束日期
+					});
+					picker.show(function(res) {
+						console.log(res)
+						reportForm.year = res.y.value;
+						reportForm.month = res.m.value;
+						reportForm.monthTime = res.y.value + res.m.value + res.d.value;
+						reportForm.showCurDate();
+						reportForm.getReportForm(reportForm.type);
+						picker.dispose();
+					});
+				},
+
+				showCurDate: function(res) {
+					var dayTime = reportForm.splitTime(res);
+					var monthTime = reportForm.splitMonth(res);
+					$('.day-time').text(dayTime);
+					$('.month-time').text(monthTime);
+				},
+
+				getReportForm: function(type) {
+					var data = {};
+					if(type === 1) {
+						data = {
+							datetime: reportForm.dayTime,
+							//openid: JSON.parse(common.getStorage('userInfo')).shop_openid,
+							type: type
+						};
+					} else if(type === 2) {
+						data = {
+							datetime: reportForm.monthTime,
+							//openid: JSON.parse(common.getStorage('userInfo')).shop_openid,
+							type: type
+						};
+					} else {
+						data = {
+							//openid: JSON.parse(common.getStorage('userInfo')).shop_openid,
+						};
+					}
+
+					common.ajaxRequest({
+						u: 'Report/data.html?',
+						d: data
+					}, function(res) {
+						reportForm.showReportForm(res, type);
+					});
+				},
+
+				showReportForm: function(res, type) {
+					var activeStoresArr = res.active_stores;
+					var sumStoresArr = res.sum_stores;
+					if(activeStoresArr.length > 0 && sumStoresArr.length > 0) {
+						if(type === 1) {
+							reportForm.setDayStoresEle(activeStoresArr, sumStoresArr);
+						} else if(type === 2) {
+							reportForm.setMonthStoresEle(activeStoresArr, sumStoresArr);
+						} else {
+							reportForm.setStoresEle(activeStoresArr, sumStoresArr);
+						}
+					};
+				},
+				setDayStoresEle: function(listArr, allArr) {
+					var activeHtml = [],
+						totalHtml = [],
+						total_count = 0,
+						total_amount = 0,
+						total_consumption = 0,
+						total_consumption_recharge = 0;
+					activeHtml.push('<tr>');
+					activeHtml.push('	<th width="22%">门店</th>');
+					activeHtml.push('	<th width="19%">充值单数(单)</th>');
+					activeHtml.push('	<th width="20%">充值金额(元)</th>');
+					activeHtml.push('	<th width="19%">本店消费(次)</th>');
+					activeHtml.push('	<th width="20%">跨店消费(它存本取)</th>');
+					activeHtml.push('</tr>');
+
+					activeHtml.push('<tr>');
+					activeHtml.push('	<td>总计</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_count != null ? allArr[0].sum_count : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_amount != null ? allArr[0].sum_amount : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_consumption != null ? allArr[0].sum_consumption : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].consumption_recharge != null ? allArr[0].consumption_recharge : 0) + '</td>');
+					activeHtml.push('</tr>');
+
+					for(var i = 0; i < listArr.length; i++) {
+						activeHtml.push('<tr>');
+						activeHtml.push('	<td>' + listArr[i].stores_name + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].count != null ? listArr[i].count : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].amount != null ? listArr[i].amount : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption != null ? listArr[i].consumption : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption_recharge != null ? listArr[i].consumption_recharge : 0) + '</td>');
+						activeHtml.push('</tr>');
+					}
+					$('#reportFormTableYes').html(activeHtml.join(''))
+				},
+
+				setMonthStoresEle: function(listArr, allArr) {
+					var activeHtml = [],
+						totalHtml = [],
+						total_count = 0,
+						total_amount = 0,
+						total_consumption = 0,
+						total_consumption_recharge = 0;
+					activeHtml.push('<tr>');
+					activeHtml.push('	<th width="22%">门店</th>');
+					activeHtml.push('	<th width="19%">充值单数(单)</th>');
+					activeHtml.push('	<th width="20%">充值金额(元)</th>');
+					activeHtml.push('	<th width="19%">本店消费(次)</th>');
+					activeHtml.push('	<th width="20%">跨店消费(它存本取)</th>');
+
+					activeHtml.push('<tr>');
+					activeHtml.push('	<td>总计</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_count != null ? allArr[0].sum_count : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_amount != null ? allArr[0].sum_amount : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_consumption != null ? allArr[0].sum_consumption : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].consumption_recharge != null ? allArr[0].consumption_recharge : 0) + '</td>');
+					activeHtml.push('</tr>');
+
+					for(var i = 0; i < listArr.length; i++) {
+						activeHtml.push('<tr>');
+						activeHtml.push('	<td>' + listArr[i].stores_name + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].count != null ? listArr[i].count : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].amount != null ? listArr[i].amount : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption != null ? listArr[i].consumption : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption_recharge != null ? listArr[i].consumption_recharge : 0) + '</td>');
+						activeHtml.push('</tr>');
+					}
+					$('#reportFormTableNo').html(activeHtml.join(''));
+				},
+
+				setStoresEle: function(listArr, allArr) {
+					var activeHtml = [],
+						totalHtml = [],
+						total_count = 0,
+						total_amount = 0,
+						total_consumption = 0,
+						total_consumption_recharge = 0;
+					activeHtml.push('<tr>');
+					activeHtml.push('	<th width="22%">门店</th>');
+					activeHtml.push('	<th width="19%">充值单数(单)</th>');
+					activeHtml.push('	<th width="20%">充值金额(元)</th>');
+					activeHtml.push('	<th width="19%">本店消费(次)</th>');
+					activeHtml.push('	<th width="20%">跨店消费(它存本取)</th>');
+
+					activeHtml.push('<tr>');
+					activeHtml.push('	<td>总计</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_count != null ? allArr[0].sum_count : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_amount != null ? allArr[0].sum_amount : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].sum_consumption != null ? allArr[0].sum_consumption : 0) + '</td>');
+					activeHtml.push('	<td>' + (allArr[0].consumption_recharge != null ? allArr[0].consumption_recharge : 0) + '</td>');
+					activeHtml.push('</tr>');
+
+					for(var i = 0; i < listArr.length; i++) {
+						activeHtml.push('<tr>');
+						activeHtml.push('	<td>' + listArr[i].stores_name + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].count != null ? listArr[i].count : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].amount != null ? listArr[i].amount : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption != null ? listArr[i].consumption : 0) + '</td>');
+						activeHtml.push('	<td>' + (listArr[i].consumption_recharge != null ? listArr[i].consumption_recharge : 0) + '</td>');
+						activeHtml.push('</tr>');
+					}
+					$('#reportFormTable').html(activeHtml.join(''));
+				},
+
+				EChartsPopPicker: function(type) {
+					var yearArr = [],
+						curYear = new Date().getFullYear(),
+						picker = new mui.PopPicker();
+					for(var i = 2017; i <= curYear; i++) {
+						yearArr.push({
+							value: i,
+							text: i
+						});
+					}
+					picker.setData(yearArr)
+					picker.pickers[0].setSelectedValue(curYear, 2000);
+					picker.show(function(res) {
+						console.log(res[0].value);
+						reportForm.curYear = res[0].value;
+						reportForm.showSelectCurDate(type);
+						reportForm.getEChartsData(type);
+						picker.dispose();
+					});
+				},
+
+				EChartsDtPicker: function(type) {
+					var picker = new mui.DtPicker({
+						type: "month",
+						beginYear: "2017", //设置开始日期
+						endYear: new Date().getFullYear(), //设置结束日期
+					});
+					picker.show(function(res) {
+						console.log(res)
+						reportForm.curYear = res.y.value;
+						reportForm.curMonth = res.m.value;
+						reportForm.monthTime = res.y.value + res.m.value + res.d.value;
+						reportForm.showSelectCurDate(type);
+						reportForm.getEChartsData(type);
+						picker.dispose();
+					});
+				},
+
+				setSelectCurDate: function() {
+					var _date = new Date();
+					var curYear = _date.getFullYear(),
+						curMonth = _date.getMonth() + 1,
+						curDate = _date.getDate();
+
+					reportForm.curYear = curYear;
+					reportForm.curMonth = common.checktime(curMonth);
+					reportForm.curDate = curDate;
+					reportForm.showSelectCurDate();
+				},
+
+				showSelectCurDate: function(type) {
+					var dateY = reportForm.curYear,
+						dateM = reportForm.curMonth;
+					if(type && type == 'yearECharts') {
+						$(".select-year-echarts-val").text(dateY + "年");
+					} else if(type && type == 'monthECharts') {
+						$(".select-month-echarts-val").text(dateY + "年" + dateM + "月");
+					} else {
+						$(".select-year-echarts-val").text(dateY + "年");
+						$(".select-month-echarts-val").text(dateY + "年" + dateM + "月");
+					}
+				},
+
+				setEChartsOption: function(type, data) {
+					console.log(data)
+					var nodatastr = '<span class="no-chearts-data">没有相关营销数据哦！</span>';
+					if(data.xtime.length <= 0 && data.ymoney.length <= 0) {
+						if(type == 'yearECharts')
+							$('#yearECharts').append(nodatastr);
+						else
+							$('#monthECharts').append(nodatastr);
+					} else {
+						if(type == 'yearECharts')
+							$('#yearECharts .no-chearts-data').remove();
+						else
+							$('#monthECharts .no-chearts-data').remove();
+					}
+					return data = {
+						title: {
+							text: type == 'yearECharts' ? '月报表' : '日报表'
+						},
+						tooltip: {
+							trigger: 'axis',
+							axisPointer: {
+								type: 'cross'
+							}
+						},
+						grid: {
+							left: '20%',
+							right: '12%'
+						},
+						xAxis: {
+							type: 'category',
+							name: type == 'yearECharts' ? '月' : '日',
+							boundaryGap: false,
+							data: data.xtime
+						},
+						yAxis: {
+							type: 'value',
+							name: '元',
+							boundaryGap: [0, '100%']
+						},
+						series: [{
+							name: '营业额',
+							data: data.ymoney,
+							type: 'line',
+							itemStyle: {
+								normal: {
+									color: 'rgb(0, 111, 255)'
+								}
+							},
+							areaStyle: {
+								normal: {
+									color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+										offset: 0,
+										color: 'rgb(0, 210, 255)'
+									}, {
+										offset: 1,
+										color: 'rgb(3, 113, 255)'
+									}])
+								}
+							},
+						}]
+					}
+				},
+
+				getEChartsData: function(type) {
+					var data = {
+						datetime: type == 'yearECharts' ? reportForm.curYear : reportForm.curYear + '' + reportForm.curMonth,
+						//openid: JSON.parse(common.getStorage('userInfo')).shop_openid,
+						type: type == 'yearECharts' ? 1 : 2
+					};
+					common.ajaxRequest({
+						u: 'Report/line.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+						if(type == 'yearECharts') {
+							reportForm.myYearChart.setOption(reportForm.setEChartsOption(type, res), true);
+						} else {
+							reportForm.myMonthChart.setOption(reportForm.setEChartsOption(type, res), true);
+						}
+					})
+				},
+
+			};
+			$(function() {
+				reportForm.init();
+			});
+		</script>
+
+	</body>
+
+</html>

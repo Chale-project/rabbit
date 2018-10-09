@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>店铺月报表</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<div class="shop-month-record">
+				<div class="shop-month-record-header">
+					<div class="mui-row">
+						<div class="mui-col-xs-8 shop-month-record-header-left">
+							<p>本月营收（元）</p>
+							<p class="mui-ellipsis"><span class="total-shop-month-money">0.00</span></p>
+						</div>
+						<div class="mui-col-xs-4 shop-month-record-header-right">
+							<div id="DtPicker" class="date-y-m">
+								<div class="date-y"></div>
+								<div class="date-m"><span class="date-cur-m"></span><span class="mui-icon icon-date"></span></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="shop-month-record-contents">
+					<div id="pullRefresh" class="mui-scroll-wrapper">
+						<div class="mui-scroll">
+							<ul id="shopMonthRdcordList" class="mui-table-view shop-month-rdcord-list">
+								<!--<li class="mui-table-view-cell mui-media" data-clerkid="1">
+									<a href="clerkRecord.html" class="mui-navigate-right">
+										<img class="mui-media-object mui-pull-left clerk-avatar" src="http://placehold.it/40x30">
+										<div class="mui-media-body">
+											<div class="mui-row">
+												<div class="mui-col-xs-9">
+													<p class="shop-month-name mui-ellipsis"><span>艾琳</span></p>
+													<p class="shop-month-time mui-ellipsis">本月收入</p>
+												</div>
+												<div class="mui-col-xs-3"><span class="shop-month-money">1000元</span></div>
+											</div>
+										</div>
+									</a>
+								</li>-->
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var shopMonthRecord = {
+				y: null,
+				m: null,
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					year: null,
+					month: null,
+					day: null,
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					shopMonthRecord.setCurDate();
+					shopMonthRecord.getShopMonthList();
+					$("#DtPicker").on("tap", function() {
+						shopMonthRecord.dtPicker();
+					});
+
+					$('.shop-month-record').on('tap', '.dresser-id', function() {
+						var dresserid = $(this).data('dresserid'),
+							y = shopMonthRecord.y,
+							m = shopMonthRecord.m;
+							common.urlOpen('clerkRecord.html?dresserid=' + dresserid + '&y=' + y + '&m=' + m + '&typeDB=1')
+					});
+				},
+				showShopMonthTotalMoney: function(res) {
+					var totalMoney = parseFloat(res.totalMoney).toFixed(2);
+					$(".total-shop-month-money").html(totalMoney);
+				},
+				setCurDate: function() {
+					var _date = new Date();
+					var curYear = _date.getFullYear(),
+						curMonth = _date.getMonth() + 1,
+						curDate = _date.getDate();
+					shopMonthRecord.data.year = curYear;
+					shopMonthRecord.data.month = curMonth;
+					shopMonthRecord.data.day = curDate;
+
+
+					shopMonthRecord.y = curYear;
+					shopMonthRecord.m = curMonth;
+
+					shopMonthRecord.showCurDate();
+				},
+				showCurDate: function() {
+					var dateY = shopMonthRecord.data.year,
+						dateM = shopMonthRecord.data.month;
+					$(".date-y").text(dateY + "年")
+					$(".date-cur-m").text(dateM + "月")
+				},
+				dtPicker: function() {
+					var picker = new mui.DtPicker({
+						type: "month",
+						beginYear: "2015", //设置开始日期 
+						endYear: shopMonthRecord.y, //设置结束日期 
+					});
+					picker.show(function(res) {
+
+						var curYear = res.y.value,
+							curMonth = res.m.value,
+							curDate = parseInt(res.d.value);
+
+						shopMonthRecord.data.year = curYear;
+						shopMonthRecord.data.month = curMonth;
+
+						shopMonthRecord.y = curYear;
+						shopMonthRecord.m = curMonth;
+
+						shopMonthRecord.showCurDate();
+						shopMonthRecord.data.page = 1;
+						$("#shopMonthRdcordList").html("");
+						shopMonthRecord.getShopMonthList();
+						picker.dispose();
+					});
+				},
+				getShopMonthList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								shopMonthRecord.showShopMonthList(this)
+							}
+						}
+					});
+				},
+				showShopMonthList: function(_this) {
+					var data = shopMonthRecord.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupMonthSettle.html?',
+						d: data
+					}, function(res) {
+						shopMonthRecord.showShopMonthTotalMoney(res)
+						if(res.consumlist.length > 0) {
+							var p = shopMonthRecord.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								shopMonthRecord.data.page = p;
+							}
+							var list = res.consumlist;
+							for(i in list) {
+								var _item = shopMonthRecord.renderShopMonthList(list[i]);
+								$("#shopMonthRdcordList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderShopMonthList: function(d) {
+					var html = [];
+					html.push('	<a href="javascript:;" class="mui-navigate-right">');
+					html.push('		<img class="mui-media-object mui-pull-left clerk-avatar" src="' + (d.headimgurl ? d.headimgurl : '../assets/images/avatar.png') + '">');
+					html.push('		<div class="mui-media-body">');
+					html.push('			<div class="mui-row">');
+					html.push('				<div class="mui-col-xs-9">');
+					html.push('					<p class="shop-month-way mui-ellipsis">' + d.username + '</p>');
+					html.push('					<p class="shop-month-time mui-ellipsis">本月收入</p>');
+					html.push('				</div>');
+					html.push('				<div class="mui-col-xs-3"><span class="shop-month-money">' + d.amount + '元</span></div>');
+					html.push('			</div>');
+					html.push('		</div>');
+					html.push('	</a>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media dresser-id';
+					li.dataset.dresserid = d.id;
+					li.innerHTML = html.join('');
+					return li;
+				}
+			}
+			$(function() {
+				shopMonthRecord.init();
+			})
+		</script>
+	</body>
+
+</html>

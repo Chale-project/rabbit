@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>添加店员</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="clerk-add">
+				<form id="addClerkForm" class="mui-input-group">
+					<div class="mui-input-row">
+						<label><span class="mui-icon mui-icon-contact icon-label"></span></label>
+						<input type="text" name="dressername" placeholder="输入昵称">
+					</div>
+					<div class="mui-input-row">
+						<label><span class="mui-icon-extra mui-icon-extra-phone icon-label"></span></label>
+						<input type="text" name="mobile" maxlength="11" placeholder="输入手机号" pattern="[0-9]*">
+					</div>
+				</form>
+				<button type="button" id="addClerk" class="mui-btn mui-btn-block btn-add-clerk">添加店员</button>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var addClerk = {
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					dressername: '',
+					mobile: '',
+				},
+				init: function() {
+					$('#addClerkForm').on('input', 'input[name="dressername"]', function() {
+						$('#addClerk').prop('disabled', false);
+						addClerk.data.dressername = $.trim($(this).val())
+						console.log(addClerk.data.dressername)
+					}).on('input', 'input[name="mobile"]', function() {
+						$('#addClerk').prop('disabled', false);
+						addClerk.data.mobile = $.trim($(this).val())
+					})
+
+					$("#addClerk").on("tap", function() {
+						var _flag = addClerk.checkNamePhone();
+						_flag && addClerk.clerkAdd();
+					})
+				},
+
+				//添加化妆师
+				clerkAdd: function(data) {
+					var data = addClerk.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupAddDresser.html?',
+						d: data
+					}, function(res) {
+						$('#addClerk').prop('disabled', false);
+						common.layerMsg('添加成功！');
+						setTimeout(function() {
+							common.urlOpen('clerkManage.html?')
+						}, 800)
+					})
+				},
+
+				//校验用户输入信息
+				checkNamePhone: function() {
+					var regxEny = /^(1)[0-9]{10}$/;
+					if(!addClerk.data.dressername) {
+						common.layerMsg('请输入昵称！');
+						return false;
+					} else if(!regxEny.test(addClerk.data.mobile)) {
+						common.layerMsg('请输入有效的手机号！');
+						return false;
+					} else {
+						$('#addClerk').prop('disabled', true);
+						return true;
+					}
+				},
+
+			}
+			$(function() {
+				addClerk.init();
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>店员管理</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<div class="clerk-manage">
+				<div id="pullRefresh" class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="clerkList" class="mui-table-view clerk-list">
+							<!--<li class="mui-table-view-cell mui-media">
+								<a href="javascript:;">
+									<img class="mui-media-object mui-pull-left clerk-avatar" src="../assets/images/avatar.png">
+									<div class="mui-media-body">
+										<p class="clerk-name mui-ellipsis">ressername</p>
+										<p class="create-time mui-ellipsis">regtime</p>
+									</div>
+								</a>
+								<div class="operate"><span class="btn-edit">修改</span><span class="btn-delete">删除</span></div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var clerkList = {
+				mobile: '',
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					clerkList.pullRefreshList();
+
+					$(".clerk-manage").on("tap", ".btn-edit", function() {
+						var mobile = $(this).parents("li").data("clerkmobile"),
+							clerkid = $(this).parents("li").data("clerkid"),
+							clerkname = $(this).parents("li").find(".clerk-name").text();
+						clerkList.alertEdit(clerkid, clerkname, mobile);
+					});
+					$(".clerk-manage").on("tap", ".btn-delete", function() {
+						var clerkid = $(this).parents("li").data("clerkid");
+						clerkList.alertDelete(clerkid);
+					});
+
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								clerkList.getClerkList(this)
+							}
+						}
+					});
+				},
+
+				getClerkList: function(_this) {
+					var data = clerkList.data;
+
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupAddDresserList.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = clerkList.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								clerkList.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = clerkList.renderClerkList(list[i]);
+								$("#clerkList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderClerkList: function(d) {
+					var html = [];
+					html.push('	<a href="javascript:;">');
+					html.push('		<img class="mui-media-object mui-pull-left clerk-avatar" src="' + (d.headimgurl ? d.headimgurl : '../assets/images/avatar.png') + '">');
+					html.push('		<div class="mui-media-body">');
+					html.push('			<p class="clerk-name mui-ellipsis">' + d.dressername + '</p>');
+					html.push('			<p class="create-time mui-ellipsis">' + d.regdate + '添加</p>');
+					html.push('		</div>');
+					html.push('	</a>');
+					html.push('	<div class="operate"><span class="btn-edit">修改</span><span class="btn-delete">删除</span></div>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media';
+					li.dataset.clerkid = d.id;
+					li.dataset.clerkmobile = d.mobile;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				alertEdit: function(id, username, mobile) {
+					var dialogConArr = [];
+					dialogConArr.push('<form id="editClerkForm" class="edit-clerk-form mui-input-group">');
+					dialogConArr.push('	<div class="mui-input-row">');
+					dialogConArr.push('		<label><span class="mui-icon mui-icon-contact label-icon"></span></label>');
+					dialogConArr.push('		<input type="text" name="dressername" placeholder="" value="' + username + '">');
+					dialogConArr.push('	</div>');
+					dialogConArr.push('	<div class="mui-input-row">');
+					dialogConArr.push('		<label><span class="mui-icon-extra mui-icon-extra-phone label-icon"></span></label>');
+					dialogConArr.push('		<input type="text" name="mobile" placeholder="" value="' + mobile + '">');
+					dialogConArr.push('	</div>');
+					dialogConArr.push('</form>');
+					common.layerConfirm({
+						t: '修改店员信息',
+						c: dialogConArr.join(''),
+						b: ['取消', '确认'],
+						n: function(i) {
+							var name = $('input[name="dressername"]').val(),
+								mobile = $('input[name="mobile"]').val(),
+								flag = clerkList.checkNamePhone(name, mobile);
+							flag && clerkList.editClerk(id, name, mobile);
+						}
+					})
+				},
+
+				editClerk: function(id, name, mobile) {
+					var data = {
+						dresser_id: id,
+						dressername: name,
+						mobile: mobile
+					};
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupAddDresserUpate.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('操作成功！');
+						WCY.reload()
+					})
+				},
+
+				checkNamePhone: function(name, mobile) {
+					var regxEny = /^(1)[0-9]{10}$/;
+					if(!name) {
+						common.layerMsg('请输入用户名！');
+						return false;
+					} else if(!regxEny.test(mobile)) {
+						common.layerMsg('请输入正确的手机号！');
+						return false;
+					} else {
+						return true;
+					}
+				},
+
+				alertDelete: function(id) {
+					var btnArray = ['确定', '取消'];
+					common.layerConfirm({
+						t: '提示',
+						c: '确认删除该化妆师吗？',
+						b: ['取消', '确认'],
+						n: function(i) {
+							clerkList.deleteClerk(id);
+						}
+					})
+				},
+
+				deleteClerk: function(id) {
+					var data = {
+						dresser_id: id,
+					};
+
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupAddDresserDelete.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('操作成功！');
+						WCY.reload()
+					})
+				}
+			}
+			$(function() {
+				clerkList.init();
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>订单详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="order-detail">
+					<div class="order-detail-status mui-clearfix">
+						<div class="order-detail-status-icon">
+							<img src="../assets/images/logo.png" />
+						</div>
+						<div class="order-detail-status-content">
+							<h2 class="order-detail-status-desc"></h2>
+							<p class="order-detail-status-money"></p>
+						</div>
+					</div>
+
+					<div class="order-detail-logostics mui-clearfix">
+						<div class="order-detail-logostics-icon">
+							<img src="../assets/images/wuliu.png" />
+						</div>
+						<div class="order-detail-logostics-content">
+							<h2 class="order-detail-logostics-desc">查看您的物流信息 （共有<span>0</span>个物流）</h2>
+						</div>
+					</div>
+
+					<div class="order-detail-address mui-clearfix">
+						<div class="order-detail-address-icon">
+							<img src="../assets/images/address.png" />
+						</div>
+						<div class="order-detail-address-content">
+							<h2 class="order-detail-address-name-phone">
+								<span class="order-detail-address-name"></span>
+								<span class="order-detail-address-phone"></span>
+							</h2>
+							<p class="order-detail-address-detail"></p>
+						</div>
+					</div>
+					<div id="orderDetailList" class="order-detail-product">
+
+					</div>
+					<div class="order-detail-amount-money">
+						<ul class="mui-list-unstyled">
+							<li><span class="goods-total-price">￥ 0</span>商品小计</li>
+							<li><span class="goods-logistics-price">￥ 0</span>运费小计</li>
+							<li><span class="goods-discount-price">-￥ 0</span>优惠抵扣</li>
+							<li><span class="goods-pay-price">￥ 0</span>实付金额（含运费）</li>
+						</ul>
+					</div>
+					<div class="order-detail-time">
+						<ul class="mui-list-unstyled order-time">
+							<li>订单编号：<span class="order-number"></span></li>
+
+						</ul>
+					</div>
+					<div class="order-detail-pay-type">
+						<h2>支付方式：</h2>
+						<ul class="mui-list-unstyled order-pay-type">
+							<li>afas<span class="mui-pull-right">131</span></li>
+						</ul>
+					</div>
+
+					<div class="order-detail-operate">
+						<button type="button" class="mui-btn btn-off">取消订单</button>
+						<button type="button" class="mui-btn btn-pay">支付订单</button>
+						<button type="button" class="mui-btn btn-warn">等待发货</button>
+						<button type="button" class="mui-btn btn-logistics">查看物流</button>
+						<button type="button" class="mui-btn btn-receipt">确认收货</button>
+						<button type="button" class="mui-btn btn-buy-again">再次购买</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var OrderDetail = {
+				orId: common.getQueryString('ordetailid'),
+				orLongId: null,
+				orPayId: null,
+				orNumber: null,
+				logisticsLhegth: 0,
+				logisticsNumber: null,
+				defaultThumb: '../assets/images/logo.png',
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+
+					OrderDetail.getOrderDetail();
+
+					//取消订单
+					$('.order-detail').on('tap', '.btn-off', function() {
+						mui.confirm('确认取消该订单？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								OrderDetail.orderUpdate();
+							}
+						});
+					});
+
+					//支付订单
+					$('.order-detail').on('tap', '.btn-pay', function() {
+						var id = OrderDetail.orPayId,
+							ornumber = OrderDetail.orNumber;
+						common.urlOpen('payment.html?orderid=' + id + '&ornumber=' + ornumber);
+					});
+
+					//查看物流
+					$('.order-detail').on('tap', '.order-detail-logostics,.btn-logistics', function() {
+						if(OrderDetail.logisticsLhegth == 1) {
+							common.urlOpen('logisticsDetail.html?orderid=' + OrderDetail.orLongId + '&logisticsnumber=' + OrderDetail.logisticsNumber)
+						} else if(OrderDetail.logisticsLhegth > 1) {
+							common.urlOpen('logistics.html?orId=' + OrderDetail.orLongId)
+						} else {
+							common.layerMsg('您的爱品还没有相关物流信息哦^_^')
+						}
+					})
+					//确认收货
+					$('.order-detail').on('tap', '.btn-receipt', function() {
+						mui.confirm('确认收货？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								OrderDetail.goodsReceipt();
+							}
+						});
+					});
+
+					//再次购买
+					$('.order-detail').on('tap', '.btn-buy-again', function() {
+
+					});
+
+				},
+
+				getOrderDetail: function() {
+					var data = {
+						orderId: OrderDetail.orId
+					};
+					common.ajaxRequest({
+						u: 'Order/orderDetails.html?',
+						d: data
+					}, function(res) {
+						OrderDetail.orPayId = res.order_info.id;
+						OrderDetail.orLongId = res.order_info.id;
+						OrderDetail.orNumber = res.order_info.mo_number;
+						OrderDetail.showOrderStatusInfo(res);
+						OrderDetail.showOrderTotalInfo(res);
+						OrderDetail.showOrderconsigneeInfo(res);
+						OrderDetail.showOrderGoodsInfo(res);
+						OrderDetail.showOrderTime(res);
+						OrderDetail.showOperationBtn(res);
+						OrderDetail.showOrderPayType(res);
+					});
+				},
+
+				showOrderStatusInfo: function(obj) {
+					var orderInfo = obj.order_info;
+
+					$('.order-detail-status-desc').text(orderInfo.status);
+					$('.order-detail-status-money').text('支付金额：￥' + orderInfo.mo_pay_price);
+					$('.order-detail-status-icon img').attr('src', '../assets/images/endimg.png');
+					$('.order-detail-logostics').css('display', 'block');
+					OrderDetail.showLogistics(obj);
+					if(orderInfo.mo_status == 1) {
+						$('.order-detail-status-icon img').attr('src', '../assets/images/waitpay.png');
+					} else if(orderInfo.mo_status == 2) {
+						$('.order-detail-status-icon img').attr('src', '../assets/images/waitship.png');
+					} else if(orderInfo.mo_status == 3) {
+						$('.order-detail-status-icon img').attr('src', '../assets/images/waitship.png');
+					}
+				},
+				showLogistics: function(obj) {
+					var logisticsLength = obj.logistics_number,
+						logisticsNumber = obj.logistics_oddNumber;
+					OrderDetail.logisticsLhegth = logisticsLength;
+					OrderDetail.logisticsNumber = logisticsNumber;
+					if(logisticsLength > 0) {
+						$('.order-detail-logostics-desc span').text(logisticsLength)
+					}
+				},
+				showOrderconsigneeInfo: function(obj) {
+					var address = obj.address;
+					$('.order-detail-address-name').text(address.name);
+					$('.order-detail-address-phone').text(address.cellphone);
+					$('.order-detail-address-detail').text(address.region + ' ' + address.addressline);
+				},
+				showOrderGoodsInfo: function(obj) {
+					var splist = obj.order_list;
+					if(splist.length > 0) {
+						var html = [];
+						for(var i = 0; i < splist.length; i++) {
+							html.push('<div class="order-detail-product-item">');
+							html.push('	<div class="order-detail-product-seller"><span>商家</span>' + splist[i].supplier_name + '</div>');
+							html.push('	<div class="order-detail-product-seller-goods">');
+							var gdlist = splist[i].list;
+							for(var j = 0; j < gdlist.length; j++) {
+								html.push('		<div class="order-detail-goods-list mui-clearfix">');
+								html.push('			<div class="order-detail-goods-list-thumb">');
+								html.push('				<img src="' + (gdlist[j].thumbnail ? filesService + gdlist[j].thumbnail : OrderDetail.defaultThumb) + '" />');
+								html.push('			</div>');
+								html.push('			<div class="order-detail-goods-list-info">');
+								html.push('				<h2 class="mui-ellipsis-2">' + gdlist[j].goods_name + '</h2>');
+								html.push('				<div class="order-detail-goods-list-price-remark-number">');
+								html.push('					<span class="order-detail-goods-list-price">￥' + gdlist[j].goods_pric + '</span>');
+								html.push('					<span class="order-detail-goods-list-remark-number">' + (gdlist[j].goods_attribute != null ? common.strReplace(gdlist[j].goods_attribute) : '') + ' <em>X ' + gdlist[j].goods_number + '</em></span>');
+								html.push('				</div>');
+								html.push('			</div>');
+								html.push('		</div>');
+							}
+							html.push('	</div>');
+							html.push('</div>');
+
+						}
+						$('#orderDetailList').html(html.join(''));
+					} else {
+						//无订单商品
+					}
+				},
+
+				showOrderTotalInfo: function(obj) {
+					var orderInfo = obj.order_info
+					$('.goods-total-price').text('￥' + orderInfo.mo_price)
+					$('.goods-logistics-price').text('￥' + orderInfo.mo_delivery_cost)
+					$('.goods-discount-price').text('-￥' + orderInfo.mo_sales_price)
+					$('.goods-pay-price').text('￥' + orderInfo.mo_pay_price);
+				},
+
+				showOrderTime: function(obj) {
+					var times = obj.order_info;
+					$('.order-number').text(times.mo_number);
+					$('.order-time').append('<p>创建时间：' + times.order_time + '</p>')
+					if(times.mo_status != 1) {
+						$('.order-time').append('<p>支付时间：' + times.pay_time + '</p>')
+					} else if(times.mo_status != 7) {
+
+					} else if(times.mo_status == 4) {
+						$('.order-time').append('<p>确认收货：' + (times.mod_take_time ? times.mod_take_time : '') + '</p>')
+					};
+				},
+
+				showOperationBtn: function(obj) {
+					var btn = obj.order_info;
+					if(btn.mo_status == 1) {
+						$('.btn-off').css('display', 'inline-block');
+						$('.btn-pay').css('display', 'inline-block');
+					} else {
+						$('.order-detail-operate').css('display', 'none');
+					}
+				},
+
+				showOrderPayType: function(obj) {
+					var html = [],
+						paytype = obj.pay_detail;
+					if(paytype.length > 0) {
+						for(i in paytype) {
+							html.push('<li>' + paytype[i].type_name + ':<span class="mui-pull-right">' + paytype[i].mop_price + (paytype[i].mop_type == 4 ? ' 个' : ' 元') + '</span></li>');
+						}
+					} else {
+						html.push('<li>商品还未付款！</li>');
+					}
+					$('.order-pay-type').html(html.join(''))
+				},
+
+				//取消订单
+				orderUpdate: function() {
+					var data = {
+						orderId: OrderDetail.orId
+					};
+					console.log(data)
+					common.ajaxRequest({
+						u: 'Order/orderUpdate.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('你已取消该订单！');
+						WCY.reload()
+					});
+				},
+
+				goodsReceipt: function() {
+					var data = {
+						orderId: OrderDetail.orId
+					};
+					common.ajaxRequest({
+						u: 'Order/orderConfirm.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('确认收货成功！');
+						WCY.reload()
+					});
+				},
+			};
+			$(function() {
+				OrderDetail.init();
+			})
+		</script>
+	</body>
+
+</html>

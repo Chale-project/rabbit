@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>用豆记录</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content bean">
+			<div class="bean-header mui-row">
+				<div id="DtPicker" class="choice-time"></div>
+				<div class="delete-record">清空记录</div>
+			</div>
+			<div class="bean-content">
+				<div id="pullRefresh" class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="beanList" class="bean-list mui-table-view">
+							<!--<li class="mui-table-view-cell mui-media" data-clerkid="1">
+								<a href="javascript:;">
+									<div class="mui-row">
+										<div class="mui-col-xs-9">
+											<h3 class="mui-ellipsis">微信充值</h3>
+											<p class="mui-ellipsis">2017-09-04 23:05:54</p>
+										</div>
+										<div class="mui-col-xs-3"><span class="mui-pull-right consumption-plus">+88</span></div>
+									</div>
+								</a>
+							</li>-->
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var beanRecord = {
+				y: null,
+				m: null,
+				data: {
+					year: null,
+					month: null,
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					beanRecord.setCurDate();
+					beanRecord.showBeanList();
+
+					$("#DtPicker").on("tap", function() {
+						//beanRecord.dtPicker();
+					});
+
+					$('.delete-record').on('tap', function() {
+						common.layerConfirm({
+							c: '确认要清空记录吗？请谨慎操作！',
+							y: function() {
+								beanRecord.deleteBeanList();
+								layer.closeAll()
+							}
+						})
+					});
+
+				},
+
+				setCurDate: function() {
+					var _date = new Date();
+					var curYear = _date.getFullYear(),
+						curMonth = _date.getMonth() + 1,
+						curDate = _date.getDate();
+					beanRecord.data.year = curYear;
+					beanRecord.data.month = curMonth;
+
+					beanRecord.y = curYear;
+					beanRecord.m = curMonth;
+
+					beanRecord.showCurDate();
+				},
+
+				showCurDate: function() {
+					var dateY = beanRecord.data.year,
+						dateM = beanRecord.data.month;
+					$(".choice-time").text(dateY + "年" + dateM + "月")
+				},
+
+				dtPicker: function() {
+					var picker = new mui.DtPicker({
+						type: "month",
+						beginYear: "2017", //设置开始日期 
+						endYear: beanRecord.y, //设置结束日期 
+					});
+					picker.show(function(res) {
+						var curYear = res.y.value,
+							curMonth = res.m.value,
+							curDate = parseInt(res.d.value);
+
+						beanRecord.data.year = curYear;
+						beanRecord.data.month = curMonth;
+
+						beanRecord.y = curYear;
+						beanRecord.m = curMonth;
+
+						beanRecord.showCurDate();
+						beanRecord.data.page = 1;
+						$("#beanList").html("");
+						beanRecord.showBeanList();
+						picker.dispose();
+					});
+				},
+
+				showBeanList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								beanRecord.getBeanList(this)
+							}
+						}
+					});
+				},
+				getBeanList: function(_this) {
+					var data = beanRecord.data;
+					common.ajaxRequest({
+						u: 'card/getCardFlowList.html?',
+						d: data
+					}, function(res) {
+						if(res.flowList.length > 0) {
+							var p = beanRecord.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								beanRecord.data.page = p;
+							}
+							var list = res.flowList;
+							for(i in list) {
+								var _item = beanRecord.renderBeanList(list[i]);
+								$("#beanList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderBeanList: function(list) {
+					var html = [];
+					html.push('<a href="javascript:;">');
+					html.push('	<div class="mui-row">');
+					html.push('		<div class="mui-col-xs-9">');
+					html.push('			<h3 class="mui-ellipsis">' + list.remark + '</h3>');
+					html.push('			<p class="mui-ellipsis">' + list.addtime + '</p>');
+					html.push('		</div>');
+					html.push('		<div class="mui-col-xs-3">');
+					if(list.code == 'recharge' || list.code == 'backmoney' || list.code == 'buyback' || list.code == 'recive' || list.code == 'sendback') {
+						html.push('			<p class="consumption-plus">+' + list.par_value + '</p>');
+					} else if(list.code == 'consum' || list.code == 'send') {
+						html.push('			<p class="consumption-minus">-' + list.par_value + '</p>');
+					}
+					html.push('			<p class="identification">' + list.identification + '</p>');
+					html.push('		</div>');
+					html.push('	</div>');
+					html.push('</a>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media';
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//删除记录
+				deleteBeanList: function() {
+					var data = {
+						type: 0
+					};
+					common.ajaxRequest({
+						u: 'users/deleteCardFlow.html?'
+					}, function(res) {
+						common.layerMsg('清除成功！');
+						WCY.reload()
+					});
+				}
+			};
+
+			$(function() {
+				beanRecord.init();
+			});
+		</script>
+	</body>
+
+</html>

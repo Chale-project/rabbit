@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>支付</title>
+
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body class="pay-index">
+		<div class="btn-go-pay">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">立即支付</button>
+		</div>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="payment-index">
+					<div class="payment-money">
+						<h2>订单应付金额：<span>0.00</span></h2>
+					</div>
+					<form id="myform" class="mui-input-group">
+						<div class="pay-way">
+							<div class="pay-way-wechat">
+								<h4>微信支付金额：￥<span class="wechat-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="Wechat"><img class="pay-wechat" src="../assets/images/icon_wechat.png"/>微信支付</label>
+									<input name="payway" id="Wechat" type="radio" value="2">
+								</div>
+							</div>
+							<div class="pay-way-alipay">
+								<h4>支付宝支付金额：￥<span class="alipay-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="Alipay"><img class="pay-wallet" src="../assets/images/icon_ailpay.png"/>支付宝支付</label>
+									<input name="payway" id="Alipay" type="radio" value="3">
+								</div>
+							</div>
+							<div class="pay-way-white">
+								<h4>白条支付金额：￥<span class="white-pay-val">0.00</span></h4>
+								<div class="mui-input-row mui-radio mui-left">
+									<label for="Whitepay"><img class="pay-wallet" src="../assets/images/icon_white.png"/>白条剩余额度：<span class="cur-yue">0.00</span></label>
+									<input name="payway" id="Whitepay" type="radio" value="5">
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script src="../assets/js/ap.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var Payment = {
+				billId: common.getQueryString('bill_id'),
+				billMoney: common.getQueryString('bill_money'),
+				ordId: common.getQueryString('order_id'),
+				ordMoney: 0,
+				payWay: null,
+				whiteMoney: '0.00',
+				outTradeNo: '',
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					if(Payment.ordId) {
+						Payment.getPayInfo();
+					} else if(Payment.billId) {
+						Payment.showBillInfo();
+					}
+
+					$('.pay-index').on('tap', '.btn-pay', function() {
+						var flag = Payment.checkPay();
+						if(flag) {
+							if(Payment.ordId) {
+								Payment.toPay();
+							} else if(Payment.billId) {
+								Payment.toBillPay();
+							}
+						}
+					});
+
+					//余额支付或者微信支付
+					$('.pay-index').on('change', '.mui-radio', function() {
+						$('.pay-way .mui-radio').each(function() {
+							if($(this).find('input[type="radio"]').prop('checked')) {
+								$(this).addClass('active');
+							} else {
+								$(this).removeClass('active');
+							}
+						});
+						Payment.setPayWay();
+					});
+				},
+
+				//獲取訂單信息
+				getPayInfo: function() {
+					var data = {
+						id: Payment.ordId
+					};
+					common.ajaxRequest({
+						u: 'mk_order/select_pay_type.html?',
+						d: data
+					}, function(res) {
+						Payment.ordMoney = res.pay_price;
+						Payment.whiteMoney = res.credit;
+						Payment.showPayInfo(res);
+					});
+				},
+
+				//显示订单应付金额以及用户余额
+				showPayInfo: function(res) {
+					if(res.order_type == 1) $('.pay-way-white').css('display', 'block');
+					$('.payment-money span').text(res.pay_price)
+					$('.cur-yue').text(res.credit)
+				},
+
+				//显示还款相关信息
+				showBillInfo: function() {
+					Payment.ordMoney = Payment.billMoney;
+					$('.payment-money h2').html('应还款金额：<span>' + Payment.billMoney + '</span>')
+				},
+
+				//设置支付方式
+				setPayWay: function() {
+					Payment.payWay = [];
+					var othersPayWayChecked = $('input[type="radio"]:checked');
+					Payment.payWay = othersPayWayChecked.val();
+					Payment.setPayMoney(Payment.payWay);
+				},
+
+				setPayMoney: function(payway) {
+					if(payway == 2) {
+						$('.wechat-pay-val').text(Payment.ordMoney);
+						$('.alipay-pay-val').text('0.00');
+						$('.white-pay-val').text('0.00');
+					} else if(payway == 3) {
+						$('.wechat-pay-val').text('0.00');
+						$('.alipay-pay-val').text(Payment.ordMoney);
+						$('.white-pay-val').text('0.00');
+					} else if(payway == 5) {
+						$('.wechat-pay-val').text('0.00');
+						$('.alipay-pay-val').text('0.00');
+						$('.white-pay-val').text(Payment.ordMoney);
+					}
+				},
+
+				checkPay: function() {
+					var flag = !0;
+					if(!Payment.payWay) {
+						common.layerMsg('请选择支付方式！');
+						flag = !1;
+						return false;
+					}
+					if(Payment.payWay == 5 && (Payment.whiteMoney - Payment.ordMoney < 0)) {
+						common.layerMsg('您的白条额度不足以满足本次支付哦^_^');
+						flag = !1;
+						return false;
+					}
+					$('.btn-pay').prop('disabled', true);
+					return flag;
+				},
+
+				toPay: function(money) {
+					var data = {
+						order_id: Payment.ordId,
+						type: Payment.payWay
+					};
+					common.ajaxRequest({
+						u: 'mk_order/order_pay.html?',
+						d: data
+					}, function(res) {
+						$('.btn-pay').prop('disabled', false);
+						var _wePayinfo = res.wechatpayInfo;
+						if(res.wechatpayInfo) {
+							var _openid = res.wechatpayInfo.openid,
+								_order_sn = res.wechatpayInfo.order_sn,
+								_money = res.wechatpayInfo.money;
+							Payment.wechatPay(_openid, _order_sn, _money)
+						} else if(res.alipayInfo) {
+							Payment.aliPay(res.alipayInfo)
+						} else if(res.whiteInfo) {
+							Payment.jumpPaySuccessUrl();
+						}
+					});
+				},
+
+				//账单还款
+				toBillPay: function() {
+					var data = {
+						bill_id : Payment.billId,
+						type: Payment.payWay
+					};
+					common.ajaxRequest({
+						u: 'mk_order/credit_repayment.html?',
+						d: data
+					}, function(res) {
+						$('.btn-pay').prop('disabled', false);
+						var _wePayinfo = res.wechatpayInfo;
+						if(res.wechatpayInfo) {
+							var _openid = res.wechatpayInfo.openid,
+								_order_sn = res.wechatpayInfo.order_sn,
+								_money = res.wechatpayInfo.money;
+							Payment.wechatPay(_openid, _order_sn, _money)
+						} else if(res.alipayInfo) {
+							Payment.aliPay(res.alipayInfo)
+						}
+					});
+				},
+
+				//微信支付
+				wechatPay: function(openid, order_sn, money) {
+					var data = {
+						body: '通过微信支付:' + money + '元！',
+						openId: openid,
+						outTradeNo: order_sn,
+						totalFee: money,
+						type: 1
+					};
+					common.ajaxRequest({
+						u: 'orderpay/WechatPay.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+						Payment.wxPay(res.payinfo)
+					});
+
+				},
+
+				//拉起微信支付
+				wxPay: function(obj) {
+					var res = JSON.parse(obj.preResult);
+					wx.chooseWXPay({
+						appId: res.appId,
+						timestamp: res.timeStamp,
+						nonceStr: res.nonceStr,
+						package: res.package,
+						signType: res.signType,
+						paySign: res.paySign,
+						success: function(res) {
+							if(res.errMsg == "chooseWXPay:ok") {
+								//支付成功
+								Payment.jumpPaySuccessUrl();
+							} else {
+								common.layerMsg(res.errMsg);
+							}
+						},
+						fail: function(res) {
+							common.layerMsg('支付被失败，请重新支付^_^');
+							//alert(JSON.stringify(res));
+						},
+						cancel: function(res) {
+							//支付取消
+							common.layerMsg('支付被取消，请重新支付^_^');
+						}
+					});
+				},
+
+				//阿里支付
+				aliPay: function(href) {
+					_AP.pay(href);
+					return false;
+				},
+
+				//支付成功后跳转
+				jumpPaySuccessUrl: function() {
+					common.layerMsg('支付成功！')
+					setTimeout(function() {
+						common.urlReplace('../shop/user.html?')
+					}, 500)
+				}
+			};
+
+			$(function() {
+				Payment.init();
+			});
+		</script>
+	</body>
+
+</html>

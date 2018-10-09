@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>地址管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="btn-address-add">
+			<a href="javascript:;" class="mui-btn mui-btn-default mui-btn-block btn-address address-add-btn"><span class="mui-icon mui-icon-plusempty"></span>新增地址</a>
+		</div>
+		<div class="mui-content mui-scroll-wrapper" style="bottom: 80px;">
+			<div class="mui-scroll">
+				<div class="address-index">
+					<ul id="addressList" class="mui-table-view">
+
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Address = {
+				carts: common.getQueryString('carts'),
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					var referrer = document.referrer;
+					Address.getAddressList();
+
+					//切换绑定收货地址
+					$('#addressList').on('tap', '.address-select', function() {
+						if(Address.carts) {
+							var _this = $(this).parent('li'),
+								_id = _this.data('id'),
+								_name = _this.data('name'),
+								_phone = _this.data('phone'),
+								_pca = _this.data('pca'),
+								_detailed = _this.data('detailed'),
+								_default = _this.data('default'),
+								_address = {
+									'address_id': _id,
+									'ua_name': _name,
+									'ua_phone': _phone,
+									'ua_pca': _pca,
+									'ua_detailed': _detailed,
+									'default': _default
+								};
+							_this.addClass('mui-selected').siblings().removeClass('mui-selected');
+
+							common.setStorage('address', JSON.stringify(_address));
+
+							common.urlOpen('orderCreate.html?carts=' + Address.carts);
+						} else {
+							return false;
+						}
+					});
+
+					//设为默认
+					$('.address-index').on('tap', '.address-default', function() {
+						var hasclass = $(this).hasClass('mui-active');
+						var id = $(this).parents('li').data('id');
+						if(!hasclass)
+							Address.setDefault(id);
+						else
+							return false;
+					});
+
+					//添加
+					$('.address-add-btn').on('tap', function() {
+						if(Address.carts) {
+							common.urlOpen('addressAdd.html?carts=' + Address.carts)
+						} else {
+							common.urlOpen('addressAdd.html?')
+						}
+					});
+
+					//编辑
+					$('.address-index').on('tap', '.address-edit', function() {
+						var id = $(this).parents('li').data('id');
+						if(Address.carts) {
+							common.urlOpen('addressEdit.html?carts=' + Address.carts + '&address_id=' + id)
+						} else {
+							common.urlOpen('addressEdit.html?address_id=' + id)
+						}
+					});
+
+					//删除
+					$('.address-index').on('tap', '.address-delete', function() {
+						var id = $(this).parents('li').data('id'),
+							ele = $(this).parents('li');
+						mui.confirm('确定要删除此地址吗？', '提示', ['确定', '取消'], function(e) {
+							if(e.index == 0) {
+								Address.deleteAddress(id, ele);
+							}
+						})
+					});
+				},
+
+				getAddressList: function() {
+					common.ajaxRequest({
+						u: 'user_address/address_list.html?'
+					}, function(res) {
+						var addListArr = res.list;
+						if(addListArr.length > 0) {
+							Address.showAddressList(addListArr);
+						} else {
+							//请添加地址
+							$('#addressList').html('<li>' + WCY.nodata('还没有收货地址哦，请添加您的收货地址！') + '</li>')
+						}
+					});
+				},
+
+				showAddressList: function(obj) {
+					var html = [];
+					for(var i = 0; i < obj.length; i++) {
+						html.push('<li class="mui-table-view-cell" data-id="' + obj[i].id + '" data-name="' + obj[i].ua_name + '" data-phone="' + obj[i].ua_phone + '" data-pca="' + obj[i].ua_pca + '" data-detailed="' + obj[i].ua_detailed + '" data-default="' + obj[i].ua_default + '">');
+						html.push('	<div class="address-select">');
+						html.push('		<div class="mui-navigate-right">');
+						html.push('			<div class="address-info">');
+						html.push('				<h2 class="mui-ellipsis"><span class="address-info-name">' + obj[i].ua_name + '</span><span class="address-info-tel">' + obj[i].ua_phone + '</span></h2>');
+						html.push('				<p class="mui-ellipsis-2">' + obj[i].ua_pca + obj[i].ua_detailed + '</p>');
+						html.push('			</div>');
+						html.push('		</div>');
+						html.push('	</div>');
+						html.push('	<div class="address-operation">');
+						html.push('		<div class="mui-row">');
+						html.push('			<div class="mui-col-xs-6">');
+						html.push('				<a href="javascript:;" class="address-default' + (obj[i].ua_default == 1 ? ' mui-active' : '') + '">');
+						html.push('					<span class="mui-icon mui-icon-checkmarkempty"></span>' + (obj[i].ua_default == 1 ? ' 默认地址' : '设为默认'));
+						html.push('				</a>');
+						html.push('			</div>');
+						html.push('			<div class="mui-col-xs-3">');
+						html.push('				<a href="javascript:;" class="address-edit"> <span class="mui-icon mui-icon-compose"></span>编辑 </a>');
+						html.push('			</div>');
+						html.push('			<div class="mui-col-xs-3">');
+						html.push('				<a href="javascript:;" class="address-delete"> <span class="mui-icon mui-icon-trash"></span>删除 </a>');
+						html.push('			</div>');
+						html.push('		</div>');
+						html.push('	</div>');
+						html.push('</li>');
+					}
+					$('#addressList').html(html.join(''));
+				},
+
+				//删除
+				deleteAddress: function(id, ele) {
+					var data = {
+						id: id
+					};
+					common.ajaxRequest({
+						u: 'user_address/delete_address.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('删除成功！');
+						ele.slideUp('slow', function() {
+							ele.remove();
+						});
+						//	WCY.reload()
+					});
+				},
+
+				//设为默认
+				setDefault: function(id) {
+					var data = {
+						id: id
+					};
+					common.ajaxRequest({
+						u: 'user_address/set_default_address.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('操作成功！');
+						WCY.reload()
+					});
+				},
+
+			};
+
+			$(function() {
+				Address.init();
+			})
+		</script>
+	</body>
+
+</html>

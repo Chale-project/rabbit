@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>购物豆转赠</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/spec.select.css" />
+	</head>
+
+	<body>
+
+		<div class="red-packets robbing-packets  mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="red-packets-container robbing-packets-before">
+					<div class="user-info">
+						<div class="user-avatar">
+							<img src="../assets/images/avatar.png"></img>
+						</div>
+						<div class="user-name"></div>
+					</div>
+					<div class="red-packets-info">
+						<div class="red-packets-title">向你扔来一个红包</div>
+						<div class="red-packets-sub-title">看看你能抢到多少？</div>
+					</div>
+					<div class="btn-group-red-packets">
+						<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-open-red-packets">打开红包</button>
+					</div>
+				</div>
+
+				<div class="red-packets-container robbing-packets-after" style="display: none;">
+					<div class="user-info">
+						<div class="user-avatar">
+							<img src="../assets/images/avatar.png"></img>
+						</div>
+						<div class="user-name"></div>
+					</div>
+					<div class="red-packets-info">
+						<div class="red-packets-title"></div>
+						<div class="red-packets-sub-title"></div>
+						<div class="red-packets-revice-text"></div>
+					</div>
+					<div class="btn-group-red-packets mui-clearfix">
+						<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-robbed-record">查看领取</button>
+						<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-robbed-giveas">我也要送</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--領取記錄-->
+		<div class="mui-backdrop" style="display: none; opacity: 0;"></div>
+		<div class="spec-select">
+			<div class="spec-select-body" style="height: 100%;">
+				<div class="spec-select-header" style="padding: 0 6px 8px; text-align: center; color: #333;">看看大家的手气</div>
+				<div class="close-spec-select"> <span class="mui-icon mui-icon-closeempty"></span> </div>
+				<div class="red-packets-robbed-record">
+					<ul id="redPacketsRobbedRecord" class="mui-list-unstyled">
+
+					</ul>
+					<span class="red-packets-robbed-record-loading"></span>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var redPackets = {
+				redPacketsId: common.getQueryString('redPacketsId') || 'ZZ2018062412013820051',
+				status: 0,
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					redPackets.getRedPacketsInfo();
+					//领取红包
+					$('.red-packets').on('tap', '.btn-open-red-packets', function() {
+						redPackets.openRedPackets();
+					});
+
+					//領贈記錄隐藏
+					$('.mui-backdrop,.close-spec-select').on('tap', function() {
+						WCY.specSelect();
+					});
+
+					//拉起領贈記錄
+					$('.red-packets').on('tap', '.btn-robbed-record', function() {
+						WCY.specSelect();
+						redPackets.robbedRecord();
+
+					});
+
+					//我也要送
+					$('.red-packets').on('tap', '.btn-robbed-giveas', function() {
+						common.urlOpen('../shop/donation.html?')
+					});
+
+				},
+
+				//获取红包信息
+				getRedPacketsInfo: function() {
+					var data = {
+						order_sn: redPackets.redPacketsId
+					};
+					common.ajaxRequest({
+						u: 'card/checkSendInfo.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+
+						var sendInfo = res.sendInfo;
+						redPackets.status = sendInfo.status;
+						redPackets.showDonationBeanInfo(sendInfo);
+					});
+				},
+
+				//抢红包
+				openRedPackets: function() {
+					var data = {
+						order_sn: redPackets.redPacketsId
+					};
+					common.ajaxRequest({
+						u: 'card/userCardRecive.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+						var insertInfo = res.insertInfo;
+						redPackets.status = insertInfo.status;
+						redPackets.showDonationBeanInfo(insertInfo);
+					});
+				},
+
+				//显示红包获取信息
+				showDonationBeanInfo: function(obj) {
+					if(redPackets.status == 0) { //未开封红包
+						$('.robbing-packets-before').css('display', 'block')
+						$('.robbing-packets-after').css('display', 'none')
+						$('.user-avatar img').attr('src', obj.headimgurl)
+						$('.user-name').text(obj.nickname)
+						$('.robbing-packets-before .red-packets-title').text('向您扔来一个大红包')
+						$('.robbing-packets-before .red-packets-sub-title').text('超大红包在向您招手^_^')
+					} else if(redPackets.status == 1) { //抢到多少个红包
+						$('.robbing-packets-before').css('display', 'none')
+						$('.robbing-packets-after').css('display', 'block')
+						$('.robbing-packets-after').addClass('robbing-packets-success')
+						$('.user-avatar img').attr('src', obj.headimgurl)
+						$('.user-name').text(obj.nickname)
+						$('.robbing-packets-after .red-packets-title').text('恭喜您')
+						$('.robbing-packets-after .red-packets-sub-title').text('抢到' + obj.get_number + '购物豆^_^')
+						$('.robbing-packets-after .red-packets-revice-text').text('购物豆已存入您的账号:' + common.mobileToStar(obj.mobile))
+					} else if(redPackets.status == 2) { //来晚了没抢到红包
+						$('.robbing-packets-before').css('display', 'none')
+						$('.robbing-packets-after').css('display', 'block')
+						$('.robbing-packets-after').addClass('robbing-packets-fail')
+						$('.user-avatar img').attr('src', obj.headimgurl)
+						$('.user-name').text(obj.nickname)
+						$('.robbing-packets-after .red-packets-title').text('对不起')
+						$('.robbing-packets-after .red-packets-sub-title').text('您下手太晚,红包已经抢空啦^_^')
+					} else if(redPackets.status == 3) { //已经抢过了
+						$('.robbing-packets-before').css('display', 'none')
+						$('.robbing-packets-after').css('display', 'block')
+						$('.robbing-packets-after').addClass('robbing-packets-success')
+						$('.user-avatar img').attr('src', obj.headimgurl)
+						$('.user-name').text(obj.nickname)
+						$('.robbing-packets-after .red-packets-title').text('很抱歉')
+						$('.robbing-packets-after .red-packets-sub-title').text('您已经抢过了，不可贪心哦^_^')
+						$('.robbing-packets-after .red-packets-revice-text').text('购物豆已存入您的账号:' + common.mobileToStar(obj.mobile))
+					}
+				},
+
+				//抢的记录
+				robbedRecord: function() {
+					var data = {
+						order_sn: redPackets.redPacketsId
+					};
+					common.ajaxRequest({
+						u: 'card/getCardLogInfo.html?',
+						d: data
+					}, function(res) {
+						$('.red-packets-robbed-record-loading').css('display', 'none')
+						var recivelist = res.recivelist;
+						redPackets.showRobbedRecord(recivelist);
+					});
+				},
+
+				//展示抢的记录
+				showRobbedRecord: function(list) {
+					var html = [];
+					if(list.length > 0) {
+						for(i in list) {
+							html.push('<li class="red-packets-robbed-record-list mui-row">');
+							html.push('	<div class="robbed-record-avatar">');
+							html.push('		<img src="' + (list[i].headimgurl ? list[i].headimgurl : '../assets/images/avatar.png') + '" />');
+							html.push('	</div>');
+							html.push('	<div class="robbed-record-info">');
+							html.push('		<h2 class="robbed-record-nickname">' + list[i].nickname + '</h2>');
+							html.push('		<p class="robbed-record-time">' + list[i].recive_time + '</p>');
+							html.push('	</div>');
+							html.push('	<div class="robbed-record-val">' + list[i].amount + '</div>');
+							html.push('</li>');
+						}
+					} else {
+						html.push('<li class="robbed-record-nodata">没有领取记录！</li>');
+					}
+					$('#redPacketsRobbedRecord').html(html.join(''));
+				}
+			};
+			$(function() {
+				redPackets.init();
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>确认充值</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="storage-beer-content">
+				<!--当充值为钻卡时 类名gold替换为diamonds-->
+				<!--<div class="storage-beer-content-top">
+					<div class="beer-cards-level-money">
+						<span class="storage-beer-card-level"></span>
+						<span class="storage-beer-card-money"><i>元</i><i>瓶</i>1000元=500瓶5000元=20000积分</span>
+						<span class="storage-beer-card-money-bottom">充值0元</span>
+					</div>
+				</div>-->
+				<div class="storage-beer-content-bottom">
+					<div class="beer-cards-other-info">
+						<ul id="rechargeInfo" class="mui-list-unstyled">
+
+						</ul>
+					</div>
+				</div>
+				<!--<span class="park-layer-left"></span>
+				<span class="park-layer-right"></span>-->
+			</div>
+
+			<div class="button-default" style="padding: 15px 25px;">
+				<button type="button" id="storageBeerConfirm" class="mui-btn mui-btn-default mui-btn-block btn-storage-beer-confirm">确认</button>
+				<button type="button" id="storageBeerCancel" class="mui-btn mui-btn-default mui-btn-block btn-storage-beer-cancel">取消</button>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var beanRecharge = {
+				rechargeId: common.getQueryString('rechargeId'),
+				outTradeNo: null,
+				init: function() {
+					beanRecharge.getRechargeInfo();
+					//确认
+					$('.btn-storage-beer-confirm').on('tap', function() {
+						mui.confirm('确认继续本次充值', '提示', ['取消', '确认'], function(e) {
+							if(e.index == 1) {
+								$('button[type="button"]').prop('disabled', true)
+								beanRecharge.operate(1);
+							}
+						})
+					});
+
+					//取消
+					$('.btn-storage-beer-cancel').on('tap', function() {
+						mui.confirm('确认取消本次充值', '提示', ['取消', '确认'], function(e) {
+							if(e.index == 1) {
+								$('button[type="button"]').prop('disabled', true)
+								beanRecharge.operate(2);
+							}
+						})
+					});
+				},
+
+				//获取充值信息
+				getRechargeInfo: function() {
+					var data = {
+						rechargeId: beanRecharge.rechargeId
+					};
+					common.ajaxRequest({
+						u: 'qrcode_scan/rechargeDouScan.html?',
+						d: data
+					}, function(res) {
+						if(res.error_status == 0) {
+							beanRecharge.showRechargeInfo(res);
+						} else {
+							$('button[type="button"]').prop('disabled', true)
+							$('#rechargeInfo').html(WCY.errorMessageShow('抱歉，' + res.error_message))
+						}
+					});
+				},
+
+				//显示充值信息
+				showRechargeInfo: function(obj) {
+					var html = [],
+						rechargeInfo = obj.orderInfo;
+					beanRecharge.outTradeNo = rechargeInfo.order_sn;
+					html.push('<li>充值帐号：' + rechargeInfo.mobile + '</li>');
+					html.push('<li>充值金额：' + rechargeInfo.money + '</li>');
+					html.push('<li>充值单号：' + rechargeInfo.order_sn + '</li>');
+					html.push('<li>返购物豆：' + rechargeInfo.return_money + ' 个</li>');
+
+					//html.push('<li>推荐人昵称：' + rechargeInfo.refer_nickname + '</li>');
+					//html.push('<li>推荐人账号：' + rechargeInfo.refer_phone + '</li>');
+					html.push('<li>备注：' + rechargeInfo.remark + '</li>');
+					$('#rechargeInfo').html(html.join(''));
+
+				},
+
+				operate: function(status) {
+					var data = {
+						order_sn: beanRecharge.outTradeNo,
+						pay_type: 4,
+						status: status
+					};
+					common.ajaxRequest({
+						u: 'recharge/afterRechargeInfo.html?',
+						d: data
+					}, function(res) {
+						$('button[type="button"]').prop('disabled', false)
+						common.urlReplace('operateSuccess.html?')
+					});
+				}
+
+			};
+
+			$(function() {
+				beanRecharge.init();
+			});
+		</script>
+	</body>
+
+</html>

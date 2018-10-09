@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>添加商品</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+
+	</head>
+
+	<body>
+		<div class="footer-goods-add-nav">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-goods-add-audit">提交审核</button>
+		</div>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="goods-add-content">
+					<form id="goodsAddForm" class="mui-input-group">
+						<div class="mui-input-row">
+							<label>商品分类：</label>
+							<select class="goods-category" name="category_id">
+
+							</select>
+						</div>
+						<div class="mui-input-row">
+							<label>商品名称：</label>
+							<input type="text" class="goods-name" name="name" value="" placeholder="请输入商品名称">
+						</div>
+						<div class="mui-input-row">
+							<label>商品规格：</label>
+							<input type="text" class="goods-spec" name="spec" value="" placeholder="请输入商品单位，如:个。">
+						</div>
+						<div class="mui-input-row">
+							<label>商品进价：</label>
+							<input type="number" class="goods-original-price" name="purchase_price" value="" placeholder="请输入商品进价">
+						</div>
+						<div class="mui-input-row">
+							<label>商品售价：</label>
+							<input type="number" class="goods-selling-price" name="sell_price" value="" placeholder="请输入商品售价">
+						</div>
+						<div class="mui-input-row">
+							<label>商品佣金：</label>
+							<input type="number" class="goods-brokerage" name="commission_amount" value="" placeholder="请输入商品佣金">
+						</div>
+						<div class="mui-input-row">
+							<label>商品库存：</label>
+							<input type="number" class="goods-stock" name="stock" value="" placeholder="请输入商品库存">
+						</div>
+						<div class="mui-input-row">
+							<label>商品图片：</label>
+							<div class="btn-choice-goods-image">
+								<span class="mui-icon mui-icon-image choice-default-icon"></span>
+								<img class="goods_thumb" src="../assets/images/logo.png" />
+							</div>
+							<input type="hidden" class="goods-thumb" name="img" value="">
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var goodsAdd = {
+				i: 0,
+				imgLength: null,
+				localIds: [],
+				imgArr: [],
+				init: function() {
+
+					var scroll = mui('.mui-scroll-wrapper').scroll();
+					goodsAdd.getCategorys();
+
+					//提交商品审核
+					$('body').on('tap', '.btn-choice-goods-image', function() {
+						goodsAdd.chooseImage();
+					});
+
+					//提交商品审核
+					$('body').on('tap', '.btn-goods-add-audit', function() {
+						var _flag = goodsAdd.validator();
+						_flag && goodsAdd.goodsAuditSubmit();
+					});
+				},
+
+				//获取分类
+				getCategorys: function() {
+					common.ajaxRequest({
+						u: 'mk_mall/mk_category.html?'
+					}, function(res) {
+						goodsAdd.showCategorys(res);
+					});
+				},
+
+				//门店展示
+				showCategorys: function(obj) {
+					var _html = [],
+						_list = obj.list;
+					_html.push('<option value="">请选择分类</option>')
+					for(i in _list) {
+						_html.push('<option value="' + _list[i].id + '">' + _list[i].name + '</option>');
+					}
+					$('.goods-category').html(_html.join(''))
+				},
+
+				//表单验证
+				validator: function() {
+					var flag = !0,
+						rules = {
+							'goods-category': {
+								title: '商品分类',
+								msg: '请选择商品所属分类！'
+							},
+							'goods-name': {
+								title: '商品标题',
+								msg: '请输入商品标题！'
+							},
+							'goods-original-price': {
+								title: '商品进货价格',
+								msg: '请输入商品进货价格！'
+							},
+							'goods-selling-price': {
+								title: '商品销售价格',
+								msg: '请输入商品销售价格！'
+							},
+							'goods-brokerage': {
+								title: '商品分佣金额',
+								msg: '请输入商品分佣金额！'
+							},
+							'goods-stock': {
+								title: '商品库存',
+								msg: '请输入商品库存！'
+							},
+							'goods-thumb': {
+								title: '商品缩略图',
+								msg: '请上传商品缩略图！'
+							}
+						};
+					$.each(rules, function(k, v) {
+						var val = $('.' + k).val().trim();
+						if(val == '') {
+							common.layerMsg(v.msg);
+							flag = !1;
+							return false;
+						} else if(v.reg && !v.reg.test(val)) {
+							common.layerMsg(v.msg);
+							flag = !1;
+							return false;
+						} else {
+							flag = !0;
+							return true;
+						}
+					});
+					return flag;
+				},
+
+				//微信图片选择API
+				chooseImage: function() {
+					wx.chooseImage({
+						count: 1, // 默认9
+						sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+						sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+						success: function(res) {
+							goodsAdd.localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+							if(goodsAdd.localIds.length == 0) {
+								common.layerMsg('请选择图片！')
+								return false;
+							}
+							goodsAdd.i = 0;
+							goodsAdd.imgLength = goodsAdd.localIds.length;
+							goodsAdd.imgArr = [];
+							goodsAdd.uploadImage();
+						}
+					});
+				},
+
+				//图片上传到微信服务器
+				uploadImage: function() {
+					var j = goodsAdd.i;
+					wx.uploadImage({
+						localId: goodsAdd.localIds[j], // 需要上传的图片的本地ID，由chooseImage接口获得
+						isShowProgressTips: 1, // 默认为1，显示进度提示
+						success: function(res) {
+							j++
+							goodsAdd.i = j;
+							var serverid = res.serverId
+							goodsAdd.downloadImage(serverid);
+							if(j < goodsAdd.imgLength) {
+								goodsAdd.uploadImage();
+							}
+						}
+					});
+				},
+
+				//从微信服务器下载微信图片
+				downloadImage: function(serverid) {
+					wx.downloadImage({
+						serverId: serverid,
+						success: function(res) {
+							var localid = res.localId;
+							goodsAdd.getLocalImgData(localid)
+						}
+					});
+				},
+
+				//获取下载后保存在本地的微信图片
+				getLocalImgData: function(localid) {
+					wx.getLocalImgData({
+						localId: localid, // 图片的localID
+						success: function(res) {
+							var localdata = res.localData; // localData是图片的base64数据，可以用img标签显示
+							goodsAdd.thumbUpload(localdata);
+						}
+					});
+				},
+
+				//将本地图片上传到自己服务器
+				thumbUpload: function(file) {
+					var _file = '';
+					if(window.__wxjs_is_wkwebview) {
+						_file = file
+					} else {
+						_file = 'data:image/jgp;base64,' + file
+					}
+					var data = {
+						content: _file
+					};
+					common.ajaxRequest({
+						u: 'upload/upload_image_base64.html?',
+						d: data
+					}, function(res) {
+						goodsAdd.imgArr.push(res.path); // 返回图片的服务器端ID
+						goodsAdd.showImage(res);
+					});
+				},
+
+				//显示图片
+				showImage: function() {
+					var html = [],
+						imgarr = goodsAdd.imgArr;
+					for(var i = 0; i < imgarr.length; i++) {
+						html.push('<img class="goods_thumb" src="' + filesService + imgarr[i] + '" />');
+					}
+					$('.goods-thumb').val(imgarr.join(','));
+					$('.btn-choice-goods-image').html(html.join(''));
+					$('.goods_thumb').css('display', 'inline-block');
+				},
+
+				//提交审核
+				goodsAuditSubmit: function() {
+					var makeupid = JSON.parse(common.getStorage('userRole')).makeup_id,
+						data = $('#goodsAddForm').serializeObject();
+					data.makeup_id = makeupid;
+					common.ajaxRequest({
+						u: 'mk_mall/add_product.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('添加成功！')
+						WCY.reload()
+					});
+				}
+			};
+
+			$(function() {
+				goodsAdd.init();
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>向化妆师付款</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="pay-index">
+					<div class="pay-header">
+						<div class="user-info-face">
+							<div class="user-info-avatar"><img src="../assets/images/avatar.png" /></div>
+							<div class="user-info-others">
+								<div class="user-info-name">昵称：<span>化妆吧用户</span></div>
+								<div class="user-info-mobile">手机：<span></span></div>
+								<div class="user-info-storename mui-ellipsis">所在店铺：<span></span></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="pay-form">
+						<form id="myform" class="mui-input-group">
+							<div class="mui-input-row">
+								<label>￥</label>
+								<input type="text" name="money" id="Money" maxlength="6" placeholder="输入消费金额" pattern="[0-9]*">
+							</div>
+						</form>
+
+						<div class="mui-row show-yue-pay-money">
+							<div id="yue-url" class="mui-col-xs-6 yue-url"><span class="mui-icon icon-yue"></span>当前余额：<span id="curBalance">0.00</span>元</div>
+							<div class="mui-col-xs-6 pay-money mui-ellipsis">实际支付：<span id="payMoney" class="font-color font-weight">0元</span></div>
+						</div>
+						<button type="button" id="payApply" class="mui-btn mui-btn-default mui-btn-block btn-pay">确认支付</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Pay = {
+				dresser_id: common.getQueryString('coId') || common.getQueryString('dresser_id'),
+				dresserName: '',
+				curBalance: 0,
+				makeupName: '',
+				storesName: '',
+				data: {
+					money: 0,
+					dresser_id: common.getQueryString('coId') || common.getQueryString('dresser_id'),
+					paytype: 1
+				},
+				init: function() {
+
+					Pay.getDresserInfo();
+					$("#payApply").on("tap", function() {
+						var flag = Pay.checkMoney();
+						flag && Pay.payApply();
+					})
+					$("#myform").on('focus', "#Money", function() {
+						$("#payApply").prop('disabled', false);
+					}).on("input", "#Money", function() {
+						var val = $.trim($(this).val());
+						Pay.data.money = val;
+						$("#payMoney").text(val + "元");
+					})
+//					$("#yue-url").on('tap', function() {
+//						common.urlOpen('../shop/charge.html?dresser_id=' + Pay.dresser_id)
+//					})
+				},
+
+				//获取化妆师信息
+				getDresserInfo: function() {
+					var data = {
+						dresser_id: Pay.dresser_id
+					};
+					common.ajaxRequest({
+						u: 'Makeup_Stores/userPayinfo.html?',
+						d: data
+					}, function(res) {
+						Pay.showDresserInfo(res);
+					})
+				},
+
+				//显示化妆师信息
+				showDresserInfo: function(res) {
+					var obj = res.shopUserInfo,
+
+						_headimgurl = obj.headimgurl,
+						_dressername = obj.dressername,
+						_mobile = obj.mobile,
+						_storesname = obj.storesname,
+						_makeupname = obj.makeupname,
+						_curBalance = res.account;
+
+					Pay.data.dresser_id = obj.id;
+					Pay.curBalance = _curBalance;
+					Pay.dresserName = _dressername;
+					Pay.storesName = _storesname;
+					Pay.makeupName = _makeupname;
+					$("#curBalance").text(_curBalance);
+					$(".user-info-avatar img").attr('src', _headimgurl);
+					$(".user-info-name span").text(_dressername);
+					$(".user-info-mobile span").text(common.mobileToStar(_mobile));
+					$(".user-info-storename span").text(_storesname + '-' + _makeupname);
+				},
+
+				//校验支付金额
+				checkMoney: function() {
+					var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
+						money = Pay.data.money,
+						limitminmoney = 1,
+						limitmaxmoney = Pay.curBalance;
+					if(!reg.test(money)) {
+						common.layerMsg('请输入有效的支付金额!');
+						return false;
+					} else if(money < limitminmoney) {
+						common.layerMsg('请输入最低支付金额1元！');
+						return false;
+					} else if(limitmaxmoney - money < 0) {
+						common.layerConfirm({
+							c: '当前余额不足，请到前台充值！',
+							b: ['确定', '取消'],
+							y: function() {
+//								common.urlOpen('../shop/charge.html?dresser_id=' + Pay.dresser_id)
+								layer.closeAll()
+								layer.closeAll()
+							},
+							n: function() {
+								WCY.reload()
+							}
+						})
+						return false;
+					} else {
+						$("#payApply").prop('disabled', true);
+						return true;
+					}
+				},
+
+				//生成支付订单
+				payApply: function(_this) {
+					var data = Pay.data;
+					common.ajaxRequest({
+						u: 'About_Makeup/MakeupConsum.html?',
+						d: data
+					}, function(res) {
+						var ordernum = res.consumInfo.order_sn;
+						common.layerConfirm({
+							t: '提示，请核对化妆师信息！',
+							b: ['确认', '取消'],
+							c: '<p style="text-align:left;">收款人：<span style="color:red;font-size:24px;">' + Pay.dresserName + '</span></p><p style="text-align:left;white-space:nowrap;text-overflow:ellipsis;">所属店铺：<span style="color:red;font-size:20px;">' + Pay.storesName + '-' + Pay.makeupName + '</span></p><br/><p style="color:#ff8519;">如信息错误，请重新扫码后继续支付！</p>',
+							y: function() {
+								Pay.payApplyCallBack(ordernum);
+								layer.closeAll()
+							},
+							n: function() {
+								WCY.reload()
+							}
+						})
+
+					})
+				},
+
+				//支付
+				payApplyCallBack: function(_ordernum) {
+					var data = {
+						ordernum: _ordernum
+					};
+					common.ajaxRequest({
+						u: 'About_Makeup/backMakeupConsum.html?',
+						d: data
+					}, function(res) {
+						$("#payApply").prop('disabled', false);
+						common.urlReplace('paySuccess.html?dressername=' + Pay.dresserName + '&money=' + Pay.data.money)
+					})
+				}
+			};
+			$(function() {
+				Pay.init();
+			});
+		</script>
+
+	</body>
+
+</html>

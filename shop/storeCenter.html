@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>店铺中心</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body class="store-center">
+		<div class="mui-content">
+			<ul id="BossClerk" class="mui-table-view boss-clerk-nav">
+				<li class="mui-table-view-cell">
+					<a href="../hzb/storeManageCenter.html" class="mui-navigate-right">
+						<span class="mui-icon icon-store-manage"></span>店鋪管理
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a href="../hzb/collectMoney.html" class="mui-navigate-right">
+						<span class="mui-icon icon-collect-money"></span>收款中心
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var storeCenter = {
+				init: function() {
+					storeCenter.showUserRole();
+				},
+
+				showUserRole: function(obj) {
+					var bHtmlArr = [];
+					var cHtmlArr = [];
+					bHtmlArr.push('<li class="operation_list">');
+					bHtmlArr.push('	<a href="../hzb/Store_manage.html' + '">');
+					bHtmlArr.push('		<span class="list_icon04 list_icon_item baseAllImg"></span>');
+					bHtmlArr.push('		<span class="fs11">店铺管理</span>');
+					bHtmlArr.push('		<span class="mui-icon mui-icon-arrowright go_icon_item"></span>');
+					bHtmlArr.push('	</a>');
+					bHtmlArr.push('</li>');
+					bHtmlArr.push('<li class="operation_list">');
+					bHtmlArr.push('	<a href="../hzb/collect_money.html' + '">');
+					bHtmlArr.push('		<span class="list_icon05 list_icon_item baseAllImg"></span>');
+					bHtmlArr.push('		<span class="fs11">收款中心</span>');
+					bHtmlArr.push('		<span class="mui-icon mui-icon-arrowright go_icon_item"></span>');
+					bHtmlArr.push('	</a>');
+					bHtmlArr.push('</li>');
+
+					cHtmlArr.push('<li class="operation_list">');
+					cHtmlArr.push('	<a href="../hzb/collect_money.html' + '">');
+					cHtmlArr.push('		<span class="list_icon05 list_icon_item baseAllImg"></span>');
+					cHtmlArr.push('		<span class="fs11">收款中心</span>');
+					cHtmlArr.push('		<span class="mui-icon mui-icon-arrowright go_icon_item"></span>');
+					cHtmlArr.push('	</a>');
+					cHtmlArr.push('</li>');
+					if(obj.identity == 1) {
+						var makeup_id = obj.makeup_id;
+						WCY.userInfo.makeupId = makeup_id;
+						common.setCookie("makeup_id", makeup_id, 365);
+						$("#BossClerk").html(bHtmlArr.join(''));
+					} else if(obj.identity == 2) {
+						$("#BossClerk").html(cHtmlArr.join(''));
+					}
+				},
+			};
+			$(function() {
+				storeCenter.init();
+			});
+		</script>
+	</body>
+
+</html>

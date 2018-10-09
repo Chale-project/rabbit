@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>绑定手机号</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="login-page">
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="login-index">
+					<div class="login-logo">
+						一号兔商城
+					</div>
+					<form id="myform" class="mui-input-group">
+						<div class="mui-input-row">
+							<!--<label>手机号：</label>-->
+							<input type="text" name="mobile" id="mobile" placeholder="请输会员入手机号" pattern="[0-9]*" value="">
+						</div>
+						<div class="mui-input-row">
+							<!--<label>验证码：</label>-->
+							<input type="text" name="code" id="verifycode" placeholder="请输入验证码" pattern="[0-9]*" value="">
+							<button type="button" id="getSmsBtn" class="phone-verify" style="color:#fff; background-color: #ff8519;">验证码</button>
+						</div>
+						<div class="button-default">
+							<button type="button" id="Login" class="mui-btn mui-btn-default mui-btn-block btn-login">登录</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Login = {
+				mobile: null,
+				code: null,
+				init: function() {
+					$('.login-index').on('input', '#mobile', function() {
+						$('#Login').prop('disabled', false);
+						Login.mobile = $(this).val();
+					}).on('input', '#verifycode', function() {
+						$('#Login').prop('disabled', false);
+						Login.code = $(this).val();
+					}).on('tap', '#getSmsBtn', function() {
+						var flag = Login.checkMobile();
+						flag && WCY.getSmsVerify(Login.mobile);
+					}).on('tap', '#Login', function() {
+						var _flag = Login.validator();
+						_flag && Login.login();
+					});
+
+				},
+
+				checkMobile: function() {
+					if(!Login.mobile) {
+						common.layerMsg('请输入手机号码！');
+						return false;
+					} else if(!/^(1)[0-9]{10}$/.test(Login.mobile)) {
+						common.layerMsg('请输入有效的手机号！');
+						return false;
+					} else {
+						$('#getSmsBtn').prop('disabled', true);
+						return true;
+					}
+				},
+
+				validator: function() {
+					if(!Login.mobile) {
+						common.layerMsg('请输入手机号!');
+						return false;
+					} else if(!/^(1)[0-9]{10}$/.test(Login.mobile)) {
+						common.layerMsg('请输入有效的手机号！');
+						return false;
+					} else if(!/^\d{6}$/.test(Login.code)) {
+						common.layerMsg('请输入6位有效验证码！');
+						return false;
+					} else {
+						$('#Login').prop('disabled', true);
+						return true;
+					}
+				},
+
+				login: function() {
+					var _userInfo = JSON.parse(common.getStorage('userInfo')),
+						data = {
+							mobile: Login.mobile,
+							code: Login.code,
+							unionid: _userInfo.unionid,
+							openid: _userInfo.shop_openid,
+							headimgurl: _userInfo.headimgurl,
+							nickname: _userInfo.nickname,
+							sex: _userInfo.sex,
+						};
+					common.ajaxRequest({
+						u: 'regs/bindUserMobile.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('绑定成功！')
+						_userInfo = res.userInfo;
+						common.setStorage('userInfo', JSON.stringify(_userInfo));
+						WCY.setUserRole(function(res) {
+							var _url = common.getStorage('beforeLoginUrl')
+							if(!_url || _url.indexOf('/author.html') != -1) _url = '../shop/index.html?'
+							common.urlOpen(_url + '?')
+						})
+					});
+				},
+
+			};
+			$(function() {
+				Login.init();
+			});
+		</script>
+	</body>
+
+</html>

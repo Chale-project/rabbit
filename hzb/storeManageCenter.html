@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>店铺管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+		<style type="text/css">
+			.layui-m-layerchild h3~.layui-m-layercont {
+				padding: 20px 15px !important;
+			}
+			
+			.mui-toast-container {
+				z-index: 19891018;
+			}
+		</style>
+	</head>
+
+	<body>
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item" href="goodsPurchase.html">
+				<span class="mui-icon icon-goods-purchase"></span>
+				<span class="mui-tab-label">商品采购</span>
+			</a>
+			<a class="mui-tab-item" href="orderManage.html">
+				<span class="mui-icon icon-order-manage"></span>
+				<span class="mui-tab-label">订单管理</span>
+			</a>
+			<a class="mui-tab-item" href="goodsManage.html">
+				<span class="mui-icon icon-goods-manage"></span>
+				<span class="mui-tab-label">商品管理</span>
+			</a>
+			<a class="mui-tab-item disable" href="javascript:;" data-url="achievementCount.html">
+				<span class="mui-icon icon-achievement-count"></span>
+				<span class="mui-tab-label">业绩统计</span>
+			</a>
+			<a class="mui-tab-item my-hzb-store" href="javascript:;">
+				<span class="mui-icon icon-my-store"></span>
+				<span class="mui-tab-label">我的小店</span>
+			</a>
+		</nav>
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="store-manage-center">
+					<div class="store-manage-header">
+						<div class="store-toggle">
+							<button type="button" class="mui-btn mui-btn-default btn-toggle-store">切换化妆吧</button>
+						</div>
+						<div class="user-info-face mui-clearfix">
+							<div class="user-info-avatar"><img src="../assets/images/avatar.png" /></div>
+							<div class="user-info-others">
+								<div class="user-info-name">昵称：<span>化妆吧用户</span></div>
+								<div class="user-info-mobile">手机：<span></span></div>
+								<div class="user-info-storename mui-ellipsis">所在店铺：<span></span></div>
+							</div>
+						</div>
+						<div class="mui-row turnover-face-val">
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">今日营收(元)</div>
+								<div class="today-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">本月营收(元)</div>
+								<div class="month-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">上月营收(元)</div>
+								<div class="previous-month-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+						</div>
+					</div>
+					<div class="store-manage-nav">
+						<ul class="mui-table-view store-report-manage-nav">
+							<li class="mui-table-view-cell">
+								<a href="shopDayRecord.html" class="mui-navigate-right">
+									<span class="mui-icon icon-day-black"></span>查看日报表
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="shopMonthRecord.html" class="mui-navigate-right">
+									<span class="mui-icon icon-month-black"></span>查看月报表
+								</a>
+							</li>
+						</ul>
+						<ul class="mui-table-view store-clerk-manage-nav">
+							<li class="mui-table-view-cell">
+								<a href="collectMoney.html" class="mui-navigate-right">
+									<span class="mui-icon icon-collect-money"></span>收款中心
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="clerkAdd.html" class="mui-navigate-right">
+									<span class="mui-icon icon-add-clerk"></span>添加店员
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="clerkManage.html" class="mui-navigate-right">
+									<span class="mui-icon icon-manage-clerk"></span>管理店员
+								</a>
+							</li>
+						</ul>
+
+						<ul class="mui-table-view store-white-manage-nav">
+							<li class="mui-table-view-cell">
+								<a href="whiteBill.html" class="mui-navigate-right">
+									<span class="mui-icon icon-white-quota"></span>白条剩余额度
+									<span class="mui-pull-right white-quota"></span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var storeManage = {
+				layerIndex: 0,
+				data: {
+					dresser_id: null
+				},
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+
+					storeManage.getHzbList();
+
+					//化妆吧弹窗选择
+					$('body').on('change', '.mui-radio', function() {
+						storeManage.data.dresser_id = $(this).find('input[type="radio"]:checked').val();
+						$('#dailogHzbList .mui-radio').each(function() {
+							if($(this).find('input[type="radio"]').prop('checked')) {
+								$(this).addClass('active')
+							} else {
+								$(this).removeClass('active');
+							}
+						});
+
+					});
+
+					//化妆吧切换
+					$('body').on('tap', '.btn-toggle-store', function() {
+						common.delCookie('curStoreDresserId');
+						storeManage.data.dresser_id = null;
+						storeManage.getHzbList();
+					});
+
+					//我的小店
+					$('body').on('tap', '.my-hzb-store', function() {
+						common.urlOpen('pay.html?dresser_id=' + storeManage.data.dresser_id)
+					});
+					
+					//暂未开放
+					$('.mui-bar-tab').on('tap', '.disable', function() {
+						common.layerMsg('该功能暂未开放')
+					});
+				},
+
+				getShopCenter: function() {
+					var data = storeManage.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/storesIndex.html?',
+						d: data
+					}, function(res) {
+						layer.close(storeManage.layerIndex)
+						storeManage.showStoreInfo(res);
+						storeManage.showRevenue(res);
+					});
+				},
+				showStoreInfo: function(obj) {
+					var avatar = obj.shopUserInfo.headimgurl,
+						dressername = obj.shopUserInfo.dressername,
+						mobile = obj.shopUserInfo.mobile,
+						storesname = obj.shopUserInfo.storesname,
+						makeupname = obj.shopUserInfo.makeupname;
+
+					$('.user-info-avatar img').attr('src', avatar);
+					$('.user-info-name span').text(dressername);
+					$('.user-info-name span').text(dressername);
+					$('.user-info-mobile span').text(common.mobileToStar(mobile));
+					$('.user-info-storename span').text(storesname + '-' + makeupname);
+				},
+				showRevenue: function(obj) {
+					var cur_day_revnue = parseFloat(obj.todayTotal).toFixed(2),
+						cur_month_revnue = parseFloat(obj.mothTotal).toFixed(2),
+						previous_month_revnue = parseFloat(obj.justMonthTotal).toFixed(2);
+					$(".today-turnover-val").text(cur_day_revnue);
+					$(".month-turnover-val").text(cur_month_revnue);
+					$(".previous-month-turnover-val").text(previous_month_revnue);
+				},
+
+				getWhiteQuota: function() {
+					common.ajaxRequest({
+						u: 'mk_order/credit_info.html?',
+						d: {
+							makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id
+						},
+					}, function(res) {
+						layer.close(storeManage.layerIndex)
+						storeManage.showWhiteQuota(res);
+					});
+				},
+
+				showWhiteQuota: function(obj) {
+					var _info = obj.info;
+					$('.white-quota').text(_info.available_credit)
+				},
+
+				//弹出化妆吧选择
+				dailogHzb: function(content) {
+					var _layer = layer.open({
+						shadeClose: false,
+						title: ['请选择化妆吧', 'border-bottom:.5px solid #ddd'],
+						btn: ['确定'],
+						content: content,
+						yes: function(i) {
+							if(!storeManage.data.dresser_id) {
+								mui.toast('请选择您要展示的化妆吧！')
+								return false;
+							}
+							storeManage.choiceStore();
+						}
+					})
+					storeManage.layerIndex = _layer;
+				},
+
+				//获取拥有化妆吧列表
+				getHzbList: function() {
+					common.ajaxRequest({
+						u: 'makeup_stores/getMakeupList.html?'
+					}, function(res) {
+						var obj = res.makeuplist;
+						if(res.makeupcount == 1) {
+							$('.store-toggle').css('display','none')
+							storeManage.data.dresser_id = obj[0].id;
+							var _userRole = JSON.parse(common.getStorage('userRole'));
+							_userRole.dresserid = obj[0].id;
+							common.setStorage('userRole', JSON.stringify(_userRole))
+							storeManage.getShopCenter();
+							storeManage.getWhiteQuota();
+							
+						} else if(res.makeupcount > 1) {
+							$('.store-toggle').css('display','block')
+							
+							if(!common.getCookie('curStoreDresserId')) {
+								storeManage.showDailogHzbList(obj);
+							} else {
+								var _userRole = JSON.parse(common.getStorage('userRole')),
+									_dresser_id = common.getCookie('curStoreDresserId');
+								storeManage.data.dresser_id = _dresser_id;
+								_userRole.dresserid = _dresser_id;
+								common.setStorage('userRole', JSON.stringify(_userRole));
+								storeManage.getShopCenter();
+								storeManage.getWhiteQuota();
+							}
+						}
+					});
+				},
+
+				//显示弹出的化妆吧列表
+				showDailogHzbList: function(obj) {
+					var html = [];
+					html.push('<div id="dailogHzbCotent" class="dailog-hzb-cotent">');
+					html.push('	<ul id="dailogHzbList" class="mui-list-unstyled dailog-hzb-List">');
+					for(i in obj) {
+						html.push('<li class="mui-table-view-cell mui-radio mui-ellipsis mui-left">');
+						html.push('	<input name="radio" type="radio" value="' + obj[i].id + '">' + obj[i].makeupname);
+						html.push('</li>');
+					}
+					html.push('	</ul>');
+					html.push('</div>');
+					storeManage.dailogHzb(html.join(''));
+				},
+
+				//选择化妆吧
+				choiceStore: function() {
+					var _userRole = JSON.parse(common.getStorage('userRole')),
+						_dresser_id = storeManage.data.dresser_id;
+					_userRole.dresserid = _dresser_id;
+					common.setStorage('userRole', JSON.stringify(_userRole));
+					common.setCookie('curStoreDresserId', _dresser_id, 1)
+
+					storeManage.getShopCenter();
+					storeManage.getWhiteQuota();
+				},
+			}
+
+			$(function() {
+				storeManage.init();
+			})
+		</script>
+	</body>
+
+</html>

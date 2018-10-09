@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>商品审核</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content goods-audit-index">
+			<div class="goods-audit-type">
+				<div class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a data-type="1" class="mui-control-item goods-audit-type-item mui-active">
+						审核中
+					</a>
+					<a data-type="2" class="mui-control-item goods-audit-type-item">
+						已通过
+					</a>
+					<a data-type="3" class="mui-control-item goods-audit-type-item">
+						未通过
+					</a>
+				</div>
+			</div>
+
+			<div class="goods-audit-content">
+				<div id="goodsAuditType_1" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list mui-active">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label auditing"><span>审核中</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-contact" href="tel:1337125496">
+										<span class="mui-icon mui-icon-phone"></span>
+										<p class="mui-ellipsis-2">审核人：<i>德國法國的故事</i></p>
+									</a>
+								</div>
+							</li>-->
+
+						</ul>
+					</div>
+				</div>
+
+				<div id="goodsAuditType_2" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label applied"><span>已通过</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-up-down" href="javascript:;">
+										<div class="mui-switch mui-switch-mini">
+											<div class="mui-switch-handle"></div>
+										</div>
+										<p class="mui-ellipsis-2">上架中</p>
+									</a>
+								</div>
+							</li>-->
+
+						</ul>
+					</div>
+				</div>
+				<div id="goodsAuditType_3" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label applies"><span>未通过</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-delete" href="javascript:;">
+										<span class="mui-icon mui-icon-trash"></span>
+										<p class="mui-ellipsis-2">删除</p>
+									</a>
+								</div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/jweixin-1.2.0.js" type="text/javascript"></script>
+		<script src="../assets/js/base.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/style.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var goodsAudit = {
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				defaultThumb: '../assets/images/logo.png',
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					status: 1,
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					common.tabs('.goods-audit-type a', '.goods-audit-content .goods-audit-content-list', 'mui-active');
+
+					//首次加载
+					goodsAudit.pullRefreshList();
+
+					//点击加载对应订单状态数据
+					$('.goods-audit-type-item').on('tap', function() {
+						var _type = $(this).data('type')
+						$('#goodsAuditType_' + _type).find('.goods-audit-list-item').html('')
+						goodsAudit.data.status = _type
+						goodsAudit.data.page = 1
+						goodsAudit.pullRefreshList();
+					})
+
+					//商品上下架
+					$('.goods-audit-index').on('tap', '.mui-switch', function() {
+						var _this = $(this),
+							_type = _this.parents('.goods-audit-list').data('isonsale'),
+							_id = _this.parents('.goods-audit-list').data('goodsid');
+						if(_type == 1) {
+							_type == 0
+						} else {
+							_type == 1
+						}
+						goodsAudit.toggleGoodsUpOrDown(_this, _id, _type);
+					});
+
+					//商品刪除
+					$('.goods-audit-index').on('tap', '.goods-audit-operation-delete', function() {
+						var _this = $(this),
+							_id = _this.parents('.goods-audit-list').data('goodsid');
+						common.layerConfirm({
+							c: '确认删除此商品？',
+							y: function() {
+								goodsAudit.deleteGoods(_this, _id);
+							}
+						})
+					});
+
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					var _type = goodsAudit.data.status,
+						_this = $('#goodsAuditType_' + _type);
+					mui(_this).pullRefresh({
+						up: {
+							height: 50,
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								goodsAudit.getGoodsAuditList(this, _this)
+							}
+						}
+					});
+				},
+
+				//获取审核商品列表
+				getGoodsAuditList: function(_self, _this) {
+					var _wrap = $(_this).find('.goods-audit-list-item');
+					var data = goodsAudit.data;
+					common.ajaxRequest({
+						u: 'mk_mall/product_review.html?',
+						d: data
+					}, function(res) {
+						var obj = res.list;
+						if(obj.length > 0) {
+							var p = goodsAudit.data.page;
+							if(p > res.allpage) {
+								_self.refresh(true);
+								_self.endPullupToRefresh(true);
+							} else {
+								p++;
+								_self.refresh(true);
+								_self.endPullupToRefresh();
+								goodsAudit.data.page = p
+							}
+							for(i in obj) {
+								var $item = goodsAudit.showGoodsAuditList(obj[i]);
+								_wrap.append($item);
+							}
+						} else {
+							_self.refresh(true)
+							_self.endPullupToRefresh(true)
+						}
+					});
+				},
+
+				//展示订单列表
+				showGoodsAuditList: function(obj) {
+					var _html = [];
+					_html.push('<div class="goods-audit-list-thumb">');
+					_html.push('	<img src="' + (obj.img != null ? filesService + obj.img + goodsAudit.x_oss_process : goodsAudit.defaultThumb) + '" alt="" />');
+					if(obj.status == 1) {
+						_html.push('	<div class="audit-label auditing"><span>审核中</span></div>');
+					} else if(obj.status == 2) {
+						_html.push('	<div class="audit-label applied"><span>已通过</span></div>');
+					} else if(obj.status == 3) {
+						_html.push('	<div class="audit-label applies"><span>未通过</span></div>');
+					}
+					_html.push('</div>');
+					_html.push('<div class="goods-audit-list-info">');
+					_html.push('	<div class="goods-audit-list-title mui-ellipsis-2">' + obj.name + '</div>');
+					_html.push('	<div class="goods-audit-list-cat-stock mui-ellipsis">');
+					_html.push('		<span class="goods-audit-list-cat">分类：<i>' + obj.category_title + '</i></span>');
+					//_html.push('		<span class="goods-audit-list-cat">库存：<i>0</i></span>');
+					_html.push('	</div>');
+					_html.push('	<div class="goods-audit-list-price mui-ellipsis">');
+					_html.push('		<span class="goods-audit-list-selling-price">￥' + obj.sell_price + '</span>');
+					_html.push('		<span class="goods-audit-list-original-price">原价: ￥' + obj.purchase_price + '</span>');
+					_html.push('	</div>');
+					_html.push('</div>');
+					_html.push('<div class="goods-audit-operation">');
+
+					if(obj.status == 1) {
+						_html.push('	<a class="goods-audit-operation-contact" href="tel:' + obj.manager_mobile + '">');
+						_html.push('		<span class="mui-icon mui-icon-phone"></span>');
+						_html.push('		<p class="mui-ellipsis-2">审核人：<i>' + obj.manager_name + '</i></p>');
+						_html.push('	</a>');
+
+					} else if(obj.status == 2) {
+						_html.push('	<a class="goods-audit-operation-up-down" href="javascript:;">');
+						_html.push('		<div class="mui-switch mui-switch-mini ' + (obj.is_onsale == 1 ? 'mui-active' : '') + '">');
+						_html.push('			<div class="mui-switch-handle"></div>');
+						_html.push('		</div>');
+						_html.push('		<p class="mui-ellipsis-2">' + (obj.is_onsale == 1 ? '上架中' : '已下架') + '</p>');
+						_html.push('	</a>');
+					} else if(obj.status == 3) {
+						_html.push('	<a class="goods-audit-operation-delete" href="javascript:;">');
+						_html.push('		<span class="mui-icon mui-icon-trash"></span>');
+						_html.push('		<p class="mui-ellipsis-2">删除</p>');
+						_html.push('	</a>');
+					}
+					_html.push('</div>');
+
+					var item = document.createElement('li');
+					item.className = 'goods-audit-list mui-row';
+					item.dataset.goodsid = obj.id;
+					item.dataset.isonsale = obj.is_onsale;
+					item.innerHTML = _html.join('');
+					return item;
+				},
+
+				//商品上下架
+				toggleGoodsUpOrDown: function(_this, id) {
+					var data = {
+						product_id: id
+					};
+					common.ajaxRequest({
+						u: 'mk_mall/product_status.html?',
+						d: data,
+					}, function(res) {
+						if(res.is_onsale == 0) {
+							_this.parents('.goods-audit-list').data('isonsale', res.is_onsale);
+							_this.next().text('已下架');
+							_this.removeClass('mui-active');
+						} else if(res.is_onsale == 1) {
+							_this.parents('.goods-audit-list').data('isonsale', res.is_onsale);
+							_this.next().text('上架中');
+							_this.addClass('mui-active');
+						}
+					});
+				},
+
+				//商品删除
+				deleteGoods: function(_this, id) {
+					var data = {
+						makeup_id: goodsAudit.data.makeup_id,
+						review_id: id,
+					};
+					common.ajaxRequest({
+						u: 'mk_mall/delete_review.html?',
+						d: data,
+					}, function(res) {
+						common.layerMsg('删除成功！')
+						_this.parents('li').slideUp()
+						layer.closeAll()
+					});
+
+				},
+
+			};
+
+			$(function() {
+				goodsAudit.init();
+			});
+		</script>
+	</body>
+
+</html>

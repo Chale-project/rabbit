@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>个人信息</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="profile">
+					<div class="card">
+						<form id="myform" class="mui-input-group">
+							<div class="mui-input-row">
+								<label>头像：</label>
+								<span class="profile-user-avatar"><img id="userAvatar" src="../assets/images/logo.png" alt="" /></span>
+								<input type="hidden" name="userhead" value="">
+							</div>
+							<div class="mui-input-row">
+								<label>用户名/昵称：</label>
+								<input type="text" name="username" id="userName" value="">
+							</div>
+							<div class="mui-input-row profile-input-mobile">
+								<label>手机号：</label>
+								<input type="text" name="mobile" id="userMobile" value="" readonly="">
+							</div>
+							<div class="mui-input-row">
+								<label>性别：</label>
+								<input type="text" name="userSex" id="userSex" value="" data-value="">
+								<input type="hidden" name="sex" id="sex" value="" />
+							</div>
+							<div class="mui-input-row">
+								<label>出生日期：</label>
+								<input type="text" name="birthday" id="userBirthday" value="">
+							</div>
+							<div class="button-default">
+								<button type="button" id="btnProfileSave" class="mui-btn mui-btn-default mui-btn-block btn-profile-save">保存</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Profile = {
+				data: {
+					username: '',
+					sex: '',
+					birthday: ''
+				},
+				init: function() {
+					Profile.getUserInfo();
+					Profile.setSex();
+					Profile.setBirthday();
+
+					$('.profile').on('input', '#userName', function() {
+						Profile.data.username = $(this).val();
+					});
+
+					$('.profile').on('tap', '#btnProfileSave', function() {
+						var flag = Profile.checkUsename();
+						flag && Profile.updateProfile();
+					});
+
+					$('.profile').on('tap', '#userMobile', function() {
+						common.urlOpen('mobileEdit.html?')
+					});
+				},
+
+				setSex: function() {
+					var sexPicker = new mui.PopPicker();
+					sexPicker.setData([{
+						value: '0',
+						text: '未知'
+					}, {
+						value: '1',
+						text: '男'
+					}, {
+						value: '2',
+						text: '女'
+					}]);
+					var sexPickerButton = document.getElementById('userSex');
+					sexPickerButton.addEventListener('tap', function(event) {
+						sexPicker.pickers[0].setSelectedValue(sexPickerButton.dataset.value, 2000);
+						sexPicker.show(function(items) {
+							sexPickerButton.dataset.value = items[0].value;
+							sexPickerButton.value = items[0].text;
+							Profile.data.sex = items[0].value;
+							$('input[name="sex"]').val(items[0].value);
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+					}, false);
+				},
+				setBirthday: function() {
+					var _date = new Date(),
+						year = _date.getFullYear();
+					var dtpicker = new mui.DtPicker({
+						type: "date", //设置日历初始视图模式 
+						beginYear: '1930', //设置开始日期 
+						endYear: year, //设置结束日期 
+						labels: ['年', '月', '日'] //设置默认标签区域提示语 
+
+					});
+
+					var birthdayPickerButton = document.getElementById('userBirthday');
+					birthdayPickerButton.addEventListener('tap', function(event) {
+						//dtpicker.pickers[0].setSelectedValue(sexPickerButton.dataset.value, 2000);
+						dtpicker.show(function(res) {
+							//sexPickerButton.dataset.value = items[0].value;
+							Profile.data.birthday = res.y.value + '-' + res.m.value + '-' + res.d.value;
+
+							birthdayPickerButton.value = res.y.value + '-' + res.m.value + '-' + res.d.value;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+					}, false);
+
+				},
+
+				//获取用户信息
+				getUserInfo: function() {
+					common.ajaxRequest({
+						u: 'card/getUserCardInfo.html?'
+					}, function(res) {
+						var _userInfo = res.userInfo
+						Profile.showUserInfo(_userInfo);
+					});
+				},
+
+				//显示用户信息
+				showUserInfo: function(obj) {
+					Profile.data.username = obj.username;
+					Profile.data.sex = obj.sex;
+					Profile.data.birthday = obj.birthday;
+					$('#userAvatar').attr('src', obj.headimgurl);
+					$('input[name="userhead"]').val(obj.headimgurl);
+					$('#userName').val(obj.username);
+					$('#userMobile').val(obj.mobile);
+					$('#userBirthday').val(obj.birthday);
+
+					if(obj.sex == 0) {
+						$('#userSex').val('未知');
+						$('#userSex').data('value', obj.sex);
+						$('input[name="sex"]').val(obj.sex);
+						$('#userSex')[0].dataset.value = obj.sex
+					} else if(obj.sex == 1) {
+						$('#userSex').val('男');
+						$('input[name="sex"]').val(obj.sex);
+						$('#userSex')[0].dataset.value = obj.sex
+					} else if(obj.sex == 2) {
+						$('#userSex').val('女');
+						$('input[name="sex"]').val(obj.sex);
+						$('#userSex')[0].dataset.value = obj.sex
+					}
+
+				},
+
+				//检测用户名
+				checkUsename: function() {
+					if(!Profile.data.username) {
+						common.layerMsg('请输入用户名！');
+						return false;
+					} else {
+						$('#btnProfileSave').prop('disabled', true)
+						return true;
+					}
+				},
+
+				//保存用户信息
+				updateProfile: function() {
+					var data = Profile.data;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'users/updateUserInfo.html?',
+						d: data
+					}, function(res) {
+						$('#btnProfileSave').prop('disabled', false)
+						common.layerMsg('操作成功！')
+						setTimeout(function() {
+							WCY.reload()
+						}, 300)
+					});
+
+				}
+			};
+			$(function() {
+				Profile.init();
+			});
+		</script>
+	</body>
+
+</html>

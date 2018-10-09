@@ -1,0 +1,166 @@
+.spec-select {
+	position: fixed;
+	left: 0px;
+	width: 100%;
+	height: 70%;
+	z-index: 999;
+	background-color: #fff;
+	/*border-top: solid 1px #ccc;*/
+	box-shadow: 0px -5px 7px 0px rgba(0, 0, 0, 0.1);
+	-webkit-transition: .5s;
+	bottom: 0px;
+	-webkit-transform: translateY(700px);
+}
+
+.spec-select.mui-active {
+	-webkit-transform: translateY(0px);
+}
+
+.mui-android-5-1 .spec-select {
+	bottom: -700px;
+	-webkit-transition-property: bottom;
+	-webkit-transform: none;
+}
+
+.mui-android-5-1 .spec-select.mui-active {
+	bottom: 0px;
+	-webkit-transition-property: bottom;
+	-webkit-transform: none;
+}
+
+.spec-select-header {
+	padding: 6px;
+	font-size: 14px;
+	color: #888;
+}
+
+.spec-select-header .mui-btn {
+	font-size: 12px;
+	padding: 5px 10px;
+}
+
+.spec-select-btn-cancel {
+	float: left;
+}
+
+.spec-select-btn-ok {
+	float: right;
+}
+
+.spec-select-clear {
+	clear: both;
+	height: 0px;
+	line-height: 0px;
+	font-size: 0px;
+	overflow: hidden;
+}
+
+.spec-select-body {
+	position: relative;
+	width: 100%;
+	height: calc(100% - 50px);
+	padding: 12px 15px;
+	border-top: solid 1px #ddd;
+	/*-webkit-perspective: 1200px;
+	perspective: 1200px;
+	-webkit-transform-style: preserve-3d;
+	transform-style: preserve-3d;*/
+}
+
+.close-spec-select {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 999;
+}
+
+.close-spec-select span.mui-icon {
+	font-size: 36px;
+}
+.spec-thumb-price-selective{
+	position: absolute;
+	height: 115px;
+	left: 0;
+	top: -45px;
+	right: 0;
+	padding: 0 40px 15px 15px;
+	border-bottom: 1px solid #ddd;
+	z-index: 998;
+}
+
+.spec-thumb{
+	width: 100px;
+	height: 100px;
+	margin-right: 10px;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	overflow: hidden;
+}
+.spec-thumb img{
+	max-width: 100%;
+	width: 100%;
+	height: 100%;
+}
+.spec-price-selective{
+	width: calc(100% - 110px);
+	padding-top: 45px;
+}
+.spec-price-selective p{
+	margin-bottom: 0;
+	padding-top: 2px;
+}
+.spec-attr-content.mui-scroll-wrapper{
+	top: 70px;
+}
+.spec-attr{
+	padding: 15px;
+}
+.spec-attr-item{
+	margin-bottom: 15px;
+}
+
+.spec-attr-tag{
+	display: inline-block;
+	padding: 2px 6px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #999;
+	border-radius: 4px;
+	color: #333;
+}
+.spec-attr-tag.mui-active{
+	border-color: #ff5068;
+	color: #ff5068;
+}
+.buy-amount{
+	padding: 15px;
+}
+.buy-amount .mui-numbox{
+	width: 85px;
+	height: 30px;
+	padding: 0 25px;
+	border: none;
+}
+.spec-select-bottom {
+	position: relative;
+	padding: 3px 0 0;
+	height: 50px;
+}
+
+.btn-select-buy-now,
+.btn-select-add-cart,
+.btn-select-sure {
+	border-radius: 0;
+	margin-bottom: 0;
+	background: #ff8519;
+}
+
+.btn-select-add-cart {
+	background: #fd3152;
+}
+
+.btn-select-add-cart.mui-btn:enabled:active,
+button:enabled:active.btn-select-add-cart {
+	background-color: rgba(255, 99, 124, 1);
+	border: 1px solid #ff637c;
+}

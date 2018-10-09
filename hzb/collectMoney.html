@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>收款中心</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper" style="background: #ff8519;">
+			<div class="mui-scroll">
+				<div class="collect-money-center">
+					<div class="collect-money-header">
+						<div class="user-info-face mui-clearfix">
+							<div class="user-info-avatar"><img src="../assets/images/avatar.png" /></div>
+							<div class="user-info-others">
+								<div class="user-info-name">昵称：<span>化妆吧用户</span></div>
+								<div class="user-info-mobile">手机：<span></span></div>
+								<div class="user-info-storename mui-ellipsis">所在店铺：<span></span></div>
+							</div>
+						</div>
+
+						<div class="mui-row turnover-face-val">
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">今日营收(元)</div>
+								<div class="today-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">本月营收(元)</div>
+								<div class="month-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+							<div class="mui-col-xs-4">
+								<div class="turnover-face-title">上月营收(元)</div>
+								<div class="previous-month-turnover-val turnover-face-value mui-ellipsis">0.00</div>
+							</div>
+						</div>
+					</div>
+					<div class="store-manage-nav">
+						<ul class="mui-table-view store-report-manage-nav">
+							<li class="mui-table-view-cell">
+								<a href="clerkRecord.html" class="mui-navigate-right">
+									<span class="mui-icon icon-month-white"></span>查看综合报表
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="javaScript:;" class="mui-navigate-right goto-mystore">
+									<span class="mui-icon icon-dresser-store"></span>我的小店
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					<div id="collectQRCode" class="collect-QRCode"><img src="../assets/images/logo.png" /></div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var collectMoney = {
+				data: {
+					dresser_id: JSON.parse(common.getStorage('userRole')).dresserid
+				},
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					collectMoney.getDresserCenter();
+					$('body').on('tap', '.goto-mystore', function() {
+						common.urlOpen('pay.html?dresser_id=' + collectMoney.data.dresser_id);
+					});
+				},
+				getDresserCenter: function() {
+					var data = collectMoney.data;
+					common.ajaxRequest({
+						u: 'Makeup_Stores/makeupDresserIndex.html?',
+						d: data
+					}, function(res) {
+						collectMoney.showDresserInfo(res);
+						collectMoney.showRevenue(res);
+					});
+				},
+				showDresserInfo: function(obj) {
+					var avatar = obj.shopUserInfo.headimgurl,
+						dressername = obj.shopUserInfo.dressername,
+						mobile = obj.shopUserInfo.mobile,
+						storesname = obj.shopUserInfo.storesname,
+						makeupname = obj.shopUserInfo.makeupname,
+						imgQRCode = obj.shopUserInfo.qrcode;
+					$('.user-info-avatar img').attr('src', avatar);
+					$('.user-info-name span').text(dressername);
+					$('.user-info-name span').text(dressername);
+					$('.user-info-mobile span').text(common.mobileToStar(mobile));
+					$('.user-info-storename span').text(storesname + '-' + makeupname);
+					$("#collectQRCode img").attr("src", imgQRCode);
+
+				},
+				showRevenue: function(obj) {
+					var cur_day_revnue = parseFloat(obj.todayTotal).toFixed(2),
+						cur_month_revnue = parseFloat(obj.mothTotal).toFixed(2),
+						previous_month_revnue = parseFloat(obj.justMonthTotal).toFixed(2);
+
+					$(".today-turnover-val").text(cur_day_revnue);
+					$(".month-turnover-val").text(cur_month_revnue);
+					$(".previous-month-turnover-val").text(previous_month_revnue);
+
+				}
+			}
+			$(function() {
+				collectMoney.init();
+			})
+		</script>
+	</body>
+
+</html>

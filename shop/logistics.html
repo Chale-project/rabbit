@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>物流列表</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="logistics">
+					<div class="logistics-header">
+						您的订单包涵<span class="logistics-counts">0</span>个物流信息
+					</div>
+					<div class="logistics-body">
+						<ul id="logisticsList" class="mui-table-view mui-table-view-chevron">
+							<!--<li class="mui-table-view-cell mui-media logistics-list" data-loginame="' + logisticsList[i].ml_number + '" data-loginumber="' + logisticsList[i].mol_oddNumbers + '" data-logistatus="' + logisticsList[i].statusReamrk + '" data-thumb="' + logisticsList[i].mg_thumbnail_url + '">
+								<a class="mui-navigate-right" href="javascript:;">
+									<div class="mui-media-object mui-pull-left">
+										<img class="" src="../assets/images/logo.png">
+										<img class="" src="../assets/images/logo.png">
+										<img class="" src="../assets/images/logo.png">
+										<img class="" src="../assets/images/logo.png">
+									</div>
+
+									<div class="logistics-num mui-ellipsis">共' + logisticsList[i].mol_number + '件商品</div>
+									<div class="mui-media-body">
+										<h2>物流状态：<span></span></h2>
+										<p class="mui-ellipsis logistics-con-pd">快递公司：' + logisticsList[i].ml_name + '</p>
+										<p class="mui-ellipsis">快递单号：' + logisticsList[i].mol_oddNumbers + '</p>
+									</div>
+								</a>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Logistics = {
+				orId: common.getQueryString('orId'),
+				init: function() {
+					Logistics.getLogisticsList();
+					$('.logistics').on('tap', 'li', function() {
+						var number = $(this).data('logisticsnum');
+						common.urlOpen('logisticsDetail.html?orderid=' + Logistics.orId + '&logisticsnumber=' + number)
+					});
+				},
+				getLogisticsList: function() {
+					var data = {
+						orderId: Logistics.orId
+					};
+					common.ajaxRequest({
+						u: 'Order/orderLogistics.html?',
+						d: data
+					}, function(res) {
+						Logistics.showLogisticsList(res);
+					});
+				},
+				showLogisticsList: function(obj) {
+					var logisticsList = obj.logisticslist;
+					if(logisticsList.length > 0) {
+						var html = [];
+						for(var i = 0; i < logisticsList.length; i++) {
+							html.push('<li class="mui-table-view-cell mui-media logistics-list" data-id="' + logisticsList[i].id + '" data-logisticsnum="' + logisticsList[i].mol_oddNumbers + '">');
+							html.push('	<a class="mui-navigate-right" href="javascript:;">');
+							html.push('		<div class="mui-media-object mui-pull-left">');
+							var goods_thumb_list = logisticsList[i].goods_thumbnail;
+							for(j in goods_thumb_list) {
+								html.push('			<img src="' + (goods_thumb_list[j] ? filesService + goods_thumb_list[j] : '../assets/images/logo.png') + '">');
+							}
+							html.push('		</div>');
+
+							html.push('		<div class="logistics-num mui-ellipsis">共' + logisticsList[i].goods_number + '件</div>');
+							html.push('		<div class="mui-media-body">');
+							html.push('			<h2>物流状态：<span>' + logisticsList[i].statusReamrk + '</span></h2>');
+							html.push('			<p class="mui-ellipsis logistics-con-pd">快递公司：' + logisticsList[i].ml_name + '</p>');
+							html.push('			<p class="mui-ellipsis">快递单号：' + logisticsList[i].mol_oddNumbers + '</p>');
+							html.push('			<p class="mui-ellipsis">发货时间：' + logisticsList[i].delivery_time + '</p>');
+							html.push('		</div>');
+							html.push('	</a>');
+
+						}
+						$('.logistics-counts').text(logisticsList.length);
+						$('#logisticsList').html(html.join(''));
+					} else {
+						$('#logisticsList').html('<div class="no-data">没有相关物流信息！</div>');
+						//无物流信息
+					}
+				},
+			};
+			$(function() {
+				Logistics.init();
+			});
+		</script>
+	</body>
+
+</html>

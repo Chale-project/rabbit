@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>小店</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Expires" content="0" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/previewimage/previewimage.css" />
+	</head>
+	<style type="text/css">
+		.mui-backdrop {
+			z-index: 99999;
+		}
+		
+		.hzb-share-content {
+			display: none;
+			position: absolute;
+			height: 100px;
+			top: 0;
+			left: 0;
+			right: 0;
+			margin-right: 15px;
+			padding: 50px 50px 15px 15px;
+			text-align: right;
+			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAACICAMAAABQgAwUAAAAMFBMVEUAAADY2NjY2NjY2NjY2NjY2NjY2NjY2NjX19fY2NjY2NjY2NjY2NjY2NjY2NjY2Njr/TvvAAAAD3RSTlMAxy89c9CdTRyG7lvcD7FzqbJAAAACFklEQVR42uWYy4rkMBAErZdlPdzx/3+7LAw0tH0Y2orDsnnyKQlSVaWytoc6xrEpigFoinUAIBnWABAE5woW9o6GPbGwI1jYGSzsgoV9goU9wMLe0bA7FnYCC7uBhV2wsE+wsAdY2AENGyzsBBZ2Q8MuWNgH94pLbgELO6Bhg4VdwcJuaNgTCzuChZ3Bwg5o2GBhV7CwdzTsjoUdwcLOYGEXLOwTLOwBFvaOht2xsBNY2I1f6lhaenvhrfpkAblab+k9b/OD0iuX2F9/x8D+7ZL2pmpbuj+6o3Vg//oWmPU9p65VkXL6+oIJ8S738nwj62Pb1lvHACH+fBs7sG59U3yrVD3rce3GVcp8qGkPAGTprQUYy6xfaE8i82b6S7/pfZnzdYQIHeOXdfYKpHoFcmrvWlM8RW+CDO8JMWoNM/+FeyB4UfMpL48g5qG1Iqc29YI3mqq2knXvEJu2onJoQy9ok4mkQZf/GjqitUvQyqN6SU8NOvOhHq25xNCWj6LFQdLiyKuaZWpxBC2OrFVHxdryElbQsVtBx6KN0qAd4a71yo610uxa2b0s5xg052I5p26d4MCqusZFwzrAnqQhSogSMnkNcr+GUS3kEKWS62NJFlNCToWLZpWMe14RReGqdjz2PfNECbkGbrQ/Nj5q5y7j8/HRTW5UhvHfA7Mdzitji8rfWsgX3gVZ91eO22odKed6LLf9A/sRnc74RV7lAAAAAElFTkSuQmCC) no-repeat right 10px;
+			background-size: 45px 68px;
+			color: #fff;
+			z-index: 9999999;
+		}
+	</style>
+
+	<body>
+
+		<div class="mui-content my-store">
+			<div class="hzb-store-header mui-row">
+				<div class="hzb-store-thumb">
+					<img src="../assets/images/logo.png" />
+				</div>
+				<div class="hzb-store-info">
+					<div class="hzb-store-name mui-ellipsis"></div>
+					<div class="hzb-store-others mui-row">
+						<div class="mui-col-xs-4 hzb-store-phone">
+							<a href="tel:">
+								<span class="mui-icon icon-store-mobile"></span>
+								<p>电话咨询</p>
+							</a>
+						</div>
+						<div class="mui-col-xs-4 hzb-store-share">
+							<span class="mui-icon icon-store-share"></span>
+							<p>分享好友</p>
+						</div>
+						<div class="mui-col-xs-4 btn-goto-pay">
+							<span class="mui-icon icon-hzb-pay"></span>
+							<p>去付化妆费</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="hzb-store-goods-type">
+				<h2 class="hzb-store-goods-title">小店推荐</h2>
+				<ul id="userRecomType" class="mui-list-unstyled">
+
+				</ul>
+			</div>
+
+			<div id="pullRefresh" class="hzb-store-content mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<ul id="hzbStoreGoods" class="mui-list-unstyled">
+
+					</ul>
+				</div>
+			</div>
+
+		</div>
+		<div class="hzb-store-bottom-nav">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-goto-pay"><span class="mui-icon-extra mui-icon-extra-card"></span>支付化妆费</button>
+		</div>
+
+		<div class="mui-backdrop" style="display: none; opacity: 0;"></div>
+		<div class="spec-select hzb-share-content">
+			请在 <span class="mui-icon mui-icon-more"></span>选择分享给朋友！
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/previewimage/mui.zoom.js"></script>
+		<script src="../assets/js/previewimage/mui.previewimage.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script src="../assets/js/ap.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var myStore = {
+				dresser_id: common.getQueryString('coId') || common.getQueryString('dresser_id'),
+				dresserName: '',
+				dresserAvatar: '',
+				referId: common.getQueryString('referee_id'),
+				defaultThumb: '../assets/images/logo.png',
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				data: {
+					user_type: 1,
+					dresser_id: null,
+					category_id: null,
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					myStore.getDresserInfo()
+
+					$(".my-store").on("tap", '.hzb-goods-type', function() {
+						var _this = $(this),
+							_type = _this.data('typeid');
+						_this.addClass('mui-active').siblings().removeClass('mui-active');
+						myStore.data.category_id = _type;
+						myStore.data.page = 1;
+						$('#hzbStoreGoods').html('');
+						myStore.pullRefreshList();
+					})
+
+					//去付款
+					$('body').on('tap', '.btn-goto-pay', function() {
+						common.urlOpen('payHzb.html?dresser_id=' + myStore.dresser_id)
+					})
+
+					//顯示去分享
+					$('.my-store').on('tap', '.hzb-store-share', function() {
+						$('.hzb-share-content').css('display', 'block');
+						var _uid = JSON.parse(common.getStorage('userInfo')).id;
+						history.replaceState(null, null, '../hzb/pay.html?dresser_id=' + myStore.dresser_id + '&referee_id=' + _uid);
+						WCY.specSelect();
+					});
+					//隱藏分享
+					$('.mui-backdrop').on('tap', function() {
+						$('.hzb-share-content').css('display', 'none');
+						WCY.specSelect();
+					});
+
+					//商品加
+					$('.my-store').on('tap', '.hzb-goods-operation-plus', function() {
+						var _this = $(this),
+							_num = _this.prev().text();
+						_this.siblings('.hzb-goods-operation-minus').attr('disabled', false)
+						myStore.plusGoods(_this, _num);
+					})
+
+					//商品减
+					$('.my-store').on('tap', '.hzb-goods-operation-minus', function() {
+						var _this = $(this),
+							_num = _this.next().text();
+						myStore.minusGoods(_this, _num);
+					})
+
+					//一键购买
+					$('.my-store').on('tap', '.btn-buy-goods', function() {
+						var _this = $(this),
+							_id = _this.parents('li').data('proid'),
+							_num = _this.next().find('.hzb-goods-unmber').text();
+						myStore.toOrder(_id, _num);
+					})
+				},
+
+				//获取化妆师信息
+				getDresserInfo: function() {
+					var data = {
+						dresser_id: myStore.dresser_id
+					};
+					common.ajaxRequest({
+						u: 'Makeup_Stores/userPayinfo.html?',
+						d: data
+					}, function(res) {
+						myStore.showDresserInfo(res);
+					})
+				},
+
+				//显示化妆师信息
+				showDresserInfo: function(res) {
+					var obj = res.shopUserInfo,
+
+						_headimgurl = obj.headimgurl,
+						_dressername = obj.dressername,
+						_mobile = obj.mobile;
+					myStore.data.dresser_id = obj.id;
+					myStore.dresserName = _dressername;
+					myStore.dresserAvatar = _headimgurl;
+					$("title").text(_dressername + '的小店');
+					$(".hzb-store-thumb img").attr('src', _headimgurl);
+					$(".hzb-store-name").text(_dressername);
+					$(".hzb-store-phone a").attr('href', 'tel:' + _mobile);
+					myStore.getGoodsType()
+				},
+
+				getGoodsType: function() {
+					var data = {
+						user_type: myStore.data.user_type,
+						dresser_id: myStore.dresser_id
+					};
+					common.ajaxRequest({
+						u: 'mk_shop/mk_category.html?',
+						d: data,
+					}, function(res) {
+						myStore.showGoodsType(res);
+					});
+				},
+
+				showGoodsType: function(obj) {
+					if(obj.list.length > 0) {
+						var html = [],
+							typeList = obj.list;
+						html.push('<li data-typeid="0" class="hzb-goods-type mui-active">全部</li>')
+						for(var i = 0; i < typeList.length; i++) {
+							html.push('<li data-typeid="' + typeList[i].id + '" class="hzb-goods-type">' + typeList[i].title + '</li>');
+						}
+						$('#userRecomType').html(html.join(''));
+						myStore.pullRefreshList();
+					} else {
+						$('#hzbStoreGoods').html('<li class="no-hzb-goods-list">老板太懒，还没有上架商品哦^_^</li>')
+					}
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								myStore.getGoodsList(this)
+							}
+						}
+					});
+				},
+
+				getGoodsList: function(_this) {
+					var data = myStore.data;
+					common.ajaxRequest({
+						u: 'mk_shop/goods_list.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = myStore.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								myStore.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = myStore.renderMyStoreList(list[i]);
+								$("#hzbStoreGoods").append(_item);
+							}
+							mui.previewImage();
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+
+				renderMyStoreList: function(obj) {
+					var html = [];
+
+					html.push('<div class="hzb-goods-thumb">');
+					html.push('	<img src="' + (obj.img != null ? filesService + obj.img : myStore.defaultThumb) + '" data-preview-src="" data-preview-group="1" />');
+					html.push('</div>');
+					html.push('<div class="hzb-goods-info">');
+					html.push('	<div class="hzb-goods-title mui-ellipsis-2">' + obj.name + '</div>');
+					html.push('	<div class="hzb-goods-sales-stock">');
+					//html.push('		<span class="hzb-goods-sales-volume">销量:' + obj.name + '</span>');
+					html.push('		<span class="hzb-goods-sales-volume">库存:' + obj.stock + '</span>');
+					html.push('	</div>');
+					html.push('	<div class="hzb-goods-price">');
+					html.push('		<span class="hzb-goods-selling-price">￥' + obj.sell_price + '</span>');
+					//html.push('		<span class="hzb-goods-original-price">￥' + obj.display_price + '</span>');
+					html.push('	</div>');
+					html.push('</div>');
+					html.push('<div class="hzb-goods-operation">');
+					html.push('	<button type="button" class="mui-btn mui-btn-default btn-buy-goods">一键购买</button>');
+					html.push('	<div class="hzb-goods-operate">');
+					html.push('		<button class="mui-btn mui-btn-default hzb-goods-operation-minus active" disabled>-</button>');
+					html.push('		<span class="hzb-goods-unmber">1</span>');
+					html.push('		<button class="mui-btn mui-btn-default hzb-goods-operation-plus">+</button>');
+					html.push('	</div>');
+					html.push('</div>');
+
+					var li = document.createElement('li');
+					li.className = 'hzb-goods-list mui-row';
+					li.dataset.proid = obj.id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//商品加
+				plusGoods: function(_this, _num) {
+					var num = ++_num;
+					_this.prev().text(num)
+				},
+
+				//商品减
+				minusGoods: function(_this, _num) {
+					if(_num > 1) {
+						var num = --_num;
+						if(num == 1)
+							_this.attr('disabled', true)
+						_this.next().text(num);
+					}
+				},
+
+				//去下单
+				toOrder: function(id, num) {
+					if(myStore.referId) {
+						common.urlOpen('orderCreate.html?goods=' + id + '*' + num + '&order_type=2' + '&dresser_id=' + myStore.dresser_id + '&referee_id=' + myStore.referId)
+					} else {
+						common.urlOpen('orderCreate.html?goods=' + id + '*' + num + '&order_type=2' + '&dresser_id=' + myStore.dresser_id)
+					}
+				},
+
+			}
+
+			$(function() {
+				myStore.init();
+			})
+		</script>
+	</body>
+
+</html>

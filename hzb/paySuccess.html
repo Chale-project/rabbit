@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>支付成功</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+		<style type="text/css">
+			.charge-success-money {
+				color: inherit;
+			}
+			
+			.pay-success-dresser-name {
+				padding: 0 5px;
+				color: #ff8519;
+			}
+			
+			.pay-success-money {
+				padding: 0 5px;
+				color: #ff2030;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="consume-success">
+					<div class="consume-success-header">操作成功</div>
+					<div class="consume-success-body">
+						<div class="icon-success"><img src="../assets/images/successfully.png" /></div>
+						<p></p>
+						<p class="charge-success-money">您已成功向<span class="pay-success-dresser-name"></span>支付<span class="pay-success-money">0</span>元</p>
+					</div>
+					<div class="consume-success-footer">
+						<a href="javascript:;" class="mui-btn mui-btn-default mui-btn-block btn-back-close">完成</a>
+					</div>
+				</div>
+
+				<div class="panel pay-success-product-recom home-product-recom">
+					<div class="panel-header">
+						<h2><span>为您推荐</span></h2>
+					</div>
+					<div class="panel-body" style="padding: 15px 0;">
+						<ul id="paySuccessProductRecom" class="mui-table-view mui-grid-view">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var paySuccess = {
+				dresserName: common.getQueryString('dressername'),
+				money: common.getQueryString('money'),
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					paySuccess.showPaySuccessInfo();
+					paySuccess.showRecomProduct();
+					
+					$('.btn-back-close').on('tap', function() {
+						wx.closeWindow();
+					});
+
+					$('#paySuccessProductRecom').on('tap', 'li', function() {
+						var proid = $(this).data('proid');
+						WCY.goProductDetail(proid);
+					});
+
+				},
+
+				showPaySuccessInfo: function() {
+					$('.pay-success-dresser-name').text(paySuccess.dresserName)
+					$('.pay-success-money').text(paySuccess.money)
+				},
+
+				showRecomProduct: function() {
+					var elem = $('.pay-success-product-recom')
+					self = $('#paySuccessProductRecom')
+					WCY.getProductRecom(elem, self);
+				},
+			}
+
+			$(function() {
+				paySuccess.init();
+			});
+		</script>
+	</body>
+
+</html>

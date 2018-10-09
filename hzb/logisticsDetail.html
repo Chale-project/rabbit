@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>物流详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<div class="logistics-detail">
+				<div class="logistics-detail-header">
+					<div class="goods-thumb">
+						<!--<img class="logistics-thumb" src="../assets/images/logo.png" />-->
+						<div class="logistics-detail-num mui-ellipsis">共<span>0</span>件</div>
+					</div>
+					<div class="logistics-overview-info">
+						<!--<h2 class="logistics-status">物流状态：<span></span></h2>-->
+						<p class="logistics-company mui-ellipsis">快递公司：<span></span></p>
+						<p class="logistics-number mui-ellipsis">快递单号：<span></span></p>
+					</div>
+				</div>
+				<div class="logistics-detail-body mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="logisticsTimeLine" class="mui-list-unstyled time-line">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var logiDetail = {
+				orderId: common.getQueryString('orderid'),
+				logiNumber: common.getQueryString('logisticsnumber'),
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					logiDetail.getLogiDetail();
+				},
+				getLogiDetail: function() {
+					var data = {
+						order_id: logiDetail.orderId,
+						logistics_number: logiDetail.logiNumber
+					};
+					common.ajaxRequest({
+						u: 'mk_order/logistics_detail.html?',
+						d: data
+					}, function(res) {
+						logiDetail.showLogiDetail(res);
+						logiDetail.showLogiTimeLine(res);
+					});
+				},
+
+				showLogiDetail: function(obj) {
+					var html = [],
+						info = obj.detail,
+						list = info.goods_thumbnail;
+					for(i in list) {
+						html.push('<img class="logistics-thumb" src="' + (list[i] ? filesService + list[i] : '../assets/images/logo.png') + '" />');
+					}
+					$('.goods-thumb').append(html.join(''))
+					$('.logistics-detail-num span').text(info.goods_number);
+					//$('.logistics-status span').text(info.statusReamrk);
+					$('.logistics-company span').text(info.ml_name);
+					$('.logistics-number span').text(info.logistics_number);
+				},
+
+				showLogiTimeLine: function(obj) {
+					var html = [],
+						timeLineList = obj.list;
+					if(timeLineList.length > 0) {
+						for(var i = timeLineList.length - 1; i >= 0; i--) {
+							html.push('<li>')
+							html.push('	<h5>')
+							html.push('	 <p class="detail-title">' + timeLineList[i].remark + '</p>')
+							html.push('	 <span class="detail-time">' + timeLineList[i].datetime + '</span>')
+							html.push(' </h5>')
+							html.push('</li>')
+						}
+						$('#logisticsTimeLine').html(html.join(''))
+					} else {
+						html.push('<div class="empty-logistics"><img src="../assets/images/wuliu.png" /><p>沒有查到物流信息^_^！</p></div>')
+						$('.mui-scroll').html(html.join(''))
+						//等待卖家发货
+					}
+				},
+			};
+			$(function() {
+				logiDetail.init();
+			})
+		</script>
+	</body>
+
+</html>

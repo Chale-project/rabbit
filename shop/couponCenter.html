@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>优惠券</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+		<div class="mui-content coupon-index">
+			<div class="coupon-type">
+				<div class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a data-type="0" class="mui-control-item coupon-type-item mui-active">
+						未使用
+					</a>
+					<a data-type="1" class="mui-control-item coupon-type-item">
+						已使用
+					</a>
+					<a data-type="2" class="mui-control-item coupon-type-item">
+						已失效
+					</a>
+				</div>
+			</div>
+
+			<div class="coupon-content">
+				<div id="couponType_0" data-page="1" class="mui-scroll-wrapper mui-control-content coupon-content-list mui-active">
+					<div class="mui-scroll">
+						<ul class="coupon-list-item">
+
+						</ul>
+					</div>
+				</div>
+
+				<div id="couponType_1" data-page="1" class="mui-scroll-wrapper mui-control-content coupon-content-list">
+					<div class="mui-scroll">
+						<ul class="coupon-list-item">
+
+						</ul>
+					</div>
+				</div>
+				<div id="couponType_2" data-page="1" class="mui-scroll-wrapper mui-control-content coupon-content-list">
+					<div class="mui-scroll">
+						<ul class="coupon-list-item">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/jweixin-1.2.0.js" type="text/javascript"></script>
+		<script src="../assets/js/base.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/style.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var CouponsCenter = {
+				defaultThumb: '../assets/images/logo.png',
+				data: {
+					type: 0,
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					common.tabs('.coupon-type a', '.coupon-content .coupon-content-list', 'mui-active');
+
+					//首次加载
+					CouponsCenter.pullRefreshList();
+
+					$('.coupon-content').on('tap', '.but-receive-coupon', function() {
+						common.urlOpen('coupon.html?')
+					})
+
+					//点击加载对应订单状态数据
+					$('.coupon-type-item').on('tap', function() {
+						var _type = $(this).data('type')
+						$('#couponType_' + _type).find('.coupon-list-item').html('')
+						CouponsCenter.data.type = _type
+						CouponsCenter.data.page = 1
+						CouponsCenter.pullRefreshList();
+					})
+
+					//立即使用
+					$('.coupon-content').on('tap', '.coupon-item-status', function() {
+						var _this = $(this),
+							status = _this.data('status'),
+							onlineLimit = _this.data('onlineOffline'),
+							categoryLimit = _this.data('categoryLimit'),
+							goodsLimit = _this.data('goodsLimit');
+						if(typeof categoryLimit == 'number') {
+							var categoryLimit = categoryLimit.toString()
+						}
+						if(typeof goodsLimit == 'number') {
+							var goodsLimit = goodsLimit.toString()
+						}
+						categoryArr = categoryLimit.split(',')
+						goodsArr = goodsLimit.split(',')
+						if(status == 0) {
+							if(onlineLimit == 1) {
+								if(categoryLimit) {
+									var categoryId = categoryArr[0]
+									common.urlOpen('product.html?')
+									//WCY.goProduct(categoryId)
+								} else if(goodsLimit) {
+									var goodsId = goodsArr[0]
+									WCY.goProductDetail(goodsId)
+								} else {
+									common.urlOpen('product.html?')
+								}
+							} else {
+								common.layerMsg('请凭此券到线下门店使用！')
+								return false;
+							}
+						} else {
+							console.log('此优惠券已使用或已失效^_^')
+							return false;
+						}
+					});
+
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					var _type = CouponsCenter.data.type,
+						_this = $('#couponType_' + _type);
+					mui(_this).pullRefresh({
+						up: {
+							height: 50,
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								CouponsCenter.getCouponsCenterList(this, _this, _type)
+							}
+						}
+					});
+				},
+
+				//获取优惠券列表
+				getCouponsCenterList: function(_self, _this, _type, cb) {
+					var _wrap = $(_this).find('.coupon-list-item');
+					var data = CouponsCenter.data;
+					common.ajaxRequest({
+						u: 'coupon/getUserCoupon.html?',
+						d: data
+					}, function(res) {
+						var obj = res.couponList;
+						if(obj.length > 0) {
+							var p = CouponsCenter.data.page;
+							if(p > res.allpage) {
+								_self.refresh(true);
+								_self.endPullupToRefresh(true);
+							} else {
+								p++;
+								_self.refresh(true);
+								_self.endPullupToRefresh();
+								CouponsCenter.data.page = p
+							}
+							for(i in obj) {
+								var $item = CouponsCenter.showCouponsCenterList(obj[i], _type);
+								_wrap.append($item);
+							}
+						} else {
+							if(CouponsCenter.data.page > 1) _self.refresh(true), _self.endPullupToRefresh(true)
+							else CouponsCenter.emptyCouponsCenterlist(_type)
+
+						}
+					});
+				},
+
+				//展示订单列表
+				showCouponsCenterList: function(obj, _type) {
+					var _html = [];
+
+					_html.push('<div class="coupon-item-face-info mui-clearfix">');
+					_html.push('	<div class="coupon-tips">' + (obj.onlineLimit == 1 ? '商城' + (obj.couponType == 1 ? '折' : '抵') + '扣券' : '商家' + (obj.couponType == 1 ? '折' : '抵') + '扣券') + '</div>');
+					_html.push('	<div class="coupon-item-face-left">');
+					_html.push('		<div class="coupon-item-face-val mui-ellipsis ' + (_type == 0 ? 'using' : 'used') + '">');
+					_html.push((obj.couponType == 2 ? '￥' : '') + '<span>' + obj.couponAmount + (obj.couponType == 1 ? '折' : '') + '</span>');
+					_html.push('		</div>');
+					_html.push('		<div class="coupon-item-face-rule mui-ellipsis">满' + obj.amountLimit + '元可用</div>');
+					_html.push('	</div>');
+					_html.push('	<div class="coupon-item-face-right">');
+					_html.push('		<h2 class="coupon-title mui-ellipsis">' + obj.couponTitle + '</h2>');
+					_html.push('		<p class="coupon-sub-title">' + obj.description + '</p>');
+					_html.push('		<p class="coupon-closing-date">有效期:' + obj.endTime + '</p>');
+					_html.push('	</div>');
+					_html.push('</div>');
+					_html.push('<div class="coupon-item-status ' + (_type == 0 ? 'using' : 'used') + '" data-status="' + obj.status + '" data-online-offline="' + obj.onlineLimit + '" data-category-limit="' + obj.categoryLimit + '" data-goods-limit="' + obj.goodsLimit + '" >');
+					_html.push('	<div class="circle-dot-top"></div>');
+					_html.push('	<div class="circle-dot-bottom"></div>');
+					if(_type == 0) {
+						if(obj.onlineLimit == 1) _html.push('	<button class="but-default immediate-use">立即使用</button>');
+						else if(obj.onlineLimit == 2) _html.push('	<span>支持商家到店核销</span>');
+					} else if(_type == 1) {
+						_html.push('	<span>已失效</span>');
+					} else if(_type == 2) {
+						_html.push('	<span>已失效</span>');
+					}
+					_html.push('</div>');
+
+					var item = document.createElement('li');
+					obj.onlineLimit == 1 ? item.className = 'coupon-item coupon-type-mall mui-clearfix' : item.className = 'coupon-item coupon-type-seller mui-clearfix';
+					item.innerHTML = _html.join('');
+					return item;
+				},
+
+				emptyCouponsCenterlist: function(type) {
+					$('#couponType_' + type).find('.mui-pull-bottom-pocket').remove('.mui-pull-bottom-pocket')
+					$('#couponType_' + type).find('.coupon-list-item').before(WCY.emptyCouponslist())
+					type == 0 && $('#couponType_' + type).find('.coupon-list-item').after('<div class="but-receive-coupon"><button type="button" class="mui-btn mui-btn-block">领券中心</button></div>')
+				},
+			};
+
+			$(function() {
+				CouponsCenter.init();
+			});
+		</script>
+	</body>
+
+</html>

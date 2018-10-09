@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>精品商家</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+
+	</head>
+
+	<body>
+
+		<div class="mui-content seller-index">
+			<div id="pullRefresh" class="mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<ul id="sellerList" class="mui-row mui-list-unstyled">
+
+					</ul>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			sellerList = {
+				defaultLogo: '../assets/images/logo.png',
+				data: {
+					page: 1,
+					limits: 12
+				},
+				init: function() {
+					sellerList.pullRefreshList();
+					//查看商品详情
+					$('.seller-index').on('tap', 'li', function() {
+						var _id = $(this).data('id'),
+							_title = $(this).data('title');
+						common.urlOpen('category.html?supplierId=' + _id + '&title=' + _title);
+					});
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								sellerList.getSellerList(this)
+							}
+						}
+					});
+				},
+
+				getSellerList: function(_this) {
+					var data = sellerList.data;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'supplier/supplier_list.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = sellerList.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								sellerList.data.page = p;
+							}
+							var _list = res.list;
+							for(i in _list) {
+								var _item = sellerList.renderSellerList(_list[i], i);
+								$("#sellerList").append(_item);
+							}
+							for(i in _list) {
+								sellerList.preload(filesService + _list[i].thumbnail, _list[i].id);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+
+				renderSellerList: function(obj, j) {
+					var html = [];
+					html.push('<div class="seller-logo">');
+					html.push('	<img id="seller-logo-' + obj.id + '" src="' + (obj.logo ? filesService + obj.logo : sellerList.defaultLogo) + '" />');
+					html.push('</div>');
+					html.push('<div class="seller-name mui-ellipsis">' + obj.name + '</div>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-col-xs-4';
+					li.dataset.id = obj.id;
+					li.dataset.title = obj.name;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//設置圖片高度及處理no found的圖片替換
+				preload: function(src, id) {
+					var img = new Image();
+					img.src = src;
+					img.onload = function() {
+						$thumb = document.body.querySelector('#seller-logo-' + id);
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					};
+					img.onerror = function() {
+						$thumb = document.body.querySelector('#seller-logo-' + id);
+						$thumb.src = sellerList.defaultLogo;
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					}
+				}
+
+			};
+			$(function() {
+				sellerList.init();
+			})
+		</script>
+	</body>
+
+</html>

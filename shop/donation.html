@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>转赠设置</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="donation-index">
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="donation">
+					<div class="donation-step-first">
+						<div class="donation-step-title">第一步：请输入赠送数量</div>
+						<div class="mui-input-row">
+							<label>购物豆：剩余<span class="surplus-bean">0</span>个豆</label>
+							<input type="text" name="number" maxlength="6" placeholder="赠送个数" pattern="[0-9]*" value="">
+						</div>
+					</div>
+					<div class="donation-step-second">
+						<div class="donation-step-title">第二步：请输入拆分成份数</div>
+						<div class="mui-input-row">
+							<label>拆分份数：</label>
+							<input type="text" name="parts" maxlength="6" placeholder="输入份数" pattern="[0-9]*" value="">
+						</div>
+					</div>
+				</div>
+				<div class="donation-rule">
+					<ul class="mui-list-unstyled">
+						<li>1. 红包新老用户同享；</li>
+						<li>2. 红包仅在谱奇科技联盟商家使用；</li>
+						<li>3. 消费时以抢红包绑定的一号兔注册手机号为核销账号；</li>
+						<li>4. 转赠的红包30分钟无人领取将自动转回原账号下。</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="but-donation-block mui-clearfix">
+			<div class="donation-info">
+				<div class="split-num">共赠送 <span>0</span> 个豆</div>
+				<div class="split-parts">拆分成 <span>0</span> 份</div>
+			</div>
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block but-donation">送给朋友</button>
+		</div>
+
+		<div id="shareContent">
+			<div class="share-content">
+				<div class="close-share-content" style="box-sizing: border-box;">
+					<span class="mui-icon mui-icon-closeempty"></span>
+				</div>
+				<img src="../assets/images/logo.png" />
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Donation = {
+				surplusBean: 50,
+				maxParts: 10,
+				num: 0,
+				parts: 0,
+				shareImage: '',
+				init: function() {
+
+					Donation.getDonationBeanInfo();
+
+					//赠送数量&份数
+					$('.donation').on('input', 'input[name="number"]', function() {
+						var _num = $(this).val();
+						if(!/^[0-9]+$/.test(_num)) _num = 0;
+						Donation.num = _num;
+						Donation.showInputVal();
+					}).on('input', 'input[name="parts"]', function() {
+						var _parts = $(this).val();
+						if(!/^[0-9]+$/.test(_parts)) _parts = 0;
+						Donation.parts = _parts;
+						Donation.showInputVal();
+					}).on('focus', 'input[type="text"]', function() {
+						$('.but-donation').prop('disabled', false);
+					});
+
+					$('.but-donation').on('tap', function() {
+						var flag = Donation.checkInputRule();
+						flag && Donation.creatShareRedPackets();
+					});
+
+					//关闭购物豆分享图片
+					$('body').on('tap', '.close-share-content', function() {
+						layer.closeAll()
+					});
+
+				},
+
+				//获取购物豆信息
+				getDonationBeanInfo: function() {
+					common.ajaxRequest({
+						u: 'card/getUserAccountInfo.html?'
+					}, function(res) {
+						var obj = res.cardInfo;
+						Donation.showDonationBeanInfo(obj);
+					});
+				},
+
+				//显示剩余购物豆
+				showDonationBeanInfo: function(obj) {
+					Donation.surplusBean = obj.integral;
+					$('.surplus-bean').text(obj.integral)
+				},
+
+				//显示输入值
+				showInputVal: function() {
+					$('.split-num span').text(Donation.num);
+					$('.split-parts span').text(Donation.parts);
+				},
+
+				//校验赠送数量&份数输入
+				checkInputRule: function() {
+					if(!Donation.num || !Donation.parts || Donation.num <= 0 || Donation.parts <= 0) {
+						common.layerMsg('请填写有效的数量和份数！')
+						return false;
+					} else if(Donation.num - Donation.surplusBean > 0) {
+						common.layerMsg('您填写的数量超出最大可赠送数量 ' + Donation.surplusBean + ' ！')
+						return false;
+					} else if(Donation.parts - Donation.maxParts > 0) {
+						common.layerMsg('最大拆分份数为' + Donation.maxParts + '份！')
+						return false;
+					} else if(Donation.num - Donation.parts < 0) {
+						common.layerMsg('拆分份数不能超过赠送数量！')
+						return false;
+					} else {
+						$('.but-donation').prop('disabled', false);
+						return true;
+					}
+				},
+
+				//创建转赠购物豆红包
+				creatShareRedPackets: function() {
+					var data = {
+						type: 0,
+						number: Donation.parts,
+						par_value: Donation.num
+					};
+					common.ajaxRequest({
+						u: 'card/officialUserCardSend.html?',
+						d: data,
+						l: '红包生成中,敬请期待…'
+					}, function(res) {
+						var shareImage = res.insertInfo;
+						Donation.num = 0;
+						Donation.parts = 0;
+						$('input[name="number"]').val('');
+						$('input[name="parts"]').val('');
+						Donation.showInputVal()
+						Donation.setShareRedPackets(shareImage);
+					})
+				},
+
+				//设置红包信息
+				setShareRedPackets: function(img) {
+					$('.share-content img').attr('src', img)
+					var content = $('#shareContent').html(),
+						_layer = layer.open({
+							content: content
+						});
+				},
+
+			};
+			$(function() {
+				Donation.init();
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>精品商城</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="product-index">
+
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item" href="index.html">
+				<span class="mui-icon icon-home"></span>
+				<span class="mui-tab-label">首页</span>
+			</a>
+			<a class="mui-tab-item mui-active" href="product.html">
+				<span class="mui-icon icon-product"></span>
+				<span class="mui-tab-label">精品商城</span>
+			</a>
+			<a class="mui-tab-item" href="cart.html">
+				<span class="mui-icon icon-cart"><span class="mui-badge wares-num">0</span></span>
+				<span class="mui-tab-label">购物车</span>
+			</a>
+			<a class="mui-tab-item" href="user.html">
+				<span class="mui-icon icon-user"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll" style="height: calc(100% - 50px);">
+				<div class="search-product">
+					<span class="mui-icon mui-icon-search"></span>搜索商品
+				</div>
+				<div class="product" style="height: calc(100% - 65px);">
+					<div class="mui-row" style="height: 100%;">
+						<div class="mui-col-xs-3" style="height: 100%;">
+							<div class="mui-content mui-scroll-wrapper">
+								<div class="mui-scroll">
+									<ul id="productNav" class="product-navleft">
+										<!--<li data-typeid="2" class="mui-active">
+											<a href="javascript:;">高端粮油</a>
+										</li>-->
+									</ul>
+								</div>
+							</div>
+
+						</div>
+						<div class="mui-col-xs-9" style="height: 100%; background: #fff;">
+							<div id="pullRefresh" class="mui-content mui-scroll-wrapper" style="background: transparent;">
+								<div class="mui-scroll">
+									<div class="product-list">
+										<ul id="productList" class="mui-row mui-list-unstyled">
+
+										</ul>
+										<!--<ul id="productList" class="mui-table-view">
+											<li class="mui-table-view-cell mui-media">
+												<a href="javascript:;">
+													<img class="mui-media-object mui-pull-left product-list-thumb" src="../assets/images/product_banner_01.jpg">
+													<div class="mui-media-body">
+														<h2 class="product-list-title mui-ellipsis">一家一米五常大米</h2>
+														<p class="product-list-price">￥<span>199.01</span></p>
+													</div>
+												</a>
+											</li>
+										</ul>-->
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Product = {
+				defaultThumb: '../assets/images/logo.png',
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				pagedata: {
+					category_id: common.getQueryString('categoryType'),
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					Product.getGoodsType();
+					mui('.mui-scroll-wrapper').scroll();
+					$('#pullRefresh .mui-scrollbar').remove();
+					WCY.updateCart();
+
+					$('.search-product').on('tap', function() {
+						common.urlOpen("search.html?")
+					});
+
+					//加载商品分类对应商品
+					$('#productNav').on('tap', 'li', function() {
+						var typeid = $(this).data('typeid');
+						$(this).addClass('mui-active').siblings().removeClass('mui-active');
+						Product.pagedata.category_id = typeid;
+						Product.pagedata.page = 1;
+						$("#productList").html('');
+						Product.pullRefreshList();
+					});
+
+					//查看商品详情
+					$('.product-list').on('tap', 'li', function() {
+						var proid = $(this).data('proid');
+						common.urlOpen('productShow.html?proid=' + proid);
+					});
+
+				},
+
+				getGoodsType: function() {
+					common.ajaxRequest({
+						u: 'category/getLeafCategory.html?'
+					}, function(res) {
+						Product.showGoodsType(res);
+					});
+				},
+
+				showGoodsType: function(obj) {
+					if(obj.categoryList.length > 0) {
+						var html = [],
+							typeList = obj.categoryList;
+						for(var i = 0; i < typeList.length; i++) {
+							if(!Product.pagedata.category_id) {
+								Product.pagedata.category_id = typeList[0].id;
+								html.push('<li data-typeid="' + typeList[i].id + '" class="' + (i == 0 ? 'mui-active' : '') + '">');
+							} else {
+								html.push('<li data-typeid="' + typeList[i].id + '" class="' + (typeList[i].id == Product.pagedata.category_id ? 'mui-active' : '') + '">');
+							}
+							html.push('		<a href="javascript:;">' + typeList[i].name + '</a>');
+							html.push('</li>');
+						}
+						$('#productNav').html(html.join(''));
+						Product.pullRefreshList();
+					}
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								Product.getGoodsList(this)
+							}
+						}
+					});
+				},
+
+				getGoodsList: function(_this) {
+					var data = Product.pagedata;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'goods/goods_list.html?',
+						d: data
+					}, function(res) {
+						if(res.goodslist.length > 0) {
+							var p = Product.pagedata.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								Product.pagedata.page = p;
+							}
+							var list = res.goodslist;
+							for(i in list) {
+								var _item = Product.renderProductList(list[i]);
+								$("#productList").append(_item);
+							}
+							for(i in list) {
+								Product.preload(filesService + list[i].thumbnail, list[i].goods_id);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+
+				renderProductList: function(obj) {
+					var html = [];
+					html.push('	<div class="product-list-item">');
+					html.push('		<div class="product-list-thumb">');
+					html.push('			<img id="product-thumb-' + obj.goods_id + '" src="' + (obj.thumbnail != null ? filesService + obj.thumbnail + Product.x_oss_process : Product.defaultThumb) + '" />');
+					html.push('		</div>');
+					html.push('		<div class="product-list-title mui-ellipsis-2">' + obj.name + '</div>');
+					html.push('		<div class="product-list-others">');
+					html.push('			<div class="product-list-price">');
+					html.push('				<span class="selling-price">￥<em>' + obj.price + '</em></span>');
+					html.push('				<span class="original-price">￥<em>' + obj.wasprice + '</em></span>');
+					html.push('			</div>');
+					html.push('			<div class="product-list-buy"><span>购买</span></div>');
+					html.push('		</div>');
+					html.push('	</div>');
+
+					var li = document.createElement('li');
+					li.className = 'mui-col-xs-6';
+					li.dataset.proid = obj.goods_id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//設置圖片高度及處理no found的圖片替換
+				preload: function(src, id) {
+					var img = new Image();
+					img.src = src;
+					img.onload = function() {
+						$thumb = document.body.querySelector('#product-thumb-' + id);
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					};
+					img.onerror = function() {
+						$thumb = document.body.querySelector('#product-thumb-' + id);
+						$thumb.src = Product.defaultThumb;
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					}
+				}
+
+			};
+
+			$(function() {
+				Product.init();
+			})
+		</script>
+
+	</body>
+
+</html>

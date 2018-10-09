@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>账号设置</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="pay-index">
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="user-service">
+					<div class="card">
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell">
+								<a href="address.html?" class="mui-navigate-right">
+									地址管理
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="mobileEdit.html?" class="mui-navigate-right">
+									更换绑定手机号
+								</a>
+							</li>
+							<li class="mui-table-view-cell">
+								<a href="focusUs.html?" class="mui-navigate-right">
+									关注我们
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="button-default">
+						<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-logout">退出登录</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var Set = {
+				init: function() {
+					$('.user-service').on('tap', '.card ul li', function() {
+						console.log($(this).children())
+						var _href = $(this).children().attr('href');
+						if(_href == 'javascript:;') {
+							common.layerMsg('此功能暂未开放！')
+						} else {
+							location.href = _href;
+						}
+					})
+
+					$('.btn-logout').on('tap', function() {
+						Set.logout()
+					})
+				},
+				logout: function() {
+					localStorage.clear()
+					common.clearAllCookie()
+					//common.urlOpen('index.html?')
+					wx.closeWindow();
+				}
+			};
+			$(function() {
+				Set.init();
+			});
+		</script>
+	</body>
+
+</html>

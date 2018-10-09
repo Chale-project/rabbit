@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>我要吐槽</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content">
+			<div class="feedback-index">
+				<textarea id="leavingMessage" name="content" rows="5" maxlength="50" placeholder="请尽情释放您的槽点:"></textarea>
+				<p class="message-notice">50字以内（选填）</p>
+				<button type="button" class="mui-btn mui-btn-block btn-feedback-submit">我要吐槽</button>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+
+		<script type="text/javascript">
+			var Feedback = {
+				content: null,
+				platform: 2,
+				init: function() {
+					$('.feedback-index').on('input', '#leavingMessage', function() {
+						var _val = $(this).val();
+						Feedback.content = _val;
+					}).on('tap', '.btn-feedback-submit', function() {
+						var _this = $(this);
+						!Feedback.content && common.layerMsg('请填写吐槽内容^_^');
+						Feedback.content && Feedback.submitFeedback(_this);
+					});
+				},
+
+				submitFeedback: function(_this) {
+					_this.prop('disabled', true);
+					var data = {
+						content: Feedback.content,
+						platform: Feedback.platform
+					};
+					common.ajaxRequest({
+						u: 'user_feedback/feedback.html?',
+						d: data
+					}, function(res) {
+						_this.prop('disabled', false);
+						common.layerMsg('吐槽成功^_^');
+						WCY.reload();
+					});
+				},
+
+			};
+
+			$(function() {
+				Feedback.init();
+			});
+		</script>
+	</body>
+
+</html>

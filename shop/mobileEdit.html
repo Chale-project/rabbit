@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>修改手机号</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="edit-phone-page">
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="phone-edit">
+					<p class="tips"><span class="mui-icon mui-icon-info"></span>更换手机号后，所以信息、操作均以新手机号为准！操作步骤如下：</p>
+					<div id="step" class="step">
+						<div class="step-header">
+							<div class="step-one mui-active"><span>1</span>校验原手机号</div>
+							<div class="step-two"><span>2</span>设置新手机号</div>
+						</div>
+						<p class="mui-progressbar mui-progressbar-in"><span></span></p>
+					</div>
+					<div class="panel">
+						<div class="panel-body">
+							<form id="myform" class="mui-input-group">
+								<div class="mui-input-row">
+									<label>手机号：</label>
+									<input type="text" name="oldmobile" id="oldMobile" maxlength="11" placeholder="请输入原手机号" pattern="[0-9]*">
+									<input type="hidden" name="newmobile" id="newMobile" maxlength="11" placeholder="请输入新手机号" pattern="[0-9]*">
+
+								</div>
+								<div class="mui-input-row">
+									<label>验证码：</label>
+									<input type="text" name="code" id="verifycode" maxlength="6" placeholder="请输入验证码" pattern="[0-9]*">
+									<button type="button" id="getSmsBtn" class="phone-verify">验证码</button>
+								</div>
+								<button type="button" id="editPhone" class="mui-btn mui-btn-default mui-btn-block btn-save">确认修改</button>
+							</form>
+						</div>
+					</div>
+					<div class="notice">
+						<h3>注意事项：</h3>
+						<p>1.该操作无法恢复，操作前请仔细确认！</p>
+						<p>2.请确保您需要更换的手机号能收到短信。</p>
+						<p>3.请勿频繁更换手机号，以免造成不可挽回的后果。</p>
+						<p>4.如仍然不能解决您的问题，请致电：
+							<a href="tel:13638623422">13638623422</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var editPhone = {
+				mobile: null,
+				code: null,
+				step: 50,
+				init: function() {
+					mui("#step").progressbar().setProgress(editPhone.step)
+					$('#myform').on('input', 'input[name="oldmobile"]', function() {
+						$('#editPhone').prop('disabled', false);
+						editPhone.mobile = $(this).val();
+					}).on('input', 'input[name="newmobile"]', function() {
+						$('#editPhone').prop('disabled', false);
+						editPhone.mobile = $(this).val();
+					}).on('input', 'input[name="code"]', function() {
+						$('#editPhone').prop('disabled', false);
+						editPhone.code = $(this).val();
+					});
+
+					$('.edit-phone-page').on('tap', '#getSmsBtn', function() {
+						if($(this)[0].disabled === false) {
+							var flag = editPhone.checkMobile();
+							flag && WCY.getSmsVerify(editPhone.mobile);
+						}
+					}).on('tap', '#editPhone', function() {
+						var mobileFlag = editPhone.checkMobile()
+						if(mobileFlag) codeFlag = editPhone.checkCode();
+						mobileFlag && codeFlag && editPhone.checkStep(editPhone.step);
+					});
+				},
+
+				checkMobile: function() {
+					if(!/^(1)[0-9]{10}$/.test(editPhone.mobile)) {
+						common.layerMsg('请输入有效的手机号！');
+						return false;
+					} else {
+						return true;
+					}
+				},
+
+				checkCode: function() {
+					if(!/^\d{6}$/.test(editPhone.code)) {
+						common.layerMsg('请输入6位数字验证码！');
+						return false;
+					} else {
+						return true;
+					}
+				},
+
+				//校验手机号步骤
+				checkStep: function(step) {
+					$('#editPhone').prop('disabled', true);
+					switch(step) {
+						case 50:
+							editPhone.checkStepOne();
+							break;
+						case 100:
+							editPhone.checkStepTwo();
+							break;
+					}
+				},
+
+				checkStepOne: function() {
+					var data = {
+						mobile: editPhone.mobile,
+						code: editPhone.code
+					};
+					common.ajaxRequest({
+						u: 'users/infoUpdateMobile.html?',
+						d: data
+					}, function(res) {
+						common.setCookie('oldmobile', editPhone.mobile, 1)
+						editPhone.mobile = null;
+						editPhone.code = null;
+						$('input[name="oldmobile"]').prop('type', 'hidden').val('');
+						$('input[name="newmobile"]').prop('type', 'text');
+						$('input[name="code"]').val('');
+						editPhone.step = 100;
+						mui("#step").progressbar().setProgress(editPhone.step);
+						$('.step-two').addClass('mui-active');
+						$('#editPhone').prop('disabled', false);
+						common.layerMsg('请进行下一步操作！');
+					});
+				},
+
+				checkStepTwo: function() {
+					var data = {
+						new_mobile: editPhone.mobile,
+						code: editPhone.code,
+						old_mobile: common.getCookie('oldmobile')
+					};
+					common.ajaxRequest({
+						u: 'users/afterUpdateMobile.html?',
+						d: data
+					}, function(res) {
+						common.delCookie('oldmobile')
+						editPhone.mobile = null;
+						editPhone.code = null;
+						$('input[name="oldmobile"]').prop('type', 'text');
+						$('input[name="newmobile"]').prop('type', 'hidden').val('');
+						$('input[name="code"]').val('');
+						$('#editPhone').prop('disabled', false);
+						common.layerMsg('恭喜您操作成功！');
+						var _userInfo = res.userInfo;
+						common.setStorage('userInfo', JSON.stringify(_userInfo));
+						setTimeout(function() {
+							common.urlReplace('user.html?');
+						}, 500)
+					});
+				}
+			};
+			$(function() {
+				editPhone.init();
+			});
+		</script>
+	</body>
+
+</html>

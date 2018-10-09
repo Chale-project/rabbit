@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>确认订单</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/spec.select.css" />
+	</head>
+
+	<body class="order-creat">
+		<div class="btn-go-pay">
+			<a type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">提交订单</a>
+		</div>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="orderCreat-index">
+					<form id="myform" class="mui-input-group">
+						<div class="consignee-info">
+							<ul class="mui-table-view">
+								<li class="mui-table-view-cell" id="consigneeInfo">
+									<a href="javascript:;" class="mui-navigate-right address-bind" data-addid="">
+										<div class="consignee">
+											<span class="consignee-name"></span>
+											<span class="consignee-mobile"></span>
+										</div>
+										<div class="address">
+											<span class="consignee-pca"></span>
+											<p class="detail-address mui-ellipsis-2"></p>
+										</div>
+									</a>
+
+									<a href="javascript:;" class="mui-navigate-right address-empty">
+										<p><span class="mui-icon mui-icon-info"></span> 还没有收货地址，快去<span>添加收货地址</span></p>
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="mui-input-row express-delivery">
+							<label>物流方式：</label>
+							<select class="express-delivery-select">
+								<option value="1">快递物流</option>
+								<option value="2">门店自提</option>
+							</select>
+						</div>
+
+						<div id="orderProductInfo" class="order-product-info">
+							<!--<ul class="mui-table-view">
+								<li class="mui-table-view-cell">
+									<a href="javascript:;" class="mui-navigate-right">
+										<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+											<div class="mui-scroll">
+												<div class="order-product-list">
+													<span><img src="../assets/images/logo.png" alt="" /></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="miao-sha">秒杀</i></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="song-yi">送一</i></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="zhe-kou">折扣</i></span>
+												</div>
+											</div>
+										</div>
+										<span class="mui-pull-right total-piece">共计<em>0</em>件</span>
+									</a>
+								</li>
+							</ul>
+							<div class="statistics">
+								<ul class="mui-table-view">
+									<li class="mui-table-view-cell">
+										<span class="statistics-piece">商品总额：</span>
+										<span class="mui-badge statistics-price">￥<em>0</em></span>
+									</li>
+								</ul>
+							</div>-->
+							<!--<div class="order-product-item">
+								<div class="order-product-item-header"><span class="seller-tips">商家</span>谱奇科技商家</div>
+								<div class="order-product-item-body">
+									<ul class="mui-list-unstyled">
+										<li class="order-list-product">
+											<div class="order-list-product-thumb"><img src="../assets/images/logo.png" /></div>
+											<div class="order-list-product-info">
+												<h2 class="order-list-product-title mui-ellipsis-2">谱奇科技</h2>
+												<div class="order-list-product-price-remark-number">
+													<span class="order-list-product-price">￥ 53.11</span>
+													<span class="order-list-product-remark-number">暗示发的 <em>X 5</em></span>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+								<div class="order-product-item-footer">物流费用：0</div>
+							</div>-->
+
+						</div>
+
+						<div class="count-money">
+							<ul class="mui-table-view">
+								<li class="mui-table-view-cell"><span class="pro-total-price mui-pull-right" id="proTotalPrice">￥<em>0</em></span>商品金额</li>
+								<!--<li class="mui-table-view-cell"><span class="pro-discount-price mui-pull-right" id="discountPrice">-￥<em>0</em></span>优惠金额</li>-->
+								<li class="mui-table-view-cell"><span class="pro-logistics-price mui-pull-right" id="logisticsPrice"><em>到付</em></span>物流费用</li>
+								<!--<li class="mui-table-view-cell"><span class="pro-seckill-price mui-pull-right" id="seckillPrice">￥<em>0</em></span>秒杀优惠</li>-->
+								<li class="mui-table-view-cell"><span class="payable mui-pull-right" id="payMoney">￥<em>0</em></span>应付金额</li>
+							</ul>
+						</div>
+
+						<!--<div class="coupon-info">
+							<ul class="mui-table-view">
+								<li id="couponList" class="mui-table-view-cell">
+									<a href="javascript:;" class="mui-navigate-right coupon-list">
+										<span class="mui-pull-right select-coupon-title"></span>优惠券
+									</a>
+								</li>
+							</ul>
+						</div>-->
+
+						<div class="leaving-message">
+							<textarea id="leavingMessage" name="remark" rows="1" maxlength="50" placeholder="买家留言:"></textarea>
+							<p class="message-notice">50字以内（选填）</p>
+						</div>
+
+						<!--<div class="button-default">
+							<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">立即支付</button>
+						</div>-->
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var orderCreat = {
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				defaultThumb: '../assets/images/logo.png',
+				carts: common.getQueryString('carts'),
+				goods: common.getQueryString('goods'),
+				referId: common.getQueryString('referee_id'),
+				dresserId: common.getQueryString('dresser_id'),
+				orderType: common.getQueryString('order_type'),
+				addressId: null,
+				address: JSON.parse(common.getStorage('address')),
+				remark: '',
+				totalPrice: 0,
+				logisticsPrice: 0,
+				payMoney: 0,
+				deliveryType: 1,
+				init: function() {
+
+					mui('.mui-scroll-wrapper').scroll();
+
+					if(orderCreat.orderType == 2) {
+						$('.consignee-info').css('display', 'none')
+						$('.express-delivery').css('display', 'none')
+						$('.leaving-message').css('display', 'none')
+					}
+
+					orderCreat.getOrderInfo();
+
+					//收货地址
+					$('.order-creat').on('tap', '.address-bind', function() {
+						if(orderCreat.carts) {
+							common.urlReplace('address.html?carts=' + orderCreat.carts)
+						}
+					}).on('tap', '.address-empty', function() {
+						if(orderCreat.carts) {
+							common.urlReplace('addressAdd.html?carts=' + orderCreat.carts)
+						}
+					});
+
+					//物流方式選擇
+					$('.order-creat').on('change', '.express-delivery-select', function() {
+						orderCreat.deliveryType = $(this).val()
+					})
+
+					//提交订单
+					$('.order-creat').on('tap', '.btn-pay', function() {
+						orderCreat.remark = $('#leavingMessage').val();
+						if(orderCreat.orderType == 1) {
+							var flag = orderCreat.creatOrderBefore()
+							flag && orderCreat.creatOrder();
+						} else {
+							orderCreat.creatOrder();
+						}
+					});
+				},
+
+				getOrderInfo: function() {
+					var data = {
+						carts: orderCreat.orderType == 1 ? orderCreat.carts : orderCreat.goods,
+						type: orderCreat.orderType
+					};
+					common.ajaxRequest({
+						u: 'mk_order/before_order.html?',
+						d: data
+					}, function(res) {
+						orderCreat.orderType == 1 && orderCreat.showConsignee(res);
+						orderCreat.showGoodsInfo(res);
+						orderCreat.showAllPrice(res);
+						orderCreat.showTotalPiece(res);
+					});
+				},
+
+				showConsignee: function(obj) {
+					var address = orderCreat.address || obj.address;
+					if(Object.keys(address).length > 0) {
+						$('.address-bind').css('display', 'block');
+						$('.address-empty').css('display', 'none');
+
+						$('.consignee-name').text(address.ua_name);
+						$('.consignee-mobile').text(address.ua_phone);
+						$('.consignee-pca').text(address.ua_pca + ' ' + address.ua_detailed);
+						orderCreat.addressId = address.address_id;
+					} else {
+						orderCreat.addressId = null;
+						$('.address-bind').css('display', 'none');
+						$('.address-empty').css('display', 'block');
+					}
+				},
+
+				showGoodsInfo: function(obj) {
+					var html = [],
+						sList = obj.list;
+					if(sList.length > 0) {
+						for(i in sList) {
+							html.push('<div class="order-product-item">');
+							html.push('	<div class="order-product-item-header"><span class="seller-tips">商家</span>' + sList[i].seller_name + '</div>');
+							html.push('	<div class="order-product-item-body">');
+							html.push('		<ul class="mui-list-unstyled">');
+							var gList = sList[i].list;
+							if(gList.length > 0) {
+								for(j in gList) {
+									html.push('	<li class="order-list-product">');
+									html.push('		<div class="order-list-product-thumb"><img src="' + (gList[j].img ? filesService + gList[j].img + orderCreat.x_oss_process : orderCreat.defaultThumb) + '"/></div>');
+									html.push('		<div class="order-list-product-info">');
+									html.push('			<h2 class="order-list-product-title mui-ellipsis-2">' + gList[j].name + '</h2>');
+									html.push('			<div class="order-list-product-price-remark-number">');
+									html.push('				<span class="order-list-product-price">￥ ' + gList[j].price + '</span>');
+									html.push('				<span class="order-list-product-remark-number"><em>X ' + gList[j].amount + '</em></span>');
+									html.push('			</div>');
+									html.push('		</div>');
+									html.push('	</li>');
+								}
+							}
+							html.push('		</ul>');
+							html.push('	</div>');
+							html.push('	<div class="order-product-item-footer">物流费用：' + sList[i].delivery_cost + '</div>');
+							html.push('</div>');
+						}
+					}
+					$('#orderProductInfo').html(html.join(''));
+				},
+
+				showAllPrice: function(obj) {
+					var totalPrice = obj.goods_price,
+						logisticsPrice = obj.total_delivery_cost,
+						payMoney = obj.total_price;
+					orderCreat.totalPrice = totalPrice;
+					orderCreat.logisticsPrice = logisticsPrice;
+					orderCreat.payMoney = payMoney;
+					$('.statistics-price em').text(totalPrice);
+					$('.pro-total-price em').text(totalPrice);
+					//$('.pro-logistics-price em').text(logisticsPrice);
+					orderCreat.showPayable();
+				},
+
+				showTotalPiece: function(obj) {
+					var totalPiece = obj.total_amount;
+					$('.total-piece em').text(totalPiece);
+				},
+
+				//显示应付金额
+				showPayable: function() {
+					var a = +orderCreat.payMoney;
+					$('.payable em').text(parseFloat(a).toFixed(2))
+				},
+
+				creatOrderBefore: function() {
+					var flag = !1;
+					if(!orderCreat.addressId) {
+						common.layerMsg('请添加收货地址^_^');
+						flag = !1;
+						return false;
+					} else {
+						flag = !0;
+						return true;
+					}
+					return flag;
+				},
+
+				//创建订单
+				creatOrder: function() {
+					var data = {};
+					if(orderCreat.orderType == 1) {
+						data = {
+							type: orderCreat.orderType,
+							carts: orderCreat.carts,
+							address_id: orderCreat.addressId,
+							refer_id: null,
+							remark: orderCreat.remark,
+							delivery_type: orderCreat.deliveryType
+						}
+					} else if(orderCreat.orderType == 2) {
+						data = {
+							type: orderCreat.orderType,
+							carts: orderCreat.goods,
+							address_id: null,
+							dresser_id: orderCreat.dresserId,
+							refer_id: orderCreat.referId,
+							remark: '',
+							delivery_type: 2
+						}
+					}
+					console.log(data)
+					common.ajaxRequest({
+						u: 'mk_order/create_order.html?',
+						d: data
+					}, function(res) {
+						var orderid = res.id,
+							ordernumber = res.ordernum;
+						common.removeStorage('cart');
+						common.removeStorage('address');
+						common.urlReplace('payment.html?order_id=' + orderid);
+					});
+				},
+			};
+
+			$(function() {
+				orderCreat.init();
+			});
+		</script>
+	</body>
+
+</html>

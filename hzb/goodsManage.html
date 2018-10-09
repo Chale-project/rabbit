@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>商品管理</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/spec.select.css" />
+		<style type="text/css">
+			.spec-select-header {
+				position: relative;
+				margin: -12px -15px;
+				padding: 8px 38px 8px 15px;
+				color: #333;
+				background: #f8f8f8;
+				z-index: 1;
+			}
+			
+			.edit-goods-spec-content {
+				width: 100%;
+				height: 100%;
+				padding-top: 10px;
+				padding-bottom: 45px;
+				overflow: auto;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="goods-manage-type">
+			<div class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+				<a data-type="0" class="mui-control-item nav-type mui-active">
+					分类
+				</a>
+				<a data-type="1" class="mui-control-item nav-type">
+					商家
+				</a>
+			</div>
+		</div>
+
+		<div class="footer-goods-manage-nav mui-row">
+			<!--<div class="mui-col-xs-6 footer-goods-manage-nav-left">
+				<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-goods-manage-edit-price" data-type="0">批量编辑价格和分佣</button>
+			</div>-->
+			<div class="mui-col-xs-6 footer-goods-manage-nav-right">
+				<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-goods-manage-audit">商品审核</button>
+			</div>
+			<div class="mui-col-xs-6 footer-goods-manage-nav-right">
+				<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-goods-manage-add">添加商品</button>
+			</div>
+		</div>
+
+		<div class="goods-manage-index">
+			<div class="goods-manage-content mui-row">
+				<div class="goods-manage-category mui-pull-left">
+					<ul id="goodsManageCategory" class="mui-list-unstyled">
+
+					</ul>
+				</div>
+				<div class="goods-manage mui-pull-left">
+					<div id="pullRefresh" class="mui-content mui-scroll-wrapper" style="background: transparent;">
+						<div class="mui-scroll">
+							<div class="goods-manage-list">
+								<ul id="goodsManageList" class="mui-list-unstyled">
+									<!--<li class="goods-manage-item">
+										<div class="goods-manage-face mui-row">
+											<div class="goods-manage-thumb">
+												<img src="../assets/images/logo.png">
+											</div>
+											<div class="goods-manage-info">
+												<div class="goods-manage-title mui-ellipsis-2">titf十大大苏打给le</div>
+												<div class="goods-manage-price">￥513</div>
+												<div class="goods-manage-original-price">￥513</div>
+
+											</div>
+										</div>
+
+										<div class="goods-manage-operation mui-row">
+											<div class="goods-manage-edit mui-col-xs-4"><span class="mui-icon mui-icon-compose"></span>编辑</div>
+											<div class="goods-manage-delete mui-col-xs-4"><span class="mui-icon mui-icon-trash"></span>删除</div>
+											<div class="goods-manage-up-down mui-col-xs-4">
+												<div class="mui-switch">
+													<div class="mui-switch-handle"></div>
+												</div>
+											</div>
+										</div>
+									</li>-->
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--修改商品属性-->
+		<div class="mui-backdrop" style="display: none; opacity: 0;"></div>
+		<div class="spec-select">
+			<div class="spec-select-body">
+				<div class="spec-select-header mui-ellipsis">
+					批量编辑商品
+				</div>
+				<div class="close-spec-select"> <span class="mui-icon mui-icon-closeempty"></span> </div>
+				<div class="edit-goods-spec-content">
+					<div class="calc-goods-spec-show">
+						<div class="goods-original-price">原价：
+							<span class="goods-original-price-val">0.00</span>
+							<span class="unit">元</span>
+						</div>
+						<div class="goods-selling-price">售价：
+							<span class="goods-original-price-val">0</span>
+							<i class="plus-sign">+</i>
+							<span class="goods-original-price-val">0.00</span>
+							<i class=" multiple-sign">x</i>
+							<span class="price-percentage">0</span>
+							<i class="per-sign">%</i>
+							<i class="equal-sign">=</i>
+							<span class="cale-goods-money">0</span>
+							<span class="unit">元</span>
+						</div>
+						<!--<div class="goods-brokerage-price">佣金：
+							<span class="goods-finalmoney-price-val">0</span>
+							<i class=" multiple-sign">x</i>
+							<span class="brokerage-percentage">0</span>
+							<i class="per-sign">%</i>
+							<i class="equal-sign">=</i>
+							<span class="cale-brokerage-money">0</span>
+							<span class="unit">元</span>
+						</div>-->
+					</div>
+					<div class="calc-goods-spec-price">
+						<h2>商品价格调整</h2>
+						<div class="mui-input-row">
+							<label>上调</label>
+							<input type="number" name="per-plus" class="per-plus" placeholder="输入百分比值" oninput="if(value.length>6)value=value.slice(0,6)" maxlength="6" pattern="[0-9]*">
+							<span>%</span>
+						</div>
+						<!--<div class="mui-input-row">
+							<label>下调</label>
+							<input type="number" name="per-minus" class="per-minus" placeholder="输入百分比值" oninput="if(value.length>6)value=value.slice(0,6)" maxlength="6" pattern="[0-9]*">
+							<span>%</span>
+						</div>-->
+					</div>
+					<!--<div class="calc-goods-spec-brokerage">
+						<h2>商品分佣</h2>
+						<div class="mui-input-row">
+							<label>佣金</label>
+							<input type="number" name="brokerage" class="per-brokerage" placeholder="输入百分比值" oninput="if(value.length>6)value=value.slice(0,6)" maxlength="6" pattern="[0-9]*">
+							<span>%</span>
+						</div>
+					</div>-->
+					<!--<div class="explain">
+						<h4>说明：</h4>
+						<p>1.商品售价是在进价基础上修改，建议上调45%以上</p>
+						<p>2.分佣比例为售价的分佣比例</p>
+					</div>-->
+				</div>
+			</div>
+			<div class="spec-select-bottom">
+				<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-submit">确定提交</button>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var goodsManage = {
+				goodsEditType: 0, //0:批量编辑;1:单商品编辑
+				navType: 0, //0:分类;1:商家
+				defaultThumb: '../assets/images/logo.png',
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				data: {
+					user_type: 2,
+					page: 1,
+					limits: 10
+				},
+				_this: null,
+				goodsId: null,
+				price: 0, //单品原单价
+				perType: 'up', //up:上浮;down:下调
+				perVal: 0, //上浮下调比例值
+				perBrokerageVal: 0, //佣金调整比例
+				finalMoney: 0, //调整比例后的最终价
+				init: function() {
+					goodsManage.getCategory(goodsManage.navType);
+
+					//切换分类OR商家
+					$('.goods-manage-type').on('tap', '.nav-type', function() {
+						var _this = $(this),
+							_type = _this.data('type');
+						goodsManage.navType = _type;
+						if(_type == 0) {
+							delete goodsManage.data['seller_id'];
+							goodsManage.data.category_id = null;
+						} else {
+							delete goodsManage.data['category_id'];
+							goodsManage.data.seller_id = null;
+						}
+
+						goodsManage.data.page = 1;
+						$('#goodsManageCategory').html('');
+						$('#goodsManageList').html('');
+						goodsManage.getCategory(goodsManage.navType);
+
+					});
+
+					//点击商品分类
+					$('body').on('tap', '.goods-manage-category-item', function() {
+						var _this = $(this),
+							_category = _this.data('category');
+						_this.addClass('active').siblings().removeClass('active');
+						if(goodsManage.navType == 0) {
+							goodsManage.data.category_id = _category;
+						} else {
+							goodsManage.data.seller_id = _category;
+						}
+						goodsManage.data.page = 1;
+						$('#goodsManageList').html('');
+						goodsManage.pullRefreshList();
+					});
+
+					//隐藏商品编辑
+					$('.mui-backdrop,.close-spec-select').on('tap', function() {
+						WCY.specSelect();
+					});
+
+					//价格输入框focus
+					$('body').on('focus', 'input[name="per-plus"]', function() {
+						$('input[name="per-minus"]').val('')
+						goodsManage.perVal = 0; //重置商品比例值
+					}).on('focus', 'input[name="per-minus"]', function() {
+						$('input[name="per-plus"]').val('')
+						goodsManage.perVal = 0; //重置商品比例值
+					});
+
+					//价格输入框input
+					$('body').on('input', 'input[name="per-plus"]', function() {
+						goodsManage.perType = 'up';
+						var _val = $(this).val();
+						goodsManage.perVal = _val || 0;
+						goodsManage.goodsEditType == 1 && goodsManage.countGoodsPrice(), goodsManage.countBrokerage()
+					}).on('input', 'input[name="per-minus"]', function() {
+						goodsManage.perType = 'down';
+						var _val = $(this).val();
+						goodsManage.perVal = _val || 0;
+						goodsManage.goodsEditType == 1 && goodsManage.countGoodsPrice(), goodsManage.countBrokerage()
+					}).on('input', 'input[name="brokerage"]', function() {
+						var _val = $(this).val();
+						goodsManage.perBrokerageVal = _val || 0;
+						goodsManage.goodsEditType == 1 && goodsManage.countBrokerage()
+					});
+
+					//单个商品编辑
+					$('.goods-manage-index').on('tap', '.goods-manage-edit', function() {
+						var _this = $(this),
+							_type = _this.data('type'),
+							_id = _this.parents('.goods-manage-item').data('goodsid'),
+							_isonsale = _this.parents('.goods-manage-item').data('isonsale'),
+							_title = _this.data('title'),
+							_orprice = _this.data('orprice');
+						$('input[type="number"]').val('');
+						if(_isonsale == 1) {
+							common.layerMsg('请先下架该商品，在进行编辑操作！')
+							return false;
+						}
+						goodsManage._this = _this;
+						goodsManage.goodsEditType = _type; //设置商品编辑类型
+						goodsManage.goodsId = _id; //重置商品ID
+						goodsManage.price = _orprice; //重置商品原单价
+						goodsManage.perType = 'up'; //重置商品调整类型
+						goodsManage.perVal = 0; //重置商品比例值
+						goodsManage.perBrokerageVal = 0; //重置商品分佣值
+						goodsManage.showGoodsEdit(_title);
+
+					});
+
+					//批量编辑商品
+					$('body').on('tap', '.btn-goods-manage-edit-price', function() {
+						var _this = $(this),
+							_type = _this.data('type');
+						$('input[type="number"]').val('');
+						goodsManage.goodsEditType = _type; //设置商品编辑类型
+						goodsManage.goodsId = null; //重置商品ID
+						goodsManage.price = 0; //初始化商品原单价
+						goodsManage.perType = 'up'; //初始化商品原单价
+						goodsManage.perVal = 0; //初始化商品原单价
+						goodsManage.perBrokerageVal = 0; //初始化商品原单价
+						goodsManage.showGoodsEdit();
+					});
+
+					//提交编辑
+					$('body').on('tap', '.btn-submit', function() {
+						var data = {};
+						if(goodsManage.perVal <= 0) {
+							common.layerMsg('请设置有效的价格上调比例！')
+							return false;
+						}
+						if(goodsManage.goodsEditType == 0) {
+							data = {
+								goodsEditType: goodsManage.goodsEditType,
+								add_percent: goodsManage.perVal,
+								commission_percent: goodsManage.perBrokerageVal
+							}
+						} else if(goodsManage.goodsEditType == 1) {
+							data = {
+								goodsEditType: goodsManage.goodsEditType,
+								product_id: goodsManage.goodsId,
+								add_percent: goodsManage.perVal,
+								commission_percent: goodsManage.perBrokerageVal
+							}
+						}
+
+						goodsManage.submitGoodsEdit(data);
+					});
+
+					//商品刪除
+					$('.goods-manage-index').on('tap', '.goods-manage-delete', function() {
+						var _this = $(this),
+							_id = _this.parents('.goods-manage-item').data('goodsid');
+						common.layerConfirm({
+							c: '确认删除此商品？',
+							y: function() {
+								goodsManage.deleteGoods(_this, _id);
+							}
+						})
+
+					});
+
+					//商品上下架
+					$('.goods-manage-index').on('tap', '.mui-switch', function() {
+						var _this = $(this),
+							_type = _this.parents('.goods-manage-item').data('isonsale'),
+							_id = _this.parents('.goods-manage-item').data('goodsid');
+						if(_type == 1) {
+							_type == 0
+						} else {
+							_type == 1
+						}
+						goodsManage.toggleGoodsUpOrDown(_this, _id, _type);
+					});
+
+					//去添加商品
+					$('body').on('tap', '.btn-goods-manage-add', function() {
+						common.urlOpen('goodsAdd.html?')
+					});
+					
+					//去商品审核
+					$('body').on('tap', '.btn-goods-manage-audit', function() {
+						common.urlOpen('goodsAudit.html?')
+					});
+
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								goodsManage.getGoodsList(this)
+							}
+						}
+					});
+				},
+
+				//获取分类
+				getCategory: function(_type) {
+					var data = {
+						user_type: goodsManage.data.user_type
+					};
+					common.ajaxRequest({
+						u: _type == 0 ? 'mk_shop/mk_category.html?' : 'mk_shop/mk_seller.html?',
+						d: data,
+					}, function(res) {
+						goodsManage.showCategory(res);
+					});
+				},
+
+				//展示分类
+				showCategory: function(obj) {
+					if(obj.list.length > 0) {
+						var html = [],
+							typeList = obj.list;
+						for(var i = 0; i < typeList.length; i++) {
+							if(i == 0) {
+								if(goodsManage.navType == 0) {
+									goodsManage.data.category_id = typeList[i].id;
+								} else {
+									goodsManage.data.seller_id = typeList[i].id;
+								}
+							}
+							html.push('<li class="goods-manage-category-item mui-ellipsis ' + (i == 0 ? 'active' : '') + '" data-category="' + typeList[i].id + '">');
+							html.push('		<a href="javascript:;">' + typeList[i].title + '</a>');
+							html.push('</li>');
+						}
+						$('#goodsManageCategory').html(html.join(''));
+						goodsManage.pullRefreshList();
+					}
+				},
+
+				//获取采购商品
+				getGoodsList: function(_this) {
+					var data = goodsManage.data;
+					common.ajaxRequest({
+						u: 'mk_shop/goods_list.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = goodsManage.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								goodsManage.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = goodsManage.renderProductList(list[i]);
+								$("#goodsManageList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+
+				//展示采购商品
+				renderProductList: function(obj) {
+					var html = [];
+					html.push('<div class="goods-manage-face mui-row">');
+					html.push('	<div class="goods-manage-thumb">');
+					html.push('		<img id="product-thumb-' + obj.id + '" src="' + (obj.img != null ? filesService + obj.img + goodsManage.x_oss_process : goodsManage.defaultThumb) + '">');
+					html.push('	</div>');
+					html.push('	<div class="goods-manage-info">');
+					html.push('		<div class="goods-manage-title mui-ellipsis-2">' + obj.name + '</div>');
+					html.push('		<div class="goods-manage-price">￥' + obj.sell_price + '</div>');
+					html.push('		<div class="goods-manage-original-price">进价:￥' + obj.purchase_price + '</div>');
+					html.push('	</div>');
+					html.push('</div>');
+
+					html.push('<div class="goods-manage-operation mui-row">');
+					html.push('	<div class="goods-manage-edit mui-col-xs-4" data-type="1" data-title="' + obj.name + '" data-orprice="' + obj.purchase_price + '"><span class="mui-icon mui-icon-compose"></span>编辑</div>');
+					html.push('	<div class="goods-manage-delete mui-col-xs-4"><span class="mui-icon mui-icon-trash"></span>删除</div>');
+					html.push('		<div class="goods-manage-up-down mui-col-xs-4">');
+					html.push('			<div class="mui-switch' + (obj.is_onsale != 0 ? ' mui-active' : '') + '">');
+					html.push('				<div class="mui-switch-handle"></div>');
+					html.push('			</div>');
+					html.push('		</div>');
+					html.push('</div>');
+
+					var li = document.createElement('li');
+					li.className = 'goods-manage-item';
+					li.dataset.goodsid = obj.id;
+					li.dataset.isonsale = obj.is_onsale;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//编辑单商品
+				showGoodsEdit: function(title) {
+					if(goodsManage.goodsEditType == 0) {
+						$('.spec-select-header').text('批量编辑商品')
+						$('.calc-goods-spec-show').css('display', 'none');
+					} else {
+						$('.spec-select-header').text(title)
+						$('.calc-goods-spec-show').css('display', 'block');
+						goodsManage.countGoodsPrice()
+						goodsManage.countBrokerage()
+					}
+					WCY.specSelect();
+				},
+
+				//计算商品售价
+				countGoodsPrice: function() {
+					var finalmoney = 0,
+						perType = goodsManage.perType,
+						price = goodsManage.price,
+						per = goodsManage.perVal,
+						permoney = price * (per / 100);
+					if(perType == 'up')
+						finalmoney = +price + +permoney
+					else if(perType == 'down')
+						finalmoney = +price - +permoney
+					goodsManage.finalMoney = parseFloat(finalmoney).toFixed(2)
+					goodsManage.showNumbers(parseFloat(finalmoney).toFixed(2))
+				},
+
+				//计算商品佣金
+				countBrokerage: function() {
+					var price = goodsManage.finalMoney,
+						per = goodsManage.perBrokerageVal,
+						finalmoney = price * (per / 100);
+					goodsManage.showBrokerage(parseFloat(finalmoney).toFixed(2))
+				},
+
+				//显示价格计算金额
+				showNumbers: function(money) {
+					$('.goods-original-price-val').text(goodsManage.price)
+					$('.goods-finalmoney-price-val').text(goodsManage.finalMoney)
+					if(goodsManage.perType == 'up')
+						$('.plus-sign').text('+')
+					else if(goodsManage.perType == 'down')
+						$('.plus-sign').text('-')
+					$('.price-percentage').text(goodsManage.perVal)
+					if(money < 0) {
+						$('.cale-goods-money').text(money).css('color', 'red')
+					} else {
+						$('.cale-goods-money').text(money).css('color', '#666')
+					}
+
+				},
+
+				//显示佣金计算金额
+				showBrokerage: function(money) {
+					$('.brokerage-percentage').text(goodsManage.perBrokerageVal)
+					$('.cale-brokerage-money').text(money)
+				},
+
+				//提交商品编辑
+				submitGoodsEdit: function(d) {
+					common.ajaxRequest({
+						u: 'mk_mall/update_price.html?',
+						d: d,
+					}, function(res) {
+						common.layerMsg('编辑成功！')
+						var sell_price = res.sell_price;
+						goodsManage._this.parents('li').find('.goods-manage-price').text('￥ ' + sell_price)
+						WCY.specSelect();
+					});
+
+				},
+
+				//商品删除
+				deleteGoods: function(_this, id) {
+					var data = {
+						product_id: id
+					};
+					common.ajaxRequest({
+						u: 'mk_mall/product_delete.html?',
+						d: data,
+					}, function(res) {
+						common.layerMsg('删除成功！')
+						_this.parents('li').slideUp()
+						layer.closeAll()
+					});
+
+				},
+
+				//商品上下架
+				toggleGoodsUpOrDown: function(_this, id) {
+					var data = {
+						product_id: id
+					};
+					common.ajaxRequest({
+						u: 'mk_mall/product_status.html?',
+						d: data,
+					}, function(res) {
+						if(res.is_onsale == 0) {
+							_this.parents('.goods-manage-item').data('isonsale', res.is_onsale);
+							_this.removeClass('mui-active');
+						} else if(res.is_onsale == 1) {
+							_this.parents('.goods-manage-item').data('isonsale', res.is_onsale);
+							_this.addClass('mui-active');
+						}
+					});
+				},
+
+			}
+			$(function() {
+				goodsManage.init();
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>业绩统计</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/picker/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content achievement-count">
+			<div class="achievement-select-option mui-row">
+				<div id="DtPickerStart" class="select-start-time">
+					<span class="select-start-time-text"></span>
+					<span class="mui-icon mui-icon-arrowdown"></span>
+				</div>
+				<div id="DtPickerEnd" class="select-end-time">
+					<span class="select-end-time-text"></span>
+					<span class="mui-icon mui-icon-arrowdown"></span>
+				</div>
+				<div class="select-person">
+					<div class="mui-input-row">
+						<select class="select-persons" name="select_person">
+							<option value="">全部化妆师</option>
+						</select>
+					</div>
+				</div>
+				<button class="mui-btn mui-btn-default select-button">查询</button>
+			</div>
+			<div class="achievement-epitome mui-row">
+				<div class="mui-col-xs-4 achievement-total">
+					<div class="achievement-total-val">￥<span>0.00</span></div>
+					<div class="achievement-total-title">业绩总额</div>
+				</div>
+				<div class="mui-col-xs-4 achievement-profit">
+					<div class="achievement-profit-val">￥<span>0.00</span></div>
+					<div class="achievement-profit-title">总盈利</div>
+				</div>
+				<div class="mui-col-xs-4 achievement-brokerage">
+					<div class="achievement-brokerage-val">￥<span>0.00</span></div>
+					<div class="achievement-brokerage-title">总分佣</div>
+				</div>
+			</div>
+			<div class="achievement-content">
+				<div id="pullRefresh" class="mui-content mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="achievementList" class="mui-list-unstyled">
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/picker/mui.picker.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var achievementCount = {
+				type: 1, //1:默认当天查询;2:时间段筛选查询
+				y: null,
+				m: null,
+				d: null,
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					start_time: null,
+					end_time: null,
+					page: 1,
+					limits: 20
+				},
+				init: function() {
+					achievementCount.setCurDate();
+					achievementCount.getDresserList();
+					achievementCount.getAchievementList();
+
+					//设置起始时间		
+					$("#DtPickerStart").on("tap", function() {
+						achievementCount.dtPickerStart();
+					})
+
+					//设置截至时间
+					$("#DtPickerEnd").on("tap", function() {
+						achievementCount.dtPickerEnd();
+					})
+
+					//选择
+					$(".select-persons").on("change", function() {
+						var id = $(this).val();
+						achievementCount.data.dresser_id = id;
+					})
+
+					//查詢
+					$(".select-button").on("tap", function() {
+						achievementCount.data.page = 1;
+						$("#achievementList").html("");
+						achievementCount.getAchievementList();
+					})
+
+				},
+
+				showTotalMoney: function(res) {
+					$(".achievement-total-val span").text(res.total_money);
+					$(".achievement-profit-val span").text(res.total_profit);
+					$(".achievement-brokerage-val span").text(res.total_commisstion_amount);
+				},
+
+				setCurDate: function() {
+					var _date = new Date();
+					achievementCount.y = _date.getFullYear();
+					achievementCount.m = common.checktime(_date.getMonth() + 1);
+					achievementCount.d = _date.getDate();
+
+					achievementCount.showCurDate();
+				},
+				showCurDate: function() {
+					var dateY = achievementCount.y,
+						dateM = achievementCount.m,
+						dateD = achievementCount.d;
+
+					achievementCount.data.start_time = dateY + '-' + dateM + '-' + dateD;
+					achievementCount.data.end_time = dateY + '-' + dateM + '-' + dateD;
+					achievementCount.showSelectedDate();
+				},
+
+				getAchievementList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								achievementCount.showSelectShopDayList(this)
+							}
+						}
+					});
+				},
+
+				//設置起始時間
+				dtPickerStart: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+					var picker = new mui.DtPicker({
+						type: "date", //设置日历初始视图模式 
+						beginYear: '2015', //设置开始日期 
+						endYear: _year,
+					});
+					picker.show(function(res) {
+						console.log(res)
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						achievementCount.y = _y;
+						achievementCount.m = _m;
+						achievementCount.d = _d;
+
+						achievementCount.data.start_time = _y + '-' + _m + '-' + _d;
+
+						achievementCount.showSelectedDate();
+						picker.dispose();
+					});
+				},
+
+				//設置截至時間
+				dtPickerEnd: function() {
+					var _date = new Date(),
+						_year = _date.getFullYear();
+
+					var picker = new mui.DtPicker({
+						type: "date",
+						beginDate: new Date(achievementCount.y, achievementCount.m - 1, achievementCount.d), //设置开始日期 
+						endYear: _year, //设置结束日期 
+					});
+					picker.show(function(res) {
+						var _y = res.y.value,
+							_m = res.m.value,
+							_d = res.d.value;
+						achievementCount.data.end_time = _y + '-' + _m + '-' + _d;
+
+						achievementCount.showSelectedDate();
+						picker.dispose();
+					});
+				},
+
+				showSelectedDate: function() {
+					var startTime = achievementCount.data.start_time,
+						endTime = achievementCount.data.end_time;
+					$(".select-start-time-text").text(startTime);
+					$(".select-end-time-text").text(endTime);
+				},
+
+				//获取化妆师列表
+				getDresserList: function() {
+					var data = {
+						makeup_id: achievementCount.data.makeup_id,
+						page: 1,
+						limits: 999
+					};
+					common.ajaxRequest({
+						u: 'dresser/dresser_list.html?',
+						d: data
+					}, function(res) {
+						achievementCount.showSoreList(res);
+					});
+				},
+
+				//门店展示
+				showSoreList: function(obj) {
+					var _html = [],
+						_list = obj.list;
+					_html.push('<option value="">全部化妆师</option>')
+					for(i in _list) {
+						_html.push('<option value="' + _list[i].id + '">' + _list[i].dressername + '</option>');
+					}
+					$('.select-persons').html(_html.join(''))
+				},
+
+				//時間段篩選查詢
+				showSelectShopDayList: function(_this) {
+					var data = achievementCount.data;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'mk_shop/sell_data.html?',
+						d: data
+					}, function(res) {
+						achievementCount.showTotalMoney(res);
+						if(res.list.length > 0) {
+							var p = achievementCount.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								achievementCount.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = achievementCount.renderSelectShopDayList(list[i]);
+								$("#achievementList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+				renderSelectShopDayList: function(d) {
+					var html = [];
+					html.push('<div class="achievement-list-left">');
+					html.push('	<div class="achievement-list-order-sn mui-ellipsis">订单号：<span>' + d.order_number + '</span></div>');
+					html.push('	<div class="achievement-list-order-time">支付时间：<span>' + d.pay_time + '</span></div>');
+					html.push('</div>');
+					html.push('<div class="achievement-list-right">');
+					html.push('	<div class="achievement-list-order-money mui-ellipsis">￥' + d.pay_price + '</div>');
+					html.push('	<div class="achievement-list-order-text">支付金额</div>');
+					html.push('</div>');
+					var li = document.createElement('li');
+					li.className = 'achievement-list mui-row';
+					li.dataset.orid = d.order_id;
+					li.innerHTML = html.join('');
+					return li;
+				}
+			}
+			$(function() {
+				achievementCount.init();
+			})
+		</script>
+	</body>
+
+</html>

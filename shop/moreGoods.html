@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>1号兔商城</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+
+	</head>
+
+	<body>
+
+		<div class="mui-content category-product-list">
+			<div id="pullRefresh" class="mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<div class="panel category-product-recom home-product-recom">
+						<div class="panel-body">
+							<ul id="moreGoodsList" class="mui-table-view mui-grid-view">
+
+							</ul>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			moreGoods = {
+				defaultThumb: '../assets/images/logo.png',
+				x_oss_process: '?x-oss-process=style/product_192_192',
+				title: common.getQueryString('title'),
+				data: {
+					type: common.getQueryString('type'),
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					moreGoods.setDocumentTitle();
+					moreGoods.pullRefreshList();
+					//查看商品详情
+					$('.category-product-list').on('tap', 'li', function() {
+						var proid = $(this).data('proid');
+						common.urlOpen('productShow.html?proid=' + proid);
+					});
+				},
+
+				//设置文档标题
+				setDocumentTitle: function() {
+					$('title').text(moreGoods.title);
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								moreGoods.getGoodsList(this)
+							}
+						}
+					});
+				},
+
+				getGoodsList: function(_this) {
+					var data = moreGoods.data;
+					console.log(data)
+					common.ajaxRequest({
+						u: 'index/cms_goods_list.html?',
+						d: data
+					}, function(res) {
+						if(res.list.length > 0) {
+							var p = moreGoods.data.page;
+							if(p >= res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								moreGoods.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = moreGoods.rendermoreGoodsList(list[i], i);
+								$("#moreGoodsList").append(_item);
+							}
+							for(i in list) {
+								moreGoods.preload(filesService + list[i].thumbnail, list[i].id);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+					});
+				},
+
+				rendermoreGoodsList: function(obj, j) {
+					var html = [];
+					html.push('<div class="home-product-thumb">');
+					html.push('	<img id="product-thumb-' + obj.id + '" src="' + (obj.thumbnail ? filesService + obj.thumbnail + moreGoods.x_oss_process : moreGoods.defaultThumb) + '">');
+					html.push('</div>');
+					html.push('<div class="home-product-title">');
+					html.push('	<p class="mui-ellipsis-2">' + obj.name + '</p>');
+					html.push('</div>');
+					html.push('<div class="home-product-others">');
+					html.push('	<div class="home-product-price">');
+					html.push('		<span class="selling-price mui-ellipsis">￥<em>' + obj.price + '</em></span>');
+					html.push('		<span class="original-price mui-ellipsis">￥<em>' + obj.wasprice + '</em></span>');
+					html.push('	</div>');
+					html.push('	<div class="product-list-buy"><span>购买</span></div>');
+					html.push('</div>');
+					var li = document.createElement('li');
+					li.className = 'mui-table-view-cell mui-media mui-col-xs-6 ' + (j % 2 == 0 ? 'odd' : 'even') + '';
+					li.dataset.proid = obj.id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+				//設置圖片高度及處理no found的圖片替換
+				preload: function(src, id) {
+					var img = new Image();
+					img.src = src;
+					img.onload = function() {
+						$thumb = document.body.querySelector('#product-thumb-' + id);
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					};
+					img.onerror = function() {
+						$thumb = document.body.querySelector('#product-thumb-' + id);
+						$thumb.src = moreGoods.defaultThumb;
+						$thumb.style.height = $thumb.parentNode.offsetWidth + 'px';
+					}
+				}
+
+			};
+			$(function() {
+				moreGoods.init();
+			})
+		</script>
+	</body>
+
+</html>

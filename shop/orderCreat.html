@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>确认订单</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/spec.select.css" />
+	</head>
+
+	<body class="order-creat">
+		<div class="btn-go-pay">
+			<a type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">提交订单</a>
+		</div>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="orderCreat-index">
+					<form id="myform" class="mui-input-group">
+						<div class="consignee-info">
+							<ul class="mui-table-view">
+								<li class="mui-table-view-cell" id="consigneeInfo">
+									<a href="javascript:;" class="mui-navigate-right address-bind" data-addid="">
+										<div class="consignee">
+											<span class="consignee-name"></span>
+											<span class="consignee-mobile"></span>
+										</div>
+										<div class="address">
+											<span class="mui-icon mui-icon-location"></span>
+											<span class="consignee-pca"></span>
+											<p class="detail-address mui-ellipsis-2"></p>
+										</div>
+									</a>
+
+									<a href="javascript:;" class="mui-navigate-right address-empty">
+										<p><span class="mui-icon mui-icon-info"></span> 还没有收货地址，快去<span>添加收货地址</span></p>
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div id="orderProductInfo" class="order-product-info">
+							<!--<ul class="mui-table-view">
+								<li class="mui-table-view-cell">
+									<a href="javascript:;" class="mui-navigate-right">
+										<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+											<div class="mui-scroll">
+												<div class="order-product-list">
+													<span><img src="../assets/images/logo.png" alt="" /></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="miao-sha">秒杀</i></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="song-yi">送一</i></span>
+													<span><img src="uploads/product_06.jpg" alt="" /><i class="zhe-kou">折扣</i></span>
+												</div>
+											</div>
+										</div>
+										<span class="mui-pull-right total-piece">共计<em>0</em>件</span>
+									</a>
+								</li>
+							</ul>
+							<div class="statistics">
+								<ul class="mui-table-view">
+									<li class="mui-table-view-cell">
+										<span class="statistics-piece">商品总额：</span>
+										<span class="mui-badge statistics-price">￥<em>0</em></span>
+									</li>
+								</ul>
+							</div>-->
+							<!--<div class="order-product-item">
+								<div class="order-product-item-header"><span class="seller-tips">商家</span>谱奇科技商家</div>
+								<div class="order-product-item-body">
+									<ul class="mui-list-unstyled">
+										<li class="order-list-product">
+											<div class="order-list-product-thumb"><img src="../assets/images/logo.png" /></div>
+											<div class="order-list-product-info">
+												<h2 class="order-list-product-title mui-ellipsis-2">谱奇科技</h2>
+												<div class="order-list-product-price-remark-number">
+													<span class="order-list-product-price">￥ 53.11</span>
+													<span class="order-list-product-remark-number">暗示发的 <em>X 5</em></span>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+								<div class="order-product-item-footer">物流费用：0</div>
+							</div>-->
+
+						</div>
+
+						<div class="count-money">
+							<ul class="mui-table-view">
+								<li class="mui-table-view-cell"><span class="pro-total-price mui-pull-right" id="proTotalPrice">￥<em>0</em></span>商品金额</li>
+								<li class="mui-table-view-cell"><span class="pro-discount-price mui-pull-right" id="discountPrice">-￥<em>0</em></span>优惠金额</li>
+								<li class="mui-table-view-cell"><span class="pro-logistics-price mui-pull-right" id="logisticsPrice">￥<em>0</em></span>物流费用</li>
+								<!--<li class="mui-table-view-cell"><span class="pro-seckill-price mui-pull-right" id="seckillPrice">￥<em>0</em></span>秒杀优惠</li>-->
+								<li class="mui-table-view-cell"><span class="payable mui-pull-right" id="payMoney">￥<em>0</em></span>应付金额</li>
+							</ul>
+						</div>
+						<div class="coupon-info">
+							<ul class="mui-table-view">
+								<li id="couponList" class="mui-table-view-cell">
+									<a href="javascript:;" class="mui-navigate-right coupon-list">
+										<span class="mui-pull-right select-coupon-title"></span>优惠券
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="leaving-message">
+							<textarea id="leavingMessage" name="remark" rows="1" maxlength="50" placeholder="买家留言:"></textarea>
+							<p class="message-notice">50字以内（选填）</p>
+						</div>
+
+						<!--<div class="button-default">
+							<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">立即支付</button>
+						</div>-->
+
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="mui-backdrop" style="display: none; opacity: 0;"></div>
+		<div class="spec-select">
+			<div class="spec-select-body">
+				<div class="close-spec-select">
+					<span class="mui-icon mui-icon-closeempty"></span>
+				</div>
+				<div class="voucher-title">实名认证</div>
+				<div class="voucher-content">
+					<p class="voucher-notice"><span class="mui-icon mui-icon-info"></span>海关要求购买跨境商品需提供实名信息哦！</p>
+					<div class="voucher-form">
+						<form id="myformVoucher" class="mui-input-group">
+							<div class="mui-input-row">
+								<!--<label>姓名：</label>-->
+								<input type="text" name="real_name" id="voucherName" class="mui-input-clear" placeholder="您的真实姓名(务必与收货姓名保持一致)" value="">
+							</div>
+							<div class="mui-input-row">
+								<!--<label>身份证号：</label>-->
+								<input type="text" name="idno" id="voucherCode" class="mui-input-clear" placeholder="您的身份证号码(将加密处理)" value="">
+							</div>
+						</form>
+					</div>
+					<p class="voucher-warning"><span class="mui-icon mui-icon-help"></span>了解实名认证</p>
+				</div>
+			</div>
+			<div class="spec-select-bottom">
+				<div class="mui-row">
+					<div class="mui-col-xs-12"><button type="button" class="mui-btn mui-btn-default mui-btn-block btn-select-sure">提交</button></div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var orderCreat = {
+				defaultThumb: '../assets/images/logo.png',
+				proId: common.getQueryString('proid'),
+				cartId: common.getQueryString('cartid'),
+				proNum: common.getQueryString('pronum'),
+				referId: common.getStorage('refereeId'),
+				addressId: null,
+				address: JSON.parse(common.getStorage('address')),
+				voucher: 0, //0:非跨境商品;1:跨境商品
+				voucherInfo: !0, //!1:没有填写证件信息;!0:有证件信息
+				couponHtml: '',
+				coupon: {
+					couponId: null,
+					couponAmount: 0,
+					couponTitle: '没有可使用的优惠券',
+				},
+				remark: '',
+				totalPrice: 0,
+				logisticsPrice: 0,
+				payMoney: 0,
+				layerIndex: 0,
+				voucherTitle: '为什么需要实名认证？',
+				voucherContent: '<ul class="voucher-desc-list"><li>根据海关要求，购买跨境商品需要对订购人进行实名认 证，错误信息可能导致无法正常清关。</li><li>你的身份证信息将加密保管，保证信息安全，绝不对外 泄露！</li><li>任何身份认证问题可联系我们<a href="tel:13638623422">13638623422</a>\n 24小时服务</li></ul>',
+				dailogmsg: '<div style="text-align:left;"><h2 style="margin-top:0;margin-bottom:10px;color:#ff2400;font-size:16px;">【下单提示】</h2><p>1.本商品为海外跨境商品，按海关要求，发货必须提供收件人真实姓名和身份证号码。</p><p>2.下单时请完善收货人相关真实信息。</p><p>3.下单后，订单信息以及物流信息会在<span style="color:#ff0000;">5--10</span>个工作日才会显示，请耐心等候。</p></div>',
+				init: function() {
+
+					//处理安卓输入身份证信息BUG
+					if(!isiOS) {
+						$('.order-creat .spec-select').css('height', '90%');
+					}
+
+					mui('.mui-scroll-wrapper').scroll();
+
+					orderCreat.getOrderInfo();
+					orderCreat.getCouponList();
+
+					//收货地址
+					$('.order-creat').on('tap', '.address-bind', function() {
+						if(orderCreat.proId && orderCreat.proNum) {
+							common.urlReplace('address.html?proid=' + orderCreat.proId + '&pronum=' + orderCreat.proNum)
+						} else if(orderCreat.cartId) {
+							common.urlReplace('address.html?cartid=' + orderCreat.cartId)
+						}
+					}).on('tap', '.address-empty', function() {
+						if(orderCreat.proId && orderCreat.proNum) {
+							common.urlReplace('addressAdd.html?proid=' + orderCreat.proId + '&pronum=' + orderCreat.proNum)
+						} else if(orderCreat.cartId) {
+							common.urlReplace('addressAdd.html?cartid=' + orderCreat.cartId)
+						}
+					});
+
+					//获取优惠券
+					$('body').on('tap', '#couponList', function() {
+						if(!orderCreat.coupon.couponId) return false;
+						var content = orderCreat.couponHtml;
+						var _layer = layer.open({
+							style: 'border:none; background: linear-gradient(to bottom, rgba(130, 0, 253, 1), rgba(202, 0, 252, 1)); color:#fff;',
+							content: content
+						})
+						orderCreat.layerIndex = _layer
+					});
+
+					//点击设置需要使用的优惠券
+					$('body').on('tap', '.btn-coupon-use', function() {
+						var _couponid = $(this).data('id'),
+							_couponamount = $(this).data('amount'),
+							_coupontitle = $(this).data('title');
+						orderCreat.coupon = {
+							couponId: _couponid,
+							couponAmount: _couponamount,
+							couponTitle: _coupontitle
+						};
+						orderCreat.showCurCoupon()
+						layer.close(orderCreat.layerIndex)
+					});
+
+					//查看实名认证说明
+					$('body').on('tap', '.voucher-warning', function() {
+						common.layerConfirm({
+							t: orderCreat.voucherTitle,
+							c: orderCreat.voucherContent,
+							b: ['我知道啦'],
+							y: function(index) {
+								layer.close(index);
+
+							}
+						})
+					});
+
+					//證件遮罩隐藏
+					$('.mui-backdrop,.close-spec-select').on('tap', function() {
+						WCY.specSelect();
+					});
+
+					//提交给证件信息
+					$('body').on('tap', '.btn-select-sure', function() {
+						orderCreat.checkVoucherInfo() && orderCreat.saveVoucherInfo();
+					});
+
+					//提交订单
+					$('.order-creat').on('tap', '.btn-pay', function() {
+						orderCreat.remark = $('#leavingMessage').val();
+						orderCreat.creatOrderBefore() && orderCreat.creatOrder();
+					});
+
+				},
+
+				getOrderInfo: function() {
+					var data = {};
+					if(orderCreat.proId && orderCreat.proNum) data = {
+						goods_id: orderCreat.proId,
+						goods_number: orderCreat.proNum
+					}
+
+					if(orderCreat.cartId) data = {
+						entry_ids: orderCreat.cartId,
+					}
+
+					console.log(data)
+					common.ajaxRequest({
+						u: 'order/doOrder.html?',
+						d: data
+					}, function(res) {
+						orderCreat.showConsignee(res);
+						orderCreat.showGoodsInfo(res);
+						orderCreat.showAllPrice(res);
+						orderCreat.showTotalPiece(res);
+						orderCreat.setVoucher(res);
+					});
+				},
+
+				showConsignee: function(obj) {
+					var address = orderCreat.address || obj.address;
+					if(Object.keys(address).length > 0) {
+						$('.address-bind').css('display', 'block');
+						$('.address-empty').css('display', 'none');
+
+						$('.consignee-name').text(address.ua_name);
+						$('.consignee-mobile').text(address.ua_phone);
+						$('.consignee-pca').text(address.ua_pca + ' ' + address.ua_detailed);
+						orderCreat.addressId = address.address_id;
+						(obj.need_certificate == 1) && orderCreat.getVoucherInfo();
+					} else {
+						orderCreat.addressId = null;
+						$('.address-bind').css('display', 'none');
+						$('.address-empty').css('display', 'block');
+					}
+				},
+
+				showGoodsInfo: function(obj) {
+					var html = [],
+						sList = obj.list;
+					if(sList.length > 0) {
+						for(i in sList) {
+							html.push('<div class="order-product-item">');
+							html.push('	<div class="order-product-item-header"><span class="seller-tips">商家</span>' + sList[i].supplier_name + '</div>');
+							html.push('	<div class="order-product-item-body">');
+							html.push('		<ul class="mui-list-unstyled">');
+							var gList = sList[i].goods_list;
+							if(gList.length > 0) {
+								for(j in gList) {
+									html.push('			<li class="order-list-product">');
+									html.push('				<div class="order-list-product-thumb"><img src="' + (gList[j].thumbnail ? filesService + gList[j].thumbnail : orderCreat.defaultThumb) + '"/></div>');
+									html.push('				<div class="order-list-product-info">');
+									html.push('					<h2 class="order-list-product-title mui-ellipsis-2">' + gList[j].goods_name + '</h2>');
+									html.push('					<div class="order-list-product-price-remark-number">');
+									html.push('						<span class="order-list-product-price">￥ ' + gList[j].price + '</span>');
+									html.push('						<span class="order-list-product-remark-number">' + gList[j].remark + ' <em>X ' + gList[j].goods_number + '</em></span>');
+									html.push('					</div>');
+									html.push('				</div>');
+									html.push('			</li>');
+								}
+							}
+							html.push('		</ul>');
+							html.push('	</div>');
+							html.push('	<div class="order-product-item-footer">物流费用：' + sList[i].logistics_fee + '</div>');
+							html.push('</div>');
+
+						}
+
+					}
+
+					$('#orderProductInfo').html(html.join(''));
+				},
+
+				showAllPrice: function(obj) {
+					var totalPrice = obj.total_goods_price,
+						logisticsPrice = obj.logistics_price,
+						payMoney = obj.orderPrice;
+					orderCreat.totalPrice = totalPrice;
+					orderCreat.logisticsPrice = logisticsPrice;
+					orderCreat.payMoney = payMoney;
+					$('.statistics-price em').text(totalPrice);
+					$('.pro-total-price em').text(totalPrice);
+					$('.pro-logistics-price em').text(logisticsPrice);
+					orderCreat.showPayable();
+				},
+
+				showTotalPiece: function(obj) {
+					var totalPiece = obj.goodsNumber;
+					$('.total-piece em').text(totalPiece);
+				},
+
+				//设置是否是跨境商品
+				setVoucher: function(obj) {
+					var isVoucher = obj.need_certificate;
+					orderCreat.voucher = isVoucher;
+					if(orderCreat.voucher == 1) {
+						orderCreat.dailogMsg();
+					}
+				},
+
+				//获取证件信息
+				getVoucherInfo: function() {
+					var data = {
+						address_id: orderCreat.addressId
+					};
+					common.ajaxRequest({
+						u: 'Certificate/get_user_certificate.html?',
+						d: data
+					}, function(res) {
+						orderCreat.showVoucherInfo(res);
+					});
+				},
+
+				//显示证件信息
+				showVoucherInfo: function(res) {
+					if(!res.detail) orderCreat.voucherInfo = !1
+					else orderCreat.voucherInfo = !0
+				},
+
+				//填写保存证件信息
+				saveVoucherInfo: function() {
+					var data = {
+						address_id: orderCreat.addressId,
+						real_name: orderCreat.voucherName,
+						idno: orderCreat.voucherCode
+					}
+					common.ajaxRequest({
+						u: 'Certificate/add_user_certificate.html?',
+						d: data
+					}, function(res) {
+						orderCreat.creatOrder();
+					});
+				},
+
+				//校验录入证件信息
+				checkVoucherInfo: function() {
+					var flag = !0,
+						name = $.trim($('#voucherName').val()),
+						code = $.trim($('#voucherCode').val());
+					if(!name) {
+						flag = !1;
+						common.layerMsg('请填写您的真实姓名！');
+						return false;
+					} else if(!/^(^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$)|(^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])((\d{4})|\d{3}[Xx])$)$/.test(code)) {
+						flag = !1;
+						common.layerMsg('请填写有效的身份证号码！');
+						return false;
+					} else {
+						flag = !0;
+						orderCreat.voucherName = name;
+						orderCreat.voucherCode = code;
+						return true;
+					}
+					return flag;
+				},
+
+				//获取优惠券
+				getCouponList: function() {
+					var data = {};
+					if(orderCreat.proId && orderCreat.proNum) data = {
+						goods_id: orderCreat.proId,
+						goods_number: orderCreat.proNum
+					}
+					if(orderCreat.cartId) data = {
+						entry_ids: orderCreat.cartId
+					}
+					common.ajaxRequest({
+						u: 'order/order_available_coupons.html?',
+						d: data
+					}, function(res) {
+						orderCreat.showCouponList(res);
+					});
+				},
+
+				//显示优惠券
+				showCouponList: function(obj) {
+					var _couponList = obj.couponList
+					if(_couponList.length > 0) {
+						orderCreat.couponLength = _couponList.length;
+						var html = [];
+						html.push('<div id="dailogCouponCotent" class="dailog-coupon-cotent">');
+						html.push('	<div class="dailog-coupon-title">选择要使用的券</div>');
+						html.push('	<ul id="dailogCouponList" class="mui-list-unstyled dailog-Coupon-List">');
+						for(i in _couponList) {
+							if(i == 0) {
+								orderCreat.coupon.couponId = _couponList[i].couponId;
+								orderCreat.coupon.couponAmount = _couponList[i].couponAmount;
+								orderCreat.coupon.couponTitle = _couponList[i].couponTitle;
+								orderCreat.showCurCoupon();
+							}
+
+							html.push('	<li class="dailog-coupon-list mui-clearfix">');
+							html.push('		<div class="dailog-coupon-list-left">');
+							html.push('			<div class="coupon-face-val">￥<span>' + _couponList[i].couponAmount + '</span></div>');
+							html.push('			<div class="coupon-face-rule mui-ellipsis">满' + _couponList[i].amountLimit + '元可用</div>');
+							html.push('		</div>');
+							html.push('		<div class="dailog-coupon-list-right">');
+							html.push('			<div class="circle-dot-top"></div>');
+							html.push('			<div class="circle-dot-bottom"></div>');
+							html.push('			<div class="coupon-face-info mui-clearfix">');
+							html.push('				<div class="coupon-face-title mui-ellipsis">' + _couponList[i].couponTitle + '</div>');
+							html.push('				<div class="coupon-face-end-time mui-ellipsis">有效期:' + _couponList[i].endTime + '</div>');
+							html.push('			</div>');
+							html.push('			<div class="coupon-face-operation">');
+							html.push('				<button type="button" class="mui-btn but-default mui-btn-block btn-coupon-use" data-id="' + _couponList[i].couponId + '" data-title="' + _couponList[i].couponTitle + '" data-amount="' + _couponList[i].couponAmount + '">立即使用</button>');
+							html.push('			</div>');
+							html.push('		</div>');
+							html.push('	</li>');
+						}
+						html.push('	</ul>');
+						html.push('</div>');
+						orderCreat.couponHtml = html.join('');
+					} else {
+						orderCreat.showCurCoupon();
+					}
+				},
+
+				//显示当前使用的优惠券及金额
+				showCurCoupon: function() {
+					$('#couponList span').text(orderCreat.coupon.couponTitle)
+					$('#discountPrice em').text(orderCreat.coupon.couponAmount)
+
+					orderCreat.showPayable();
+				},
+
+				//显示应付金额
+				showPayable: function() {
+					var a = +orderCreat.payMoney,
+						c = +orderCreat.coupon.couponAmount;
+					$('.payable em').text(parseFloat(a - c).toFixed(2))
+				},
+
+				creatOrderBefore: function() {
+					var flag = !1;
+					if(!orderCreat.addressId) {
+						common.layerMsg('请添加收货地址^_^');
+						flag = !1;
+						return false;
+					}
+
+					if(orderCreat.voucher) {
+						if(orderCreat.voucherInfo) {
+							var flag = !0;
+							return true;
+						} else {
+							var flag = !1;
+							WCY.specSelect()
+							return false;
+						}
+					} else {
+						flag = !0;
+						return true;
+					}
+					return flag;
+				},
+
+				//创建订单
+				creatOrder: function() {
+					var data = {};
+					if(orderCreat.proId && orderCreat.proNum) {
+						data = {
+							goods_id: orderCreat.proId,
+							goods_number: orderCreat.proNum,
+							address_id: orderCreat.addressId,
+							coupon_id: orderCreat.coupon.couponId,
+							remark: orderCreat.remark,
+							refer_id: orderCreat.referId,
+							type: 1
+						}
+					};
+
+					if(orderCreat.cartId) {
+						data = {
+							entry_ids: orderCreat.cartId,
+							address_id: orderCreat.addressId,
+							coupon_id: orderCreat.coupon.couponId,
+							remark: orderCreat.remark,
+							refer_id: orderCreat.referId,
+							type: 1
+						}
+					};
+
+					console.log(data)
+					common.ajaxRequest({
+						u: 'order/toOrder.html?',
+						d: data
+					}, function(res) {
+						var orderid = res.order_id,
+							ordernumber = res.ordernum;
+						common.removeStorage('address');
+						common.layerMsg('创建成功！');
+						common.urlReplace('payment.html?orderid=' + orderid + '&ornumber=' + ordernumber);
+					});
+				},
+
+				//跨境商品弹出提示信息
+				dailogMsg: function() {
+					common.layerConfirm({
+						c: orderCreat.dailogmsg,
+						b: ['知道啦'],
+						y: function(index) {
+							layer.close(index);
+
+						}
+					})
+				}
+			};
+
+			$(function() {
+				orderCreat.init();
+			});
+		</script>
+	</body>
+
+</html>

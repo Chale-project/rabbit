@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>支付</title>
+
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body class="pay-index">
+		<div class="btn-go-pay">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-pay">立即支付</button>
+		</div>
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="payment-index">
+					<div class="pay-money">
+						<h2>订单应付金额：<span>0.00</span></h2>
+					</div>
+					<form id="myform" class="mui-input-group">
+						<div class="pay-way">
+							<h3>购物豆支付：￥<span class="wallet-pay-val">0.00</span></h3>
+							<div class="mui-input-row mui-checkbox mui-left">
+								<label for="Balance"><img class="pay-wallet" src="../assets/images/gouwudou.png"/>购物豆支付<span class="cur-yue">( 当前购物豆：<em>0</em>)</span></label>
+								<input name="payway" id="Balance" type="checkbox" value="0">
+							</div>
+
+							<h4>微信需支付：￥<span class="wechat-pay-val">0.00</span></h4>
+							<div class="mui-input-row mui-checkbox mui-left">
+								<label for="Wechat"><img class="pay-wechat" src="../assets/images/icon_wechat.png"/>微信支付</label>
+								<input name="payway" id="Wechat" type="checkbox" value="2">
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var Payment = {
+				ordId: common.getQueryString('orderid'),
+				ordNumber: common.getQueryString('ornumber'),
+				ordMoney: 0,
+				payWay: [],
+				payType: null,
+				beanChecked: !1,
+				wechatChecked: !1,
+				bean: '0.00',
+				beanPayMoney: '0.00',
+				wechatPayMoney: '0.00',
+				outTradeNo: '',
+				init: function() {
+					mui('.mui-scroll-wrapper').scroll();
+					Payment.getPayInfo();
+
+					$('.pay-index').on('tap', '.btn-pay', function() {
+						Payment.checkPay() && Payment.toPay();
+					});
+
+					//余额支付或者微信支付
+					$('.pay-index').on('change', '.mui-checkbox', function() {
+						$('.pay-way .mui-checkbox').each(function() {
+							if($(this).find('input[type="checkbox"]').prop('checked')) {
+								$(this).addClass('active');
+							} else {
+								$(this).removeClass('active');
+							}
+						});
+						Payment.setPayWay();
+					});
+				},
+
+				//獲取訂單信息
+				getPayInfo: function() {
+					var data = {
+						id: Payment.ordId
+					};
+					common.ajaxRequest({
+						u: 'order/select_pay_type.html?',
+						d: data
+					}, function(res) {
+						Payment.ordMoney = res.total;
+						Payment.bean = res.balance_score;
+						Payment.showPayInfo(res);
+					});
+				},
+
+				//显示订单应付金额以及用户余额
+				showPayInfo: function(res) {
+					$('.pay-money span').text(res.total)
+					$('.cur-yue em').text(res.balance_score)
+				},
+
+				//设置支付方式
+				setPayWay: function() {
+					Payment.payWay = [];
+					var othersPayWayChecked = $('input[type="checkbox"]:checked');
+					othersPayWayChecked.each(function(k, v) {
+						Payment.payWay.push(v.value);
+					});
+					console.log(Payment.payWay)
+					for(var i = 0; i < Payment.payWay.length; i++) {
+						if(Payment.payWay[i] == '0')
+							Payment.beanChecked = !0;
+						else
+							Payment.beanChecked = !1;
+						if(Payment.payWay[i] == '2')
+							Payment.wechatChecked = !0;
+						else
+							Payment.wechatChecked = !1;
+					}
+					Payment.setPayMoney(Payment.payWay);
+				},
+
+				setPayMoney: function(arr) {
+					if(arr.length > 0) {
+						if(arr.length == 1 && arr[0] == '0') {
+							if(Payment.bean - Payment.ordMoney >= 0) {
+								Payment.beanPayMoney = Payment.ordMoney;
+								Payment.wechatPayMoney = '0.00';
+							} else {
+								Payment.beanPayMoney = Payment.bean;
+								Payment.wechatPayMoney = parseFloat(Payment.ordMoney - Payment.bean).toFixed(2);
+							}
+						} else if(arr.length == 1 && arr[0] == '2') {
+							Payment.beanPayMoney = '0.00';
+							Payment.wechatPayMoney = Payment.ordMoney;
+						} else if(arr.length > 1) {
+							if(Payment.bean - Payment.ordMoney >= 0) {
+								Payment.beanPayMoney = Payment.ordMoney;
+								Payment.wechatPayMoney = '0.00';
+							} else {
+								Payment.beanPayMoney = Payment.bean;
+								Payment.wechatPayMoney = parseFloat(Payment.ordMoney - Payment.bean).toFixed(2);
+							}
+						}
+					} else {
+						Payment.beanPayMoney = '0.00';
+						Payment.wechatPayMoney = '0.00';
+					}
+					Payment.showPayMoney();
+				},
+
+				showPayMoney: function() {
+					$('.wallet-pay-val').text(Payment.beanPayMoney);
+					$('.wechat-pay-val').text(Payment.wechatPayMoney);
+				},
+
+				checkPay: function() {
+					var flag = !0;
+					if(Payment.payWay.length <= 0) {
+						common.layerMsg('请选择支付方式！');
+						flag = !1;
+						return false;
+					}
+					if(Payment.beanChecked && (Payment.bean - Payment.ordMoney < 0) && !Payment.wechatChecked) {
+						common.layerMsg('您的购物豆不足以满足本次支付哦^_^');
+						flag = !1;
+						return false;
+					}
+					$('.btn-pay').prop('disabled', true);
+					return flag;
+				},
+
+				toPay: function(money) {
+					var data = {
+						id: Payment.ordId,
+						type: Payment.payWay.join(',')
+					};
+					common.ajaxRequest({
+						u: 'order/order_pay.html?',
+						d: data
+					}, function(res) {
+						$('.btn-pay').prop('disabled', false);
+
+						var _wePayinfo = res.wePayinfo;
+						if(Object.keys(_wePayinfo).length > 0) {
+							var _openid = _wePayinfo.openid,
+								_order_sn = _wePayinfo.order_sn,
+								_money = _wePayinfo.money;
+							Payment.wechatPay(_openid, _order_sn, _money)
+						} else {
+							Payment.jumpPaySuccessUrl();
+						}
+					});
+
+				},
+
+				//微信支付
+				wechatPay: function(openid, order_sn, money) {
+					var data = {
+						body: '商城订单:' + Payment.ordNumber + ' 通过微信支付:' + money + '元！',
+						openId: openid,
+						outTradeNo: order_sn,
+						totalFee: money,
+						type: 1
+					};
+					common.ajaxRequest({
+						u: 'orderpay/WechatPayNew.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+						Payment.wxPay(res.payinfo)
+					});
+
+				},
+
+				//拉起微信支付
+				wxPay: function(obj) {
+					console.log(obj.preResult)
+					var res = JSON.parse(obj.preResult);
+					wx.chooseWXPay({
+						appId: res.appId,
+						timestamp: res.timeStamp,
+						nonceStr: res.nonceStr,
+						package: res.package,
+						signType: res.signType,
+						paySign: res.paySign,
+						success: function(res) {
+							if(res.errMsg == "chooseWXPay:ok") {
+								//支付成功
+								Payment.jumpPaySuccessUrl();
+							} else {
+								common.layerMsg(res.errMsg);
+								Payment.rollBackPay();
+							}
+						},
+						fail: function(res) {
+							common.layerMsg('支付被失败，请重新支付^_^');
+							Payment.rollBackPay();
+							//alert(JSON.stringify(res));
+						},
+						cancel: function(res) {
+							//支付取消
+							common.layerMsg('支付被取消，请重新支付^_^');
+							Payment.rollBackPay();
+						}
+					});
+				},
+
+				//支付失败回滚
+				rollBackPay: function() {
+					var data = {
+						shopping_order: Payment.ordNumber,
+						do_type: 'unblock'
+					};
+					common.ajaxRequest({
+						u: 'orderpay/payBack.html?',
+						d: data
+					}, function(res) {
+						WCY.reload()
+						console.log(res)
+					});
+
+				},
+
+				//支付成功后跳转
+				jumpPaySuccessUrl: function() {
+					common.layerMsg('支付成功！')
+					setTimeout(function() {
+						common.urlReplace('orderIndex.html?')
+					}, 500)
+				}
+			};
+
+			$(function() {
+				Payment.init();
+			});
+		</script>
+	</body>
+
+</html>

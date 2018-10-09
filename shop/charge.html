@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>余额充值</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/icon-extra.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/sp.style.css" />
+	</head>
+
+	<body>
+
+		<div class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="charge">
+					<div class="charge-header">
+						<h3><span class="cur-balance">0.00</span>元</h3>
+						<p>余额</p>
+					</div>
+					<div class="charge-body">
+						<ul id="choiceMoney" class="mui-list-inline mui-row">
+							<li class="mui-col-xs-4" data-value="20"><span>￥20</span></li>
+							<li class="mui-col-xs-4" data-value="50"><span>￥50</span></li>
+							<li class="mui-col-xs-4" data-value="100"><span>￥100</span></li>
+							<li class="mui-col-xs-4" data-value="200"><span>￥200</span></li>
+							<li class="mui-col-xs-4" data-value="300"><span>￥300</span></li>
+							<li class="mui-col-xs-4" data-value="500"><span>￥500</span></li>
+						</ul>
+						<div class="charge-other-quota">
+							<h2>其他金额：</h2>
+							<div class="mui-input-row other-quota">
+								<input type="text" name="quota" id="Quota" placeholder="最低充值金额10" value="" maxlength="5" pattern="[0-9]*" />
+								<span class="mui-icon icon-money"></span>
+							</div>
+						</div>
+						<div class="select-money">充值金额<span>0</span>元</div>
+					</div>
+					<div class="charge-bottom">
+						<button type="button" id="goToCharge" class="mui-btn mui-btn-default mui-btn-block">立即充值</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			document.write('<script src="' + apiService + 'regs/getJsSdk.html?"><\/script>');
+		</script>
+		<script type="text/javascript">
+			var Charge = {
+				dresser_id: common.getQueryString('dresser_id'),
+				paytype: 1,
+				money: 0,
+				init: function() {
+					Charge.getCurBalance();
+
+					$("#choiceMoney li").on("tap", function() {
+						$('#Quota').val('');
+						var _this = $(this);
+						Charge.choiceMoney(_this);
+					});
+
+					$('#Quota').on('focus', function() {
+						$('#goToCharge').prop('disabled', false)
+						$("#choiceMoney li").each(function() {
+							if($(this).hasClass('active')) {
+								$(this).removeClass('active');
+								Charge.money = 0;
+							}
+						});
+						Charge.showChargeMoney();
+					}).on('keyup', function() {
+						var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
+							_val = $(this).val();
+						if(!reg.test(_val)) {
+							Charge.money = 0;
+							Charge.showChargeMoney();
+						} else {
+							Charge.money = parseInt(_val);
+							Charge.showChargeMoney();
+						}
+					});
+
+					$("#goToCharge").on("tap", function() {
+						var flag = Charge.checkMoney();
+						flag && Charge.getChargeNum();
+					});
+
+				},
+
+				//获取用户当前余额
+				getCurBalance: function() {
+					common.ajaxRequest({
+						u: 'About_Makeup/getMakeupAccount.html?'
+					}, function(res) {
+						Charge.showCurBalance(res.accountInfo);
+					})
+				},
+
+				//显示用户当前余额
+				showCurBalance: function(obj) {
+					$('.cur-balance').text(obj.balance)
+				},
+
+				choiceMoney: function(ele) {
+					var curMoney = ele.data("value");
+					ele.addClass("active").siblings().removeClass("active");
+					Charge.money = curMoney;
+					Charge.showChargeMoney();
+				},
+				showChargeMoney: function() {
+					$(".select-money span").text(Charge.money);
+				},
+				checkMoney: function() {
+					if(Charge.money == 0) {
+						common.layerMsg("请点选或输入有效充值金额！");
+						return false;
+					} else if(Charge.money < 10) {
+						common.layerMsg("最低充值金额10元！");
+						return false;
+					} else {
+						$('#goToCharge').prop('disabled', true)
+						return true;
+					}
+				},
+
+				getChargeNum: function() {
+					var data = {
+						money: Charge.money
+					};
+					common.ajaxRequest({
+						u: 'About_Makeup/MakeupRecharge.html?',
+						d: data
+					}, function(res) {
+						$('#goToCharge').prop('disabled', false)
+
+						var obj = res.rechargeInfo,
+							_openid = obj.openid,
+							_money = obj.money,
+							_order_sn = obj.order_sn;
+						Charge.goToWxPay(_openid, _order_sn, _money);
+					});
+				},
+
+				//微信支付
+				goToWxPay: function(openid, order_sn, money) {
+					var data = {
+						body: '化妆吧充值订单:' + order_sn + ' 通过微信支付:' + money + '元！',
+						openId: openid,
+						outTradeNo: order_sn,
+						totalFee: money,
+						type: Charge.paytype
+					};
+					common.ajaxRequest({
+						u: 'orderpay/WechatPay.html?',
+						d: data
+					}, function(res) {
+						console.log(res)
+						Charge.WxPay(res.payinfo)
+					});
+
+				},
+
+				WxPay: function(obj) {
+					var result = JSON.parse(obj.preResult);
+					wx.chooseWXPay({
+						appId: result.appId,
+						timestamp: result.timeStamp,
+						nonceStr: result.nonceStr,
+						package: result.package,
+						signType: result.signType,
+						paySign: result.paySign,
+						success: function(res) {
+							common.layerMsg('支付成功!');
+							if(Charge.dresser_id)
+								common.urlReplace('../hzb/pay.html?dresser_id=' + Charge.dresser_id);
+							else
+								WCY.reload();
+						},
+						fail: function(res) {
+							common.layerMsg('支付失败!');
+							WCY.reload();
+							//alert(JSON.stringify(res));
+						},
+						cancel: function(res) {
+							//支付取消
+							common.layerMsg('已取消支付!')
+							WCY.reload();
+						}
+					});
+				}
+			};
+			$(function() {
+				Charge.init();
+			})
+		</script>
+	</body>
+
+</html>

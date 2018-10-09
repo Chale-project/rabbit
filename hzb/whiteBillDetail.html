@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>消费详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css">
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content repayment">
+			<div class="repayment-header mui-row">
+				<div class="mui-col-xs-6">
+					<p>账单总金额 (元)</p>
+					<p class="order-total-money">0</p>
+				</div>
+				<div class="mui-col-xs-6">
+					<button type="button" class="mui-btn mui-btn-default btn-go-repayment">立即还款</button>
+				</div>
+			</div>
+			<div class="repayment-order-detail-title">账单明细</div>
+			<div class="repayment-order-detail-content">
+				<div id="pullRefresh" class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<ul id="repaymentOrderList" class="mui-list-unstyled">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!--<div class="repayment-order-info">
+				<p>消费金额：<span class="repayment-consume-money">41313.21</span></p>
+				<p>支付方式：<span class="repayment-pay-type">白条</span></p>
+				<p>还款状态：<span class="repayment-status no">待还款</span></p>
+				<p>订单编号：<span class="repayment-order-sn">dsaf11316461616</span></p>
+				<p>消费时间：<span class="repayment-consume-time">2018-07-08 15:30:56</span></p>
+				<p>还款截至时间：<span class="repayment-deadline">2018-07-08 15:30:56</span></p>
+				<p>还款时间：<span class="repayment-time">2018-07-08 15:30:56</span></p>
+			</div>-->
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var whiteBillDetail = {
+				billMoney: 0,
+				data: {
+					bill_id: common.getQueryString('bill_id'),
+					page: 1,
+					limits: 12
+				},
+				init: function() {
+					whiteBillDetail.pullRefreshList();
+					$('.repayment').on('tap', '.btn-go-repayment', function() {
+						common.urlOpen('payment.html?bill_id=' + whiteBillDetail.data.bill_id + ' &bill_money=' + whiteBillDetail.billMoney);
+					});
+					
+					$('.repayment').on('tap', '.repayment-order-list', function() {
+						var _this = $(this),
+							_id = _this.data('id');
+						common.urlOpen('orderDetail.html?order_id=' + _id);
+					});
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					mui('#pullRefresh').pullRefresh({
+						up: {
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								whiteBillDetail.whiteBillList(this)
+							}
+						}
+					});
+				},
+
+				//添加化妆师
+				whiteBillList: function(_this) {
+					common.ajaxRequest({
+						u: 'mk_order/credit_bill_detail.html?',
+						d: whiteBillDetail.data
+					}, function(res) {
+						whiteBillDetail.showBillInfo(res);
+						if(res.list.length > 0) {
+							var p = whiteBillDetail.data.page;
+							if(p > res.allpage) {
+								_this.refresh(true);
+								_this.endPullupToRefresh(true);
+							} else {
+								p++;
+								_this.refresh(true);
+								_this.endPullupToRefresh();
+								whiteBillDetail.data.page = p;
+							}
+							var list = res.list;
+							for(i in list) {
+								var _item = whiteBillDetail.renderWhiteBillList(list[i]);
+								$("#repaymentOrderList").append(_item);
+							}
+						} else {
+							_this.refresh(true);
+							_this.endPullupToRefresh(true);
+						}
+
+					})
+				},
+
+				showBillInfo: function(obj) {
+					var _info = obj.detail;
+					whiteBillDetail.billMoney = _info.amount;
+					$('.order-total-money').text(_info.amount);
+					if(_info.status != 1) {
+						$('.btn-go-repayment').prop('disabled', true).text('账单已还清').css({
+							'background': '#ddd',
+							'border-color': '#ddd'
+						})
+					} else {
+						$('.btn-go-repayment').prop('disabled', false)
+					}
+				},
+
+				renderWhiteBillList: function(obj) {
+					var html = [];
+					html.push('<div class="mui-col-xs-8">');
+					html.push('	<div class="repayment-order-goods-title mui-ellipsis">订单编号：' + obj.order_number + '</div>');
+					html.push('	<div class="repayment-order-goods-time mui-ellipsis">' + obj.add_time + '</div>');
+					html.push('</div>');
+					html.push('<div class="mui-col-xs-4">');
+					html.push('	<div class="repayment-order-goods-money mui-ellipsis">' + obj.amount + '</div>');
+					html.push('</div>');
+
+					var li = document.createElement('li');
+					li.className = 'repayment-order-list mui-row';
+					li.dataset.id = obj.id;
+					li.innerHTML = html.join('');
+					return li;
+				},
+
+			}
+			$(function() {
+				whiteBillDetail.init();
+			})
+		</script>
+	</body>
+
+</html>

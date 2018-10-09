@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>审核管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="footer-audit-manage-nav">
+			<button type="button" class="mui-btn mui-btn-default mui-btn-block btn-achievement-manage">业绩管理</button>
+		</div>
+		<div class="mui-content audit-manage-index">
+			<div class="goods-audit-type">
+				<div class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a data-type="1" class="mui-control-item goods-audit-type-item mui-active">
+						待审核
+					</a>
+					<a data-type="2" class="mui-control-item goods-audit-type-item">
+						审核通过
+					</a>
+					<a data-type="3" class="mui-control-item goods-audit-type-item">
+						审核未通过
+					</a>
+				</div>
+			</div>
+
+			<div class="goods-audit-content">
+				<div id="goodsAuditType_1" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list mui-active">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label auditing"><span>待审核</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-contact" href="tel:1337125496">
+										<span class="mui-icon icon-phone"></span>
+										<p class="mui-ellipsis-2">李白化妆吧</p>
+									</a>
+								</div>
+								<div class="audit-manage-operation">
+									<span class="apply-time">提交时间:2018-07-07</span>
+									<button type="button" class="mui-btn btn-audit-reject">不通过</button>
+									<button type="button" class="mui-btn btn-audit-pass">通过</button>
+								</div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+
+				<div id="goodsAuditType_2" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label applied"><span>通过</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-contact" href="tel:1337125496">
+										<span class="mui-icon icon-phone"></span>
+										<p class="mui-ellipsis-2">李白化妆吧</p>
+									</a>
+								</div>
+								<div class="audit-manage-operation">
+									<span class="audit-time">审核时间:2018-07-07</span>
+									<button type="button" class="mui-btn btn-audit-lower">强制下架</button>
+								</div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+				<div id="goodsAuditType_3" data-page="1" class="mui-scroll-wrapper mui-control-content goods-audit-content-list">
+					<div class="mui-scroll">
+						<ul class="mui-list-unstyled goods-audit-list-item">
+							<!--<li class="goods-audit-list mui-row">
+								<div class="goods-audit-list-thumb">
+									<img src="../assets/images/logo.png" alt="" />
+									<div class="audit-label applies"><span>待定</span></div>
+								</div>
+								<div class="goods-audit-list-info">
+									<div class="goods-audit-list-title mui-ellipsis-2">地告訴對方地告訴對方地告訴對方地告訴對方地告訴對方</div>
+									<div class="goods-audit-list-cat-stock mui-ellipsis">
+										<span class="goods-audit-list-cat">分类：<i>美洲</i></span>
+										<span class="goods-audit-list-cat">库存：<i>1613</i></span>
+									</div>
+									<div class="goods-audit-list-price mui-ellipsis">
+										<span class="goods-audit-list-selling-price">￥199</span>
+										<span class="goods-audit-list-original-price">原价: ￥1999</span>
+									</div>
+								</div>
+								<div class="goods-audit-operation">
+									<a class="goods-audit-operation-delete" href="javascript:;">
+										<span class="mui-icon mui-icon-trash"></span>
+										<p class="mui-ellipsis-2">删除</p>
+									</a>
+								</div>
+								<div class="audit-manage-operation">
+									<span class="audit-time">审核时间:2018-07-07</span>
+									<button type="button" class="mui-btn btn-audit-again">重新审核</button>
+								</div>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/jweixin-1.2.0.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var auditManage = {
+				x_oss_process: '?x-oss-process=style/product_128_128',
+				defaultThumb: '../assets/images/logo.png',
+				data: {
+					status: 1,
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+					common.tabs('.goods-audit-type a', '.goods-audit-content .goods-audit-content-list', 'mui-active');
+
+					//首次加载
+					auditManage.pullRefreshList();
+
+					//点击加载对应订单状态数据
+					$('.goods-audit-type-item').on('tap', function() {
+						var _type = $(this).data('type')
+						$('#goodsAuditType_' + _type).find('.goods-audit-list-item').html('')
+						auditManage.data.status = _type
+						auditManage.data.page = 1
+						auditManage.pullRefreshList();
+					})
+
+					//审核通过and不通过and重新审核
+					$('.goods-audit-content').on('tap', '.btn-audit-pass', function() { //审核通过
+						var _this = $(this),
+							_status = _this.data('status'),
+							_id = _this.parents('li').data('goodsid');
+						common.layerConfirm({
+							c: '确认审核通过此商品？',
+							y: function() {
+								auditManage.auditManageStatus(_id, _status);
+								layer.close(i)
+							}
+						})
+					}).on('tap', '.btn-audit-reject', function() { //审核不通过
+						var _this = $(this),
+							_status = _this.data('status'),
+							_id = _this.parents('li').data('goodsid');
+						common.layerConfirm({
+							c: '确认审核不通过此商品？',
+							y: function() {
+								auditManage.auditManageStatus(_id, _status);
+								layer.close(i)
+							}
+						})
+					}).on('tap', '.btn-audit-again', function() { //重新审核
+						var _this = $(this),
+							_status = _this.data('status'),
+							_id = _this.parents('li').data('goodsid');
+						common.layerConfirm({
+							c: '确认审核通过此商品？',
+							y: function(i) {
+								auditManage.auditManageStatus(_id, _status);
+								layer.close(i)
+							}
+						})
+					})
+
+					//业绩管理
+					$('body').on('tap', '.btn-achievement-manage', function() {
+						common.urlOpen('achievementManage.html?')
+					})
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					var _type = auditManage.data.status,
+						_this = $('#goodsAuditType_' + _type);
+					mui(_this).pullRefresh({
+						up: {
+							height: 50,
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								auditManage.getGoodsAuditList(this, _this)
+							}
+						}
+					});
+				},
+
+				//获取审核商品列表
+				getGoodsAuditList: function(_self, _this) {
+					var _wrap = $(_this).find('.goods-audit-list-item');
+					var data = auditManage.data;
+					common.ajaxRequest({
+						u: 'mk_shop/goods_review.html?',
+						d: data
+					}, function(res) {
+						var obj = res.list;
+						if(obj.length > 0) {
+							var p = auditManage.data.page;
+							if(p > res.allpage) {
+								_self.refresh(true);
+								_self.endPullupToRefresh(true);
+							} else {
+								p++;
+								_self.refresh(true);
+								_self.endPullupToRefresh();
+								auditManage.data.page = p
+							}
+							for(i in obj) {
+								var $item = auditManage.showGoodsAuditList(obj[i]);
+								_wrap.append($item);
+							}
+						} else {
+							_self.refresh(true)
+							_self.endPullupToRefresh(true)
+						}
+					});
+				},
+
+				//展示订单列表
+				showGoodsAuditList: function(obj) {
+					var _html = [];
+
+					_html.push('<div class="goods-audit-list-thumb">');
+					_html.push('	<img src="' + (obj.img != null ? filesService + obj.img + auditManage.x_oss_process : auditManage.defaultThumb) + '" alt="" />');
+					if(obj.status == 1) {
+						_html.push('	<div class="audit-label auditing"><span>待审核</span></div>');
+					} else if(obj.status == 2) {
+						_html.push('	<div class="audit-label applied"><span>通过</span></div>');
+					} else if(obj.status == 3) {
+						_html.push('	<div class="audit-label applies"><span>待定</span></div>');
+					}
+
+					_html.push('</div>');
+					_html.push('<div class="goods-audit-list-info">');
+					_html.push('	<div class="goods-audit-list-title mui-ellipsis-2">' + obj.name + '</div>');
+					_html.push('	<div class="goods-audit-list-cat-stock mui-ellipsis">');
+					_html.push('		<span class="goods-audit-list-cat">分类：<i>' + obj.category_title + '</i></span>');
+					//_html.push('		<span class="goods-audit-list-cat">库存：<i>0</i></span>');
+					_html.push('	</div>');
+					_html.push('	<div class="goods-audit-list-price mui-ellipsis">');
+					_html.push('		<span class="goods-audit-list-selling-price">￥' + obj.sell_price + '</span>');
+					_html.push('		<span class="goods-audit-list-original-price">原价: ￥' + obj.purchase_price + '</span>');
+					_html.push('	</div>');
+					_html.push('</div>');
+					_html.push('<div class="goods-audit-operation">');
+					_html.push('	<a class="goods-audit-operation-contact" href="tel:' + obj.mobile + '">');
+					_html.push('		<span class="mui-icon icon-phone"></span>');
+					_html.push('		<p class="mui-ellipsis-2">' + obj.makeupname + '</p>');
+					_html.push('	</a>');
+					_html.push('</div>');
+					_html.push('<div class="audit-manage-operation">');
+					_html.push('	<span class="apply-time">提交时间:' + obj.add_time + '</span>');
+					if(obj.status == 1) {
+						_html.push('<button type="button" class="mui-btn btn-audit-reject" data-status="2">不通过</button>');
+						_html.push('<button type="button" class="mui-btn btn-audit-pass" data-status="1">通过</button>');
+					} else if(obj.status == 2) {
+						//_html.push('<button type="button" class="mui-btn btn-audit-lower">强制下架</button>');
+					} else if(obj.status == 3) {
+						_html.push('<button type="button" class="mui-btn btn-audit-again" data-status="1">重新审核</button>');
+					}
+					_html.push('</div>');
+
+					var item = document.createElement('li');
+					item.className = 'goods-audit-list mui-row';
+					item.dataset.goodsid = obj.id;
+					item.innerHTML = _html.join('');
+					return item;
+				},
+
+				//商品审核
+				auditManageStatus: function(id, status) {
+					var data = {
+						product_id: id,
+						status: status
+					};
+					common.ajaxRequest({
+						u: 'mk_shop/manager_check.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('操作成功！')
+						WCY.reload()
+					});
+				},
+
+				//商品下架
+				auditManageLower: function(id) {
+					var data = {
+						product_id: id
+					};
+					common.ajaxRequest({
+						u: 'mk_shop/manager_force_off.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('下架成功！')
+						WCY.reload()
+					});
+				},
+			};
+
+			$(function() {
+				auditManage.init();
+			});
+		</script>
+	</body>
+
+</html>

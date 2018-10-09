@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>订单管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../assets/css/hzb.base.css" />
+	</head>
+
+	<body>
+		<div class="mui-content order-index">
+			<div class="order-type">
+				<div class="scrollX mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<div class="mui-scroll">
+						<a id="orderAllNav" data-status="0" class="mui-control-item order-type-item mui-active">
+							全部
+						</a>
+						<a id="orderPayNav" data-status="1" class="mui-control-item order-type-item">
+							待付款
+						</a>
+						<a id="orderDeliveringNav" data-status="2" class="mui-control-item order-type-item">
+							待发货
+						</a>
+						<a id="orderDeliverNav" data-status="3" class="mui-control-item order-type-item">
+							待收货
+						</a>
+						<a id="orderDoneNav" data-status="4" class="mui-control-item order-type-item">
+							已完成
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="order-content">
+				<div id="orderStatus_0" data-page="1" class="mui-scroll-wrapper mui-control-content order-list mui-active">
+					<div class="mui-scroll">
+						<div class="order-list-item">
+							<!--<div class="card" data-oiid="' + orderList[i].oi_id + '">
+								<div class="card-header mui-ellipsis">
+									<span class="seller-tips">商家</span>武昌鱼娱商场
+									<span class="mui-icon mui-icon-trash order-delete"></span>
+								</div>
+								<div class="card-body">
+									<div class="order-products">
+										
+										<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted" data-show="訂單展示方式1">
+											<div class="mui-scroll">
+												<div class="order-index-product-list">
+													<a href="javascript:;" class="order-product-list-block" data-odnumber="' + goodsList[j].od_number + '" data-stock="' + goodsList[j].gs_surplus_number + '">
+														<img src="uploads/product_03.jpg" />
+													</a>
+													<a href="javascript:;" class="order-product-list-block" data-odnumber="' + goodsList[j].od_number + '" data-stock="' + goodsList[j].gs_surplus_number + '">
+														<img src="uploads/product_03.jpg" />
+														<span class="stock">无库存</span>
+													</a>
+												</div>
+											</div>
+										</div>
+										
+										<div class="order-product-list-thumb" data-show="訂單展示方式2">
+											<img src="../assets/images/logo.png">
+										</div>
+										<div class="order-product-list-info">
+											<h2 class="order-product-list-info-name mui-ellipsis-2">晒单评价</h2>
+											<div class="order-product-list-info-price-remark">
+												<div class="order-product-list-info-price">￥1024</div>
+												<div class="order-product-list-info-remark">箱 X 1</div>
+											</div>
+										</div>
+
+									</div>
+									<div class="order-products-info">
+										<p>共<span class="total-piece">2</span>件商品&nbsp;&nbsp;&nbsp;实付款：￥<span class="total-money">100.3</span></p>
+									</div>
+								</div>
+								<div class="card-footer">
+									<span class="order-edit">晒单评价</span>
+									<span class="order-buy">再次购买</span>
+									<span class="order-ok">确认收货</span>
+									<span class="order-express">查看物流</span>
+									<span class="order-warn">提醒发货</span>
+									<span class="order-pay">立即付款</span>
+									<span class="order-off">取消订单</span>
+								</div>
+							</div>-->
+						</div>
+					</div>
+				</div>
+
+				<div id="orderStatus_1" data-page="1" class="mui-scroll-wrapper mui-control-content order-list">
+					<div class="mui-scroll">
+						<div class="order-list-item">
+
+							<!--<div class="card" data-orid="1283" data-orstatus="1">
+								<div class="card-header mui-ellipsis"> <span class="seller-tips">商家</span>回忆科技商贸店 <span class="status-tips">待付款</span></div>
+								<div class="card-body">
+									<div class="order-products mui-navigate-right" data-status="1">
+										<div class="order-index-product-list">
+											<a class="order-product-list-block"> <img src="https://a.whfhnd.cn/uploads/goodsthumbnail/20180518/6cd881ec8b8e8f0efb3076165c8e71b6.jpg"> </a>
+										</div>
+									</div>
+									<div class="order-products-info">
+										<p>共<span class="total-piece">3</span>件商品&nbsp;&nbsp;&nbsp;实付款：￥<span class="total-money">6130</span></p>
+									</div>
+								</div>
+								<div class="card-footer"><span class="order-off">取消订单</span><span class="order-pay" data-orid="223248" data-ornumber="OD20180609152853477750263">立即付款</span></div>
+							</div>-->
+
+						</div>
+					</div>
+				</div>
+				<div id="orderStatus_2" data-page="1" class="mui-scroll-wrapper mui-control-content order-list">
+					<div class="mui-scroll">
+						<div class="order-list-item">
+
+						</div>
+					</div>
+				</div>
+				<div id="orderStatus_3" data-page="1" class="mui-scroll-wrapper mui-control-content order-list">
+					<div class="mui-scroll">
+						<div class="order-list-item">
+
+						</div>
+					</div>
+				</div>
+				<div id="orderStatus_4" data-page="1" class="mui-scroll-wrapper mui-control-content order-list">
+					<div class="mui-scroll">
+						<div class="order-list-item">
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<script src="../assets/js/jquery-1.9.1.min.js"></script>
+		<script src="../assets/js/mui.min.js"></script>
+		<script src="../assets/js/base.js"></script>
+		<script src="../assets/js/common.js"></script>
+		<script src="../assets/js/layer.js"></script>
+		<script src="../assets/js/style.js"></script>
+		<script type="text/javascript">
+			var Order = {
+				defaultThumb: '../assets/images/logo.png',
+				data: {
+					makeup_id: JSON.parse(common.getStorage('userRole')).makeup_id,
+					status: common.getQueryString('status') || 0,
+					page: 1,
+					limits: 10
+				},
+				init: function() {
+
+					common.tabs('.order-type a', '.order-content .order-list', 'mui-active');
+
+					//获取从个人中心而来的订单状态列表
+					var status_num = common.getQueryString('status');
+					status_num && Order.srcollLoad(status_num);
+
+					//首次加载
+					Order.pullRefreshList();
+
+					//点击加载对应订单状态数据
+					$('.order-type-item').on('tap', function() {
+						var status = $(this).data('status')
+						//console.log(window.location.search = '?status=' + status)
+						$('#orderStatus_' + status).find('.order-list-item').html('')
+						Order.data.status = status
+						Order.data.page = 1
+						Order.pullRefreshList();
+					})
+
+					//订单详情
+					$('.order-index').on('tap', '.order-products', function() {
+						var thisP = $(this).parents('.card'),
+							id = thisP.data('orid'),
+							status = $(this).data('status');
+						common.urlOpen('orderDetail.html?order_id=' + id + '&orstatus=' + status)
+					});
+
+					//继续支付
+					$('.order-index').on('tap', '.order-pay', function() {
+						var orid = $(this).data('orid');
+						common.urlOpen('payment.html?order_id=' + orid)
+					});
+
+					//查看物流
+					$('.order-index').on('tap', '.order-express', function() {
+						var id = $(this).data('orid');
+						common.urlOpen('logistics.html?orId=' + id)
+					});
+
+					//确认收货
+					$('.order-index').on('tap', '.order-ok', function() {
+						var oid = $(this).parents('.card').data('orid'),
+							did = $(this).data('ordeid');
+						mui.confirm('确认收货^_^？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								Order.orderOk(oid, did);
+							}
+						});
+					});
+
+					//再次购买
+					$('.order-index').on('tap', '.order-buy', function() {
+						var id = $(this).data('goodsId')
+						common.urlOpen('productShow.html?proid=' + id)
+					});
+
+					//申请退款or申请售后
+					$('.order-index').on('tap', '.order-refund', function() {
+						var id = $(this).data('orid');
+						mui.confirm('确认退款吗^_^？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								Order.orderRefund(id);
+							}
+						});
+					});
+
+					//删除订单
+					$('.order-index').on('tap', '.order-delete', function() {
+						var thisP = $(this).parents('.card'),
+							id = $(this).data('orid');
+						mui.confirm('确认删除该条记录？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								Order.deleteOrder(id, thisP);
+							}
+						});
+
+					}).on('tap', '.order-off', function() {
+						var thisP = $(this).parents('.card'),
+							id = thisP.data('orid');
+						mui.confirm('确认取消该订单？', '提示', ['确认', '取消'], function(e) {
+							if(e.index == 0) {
+								Order.cancelOrder(id);
+							}
+						});
+					});
+
+				},
+
+				//下拉刷新
+				pullRefreshList: function() {
+					var _status = Order.data.status,
+						_this = $('#orderStatus_' + _status);
+					mui(_this).pullRefresh({
+						up: {
+							height: 50,
+							auto: true,
+							contentrefresh: "加载中...",
+							contentnomore: '没有更多了！',
+							callback: function() {
+								Order.getOrderList(this, _this, _status)
+							}
+						}
+					});
+				},
+
+				//滚动获取订单列表
+				srcollLoad: function(index) {
+					widthX = $('.order-type a').eq(index)[0].scrollWidth;
+					common.scrollX('.order-type a', '.order-content .order-list', 'mui-active', index);
+					//mui('.scrollX').scroll().scrollTo(-(index * widthX), 0, 0);
+					//Order.pullRefreshList(index);
+				},
+
+				//获取订单列表
+				getOrderList: function(_self, _this, status, cb) {
+					var _wrap = $(_this).find('.order-list-item');
+					var data = Order.data;
+					common.ajaxRequest({
+						u: 'mk_order/order_list.html?',
+						d: data
+					}, function(res) {
+						var obj = res.orderlist;
+						if(obj.length > 0) {
+							var p = Order.data.page;
+							if(p > res.allpage) {
+								_self.refresh(true);
+								_self.endPullupToRefresh(true);
+							} else {
+								p++;
+								_self.refresh(true);
+								_self.endPullupToRefresh();
+								Order.data.page = p
+							}
+							for(i in obj) {
+								var $item = Order.showOrderList(obj[i]);
+								_wrap.append($item);
+							}
+							mui('.mui-scroll-wrapper').scroll();
+							$('#orderStatus_' + status + ' .mui-scrollbar').remove();
+						} else {
+							if(Order.data.page > 1) _self.refresh(true), _self.endPullupToRefresh(true)
+							else Order.emptyOrderlist(status)
+						}
+					});
+				},
+
+				//展示订单列表
+				showOrderList: function(obj) {
+					var _html = [];
+					_html.push('<div class="card-header mui-ellipsis">');
+					_html.push('	<span class="seller-tips">商家</span>' + obj.seller_name + '');
+					//刪除
+					//_html.push('		<span class="mui-icon mui-icon-trash order-delete" data-orid="' + obj.order_id + '"></span>');
+					_html.push('	<span class="status-tips">' + obj.statusRemark + '</span>');
+					_html.push('</div>');
+					_html.push('<div class="card-body">');
+					_html.push('	<div class="order-products mui-navigate-right mui-clearfix" data-status="' + obj.status + '">');
+
+					if(obj.status == 1) {
+						var goodsThumb = obj.goods_thumbnail;
+						_html.push('<div class="mui-scroll-wrapper mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">');
+						_html.push('	<div class="mui-scroll">');
+						_html.push('		<div class="order-index-product-list">');
+						for(j in goodsThumb) {
+							_html.push('			<a class="order-product-list-block">');
+							_html.push('				<img src="' + (goodsThumb[j] ? filesService + goodsThumb[j] : Order.defaultThumb) + '" />');
+							//_html.push('				<span class="stock">无库存</span>');
+							_html.push('			</a>');
+						}
+						_html.push('		</div>');
+						_html.push('	</div>');
+						_html.push('</div>');
+					} else {
+						_html.push('		<div class="order-product-list-thumb">');
+						_html.push('			<img src="' + (obj.goods_thumbnail[0] ? filesService + obj.goods_thumbnail[0] : Order.defaultThumb) + '">');
+						_html.push('		</div>');
+						_html.push('		<div class="order-product-list-info">');
+						_html.push('			<h2 class="order-product-list-info-name mui-ellipsis-2">' + obj.goods_name + '</h2>');
+						_html.push('			<div class="order-product-list-info-price-remark mui-clearfix">');
+						_html.push('				<div class="order-product-list-info-price">￥' + obj.goods_price + '</div>');
+						_html.push('				<div class="order-product-list-info-remark mui-ellipsis"> X ' + obj.goods_number + '</div>');
+						_html.push('			</div>');
+						_html.push('		</div>');
+					}
+
+					_html.push('	</div>');
+					_html.push('	<div class="order-products-info">');
+					_html.push('		<p>共<span class="total-piece">' + obj.goods_number + '</span>件商品&nbsp;&nbsp;&nbsp;实付款：￥<span class="total-money">' + obj.pay_price + '</span></p>');
+					_html.push('	</div>');
+					_html.push('</div>');
+					_html.push('<div class="card-footer">');
+					if(obj.status == 1) {
+						_html.push('<span class="order-off">取消订单</span>');
+						_html.push('<span class="order-pay" data-orid="' + obj.order_id + '">立即付款</span>');
+					} else if(obj.status == 3) {
+						_html.push('<span class="order-express" data-orid="' + obj.order_id + '">查看物流</span>');
+						_html.push('<span class="order-ok" data-ordeid="' + obj.order_detail_id + '">确认收货</span>');
+					}
+					_html.push('</div>');
+
+					var item = document.createElement('div');
+					item.className = 'card';
+					item.dataset.orid = obj.order_id;
+					item.dataset.orstatus = obj.status;
+					item.innerHTML = _html.join('');
+					return item;
+				},
+
+				//删除订单
+				deleteOrder: function(id, elem) {
+					var data = {
+						orderId: id
+					};
+					console.log(data)
+					common.ajaxRequest({
+						u: 'Order/orderDelete.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('删除成功！');
+						elem.slideUp('slow', function() {
+							elem.remove();
+						})
+					});
+				},
+
+				//取消订单
+				cancelOrder: function(id) {
+					var data = {
+						id: id
+					};
+					console.log(data)
+					common.ajaxRequest({
+						u: 'mk_order/cancel_order.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('你已取消该订单！');
+						WCY.reload()
+					});
+				},
+
+				//申请退款or申请售后
+				orderRefund: function(id) {
+					var data = {
+						orderId: id
+					};
+					common.ajaxRequest({
+						u: 'Order/reverse_order.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('申请成功！');
+						WCY.reload()
+					});
+				},
+
+				emptyOrderlist: function(status) {
+					var elem = $('.order-product-recom')
+					self = $('#orderProductRecom')
+					//WCY.getProductRecom(elem, self);
+					$('#orderStatus_' + status).html(WCY.emptyOrderList());
+				},
+
+				//确认收货
+				orderOk: function(oid, did) {
+					var data = {
+						order_id: oid,
+						detail_id: did,
+					};
+					console.log(data)
+					common.ajaxRequest({
+						u: 'mk_order/confirm_order.html?',
+						d: data
+					}, function(res) {
+						common.layerMsg('确认收货成功！');
+						WCY.reload()
+					});
+				},
+			};
+
+			$(function() {
+				Order.init();
+			});
+		</script>
+	</body>
+
+</html>
