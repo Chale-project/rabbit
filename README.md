@@ -9,7 +9,7 @@
 <br/>
 ![image](https://github.com/Chale-project/rabbit/blob/master/assets/images/img_05.jpg)
 <br/>
-![image](https://github.com/Chale-project/rabbit/blob/master/assets/images/img_06.jpg)
+![image](https://github.com/Chale-project/rabbit/blob/master/assets/images/img_06.png)
 <br/>
 ![image](https://github.com/Chale-project/rabbit/blob/master/assets/images/img_07.jpg)
 <br/>
